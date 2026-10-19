@@ -2,9 +2,9 @@
 // Toda chamada /api/* do site vai para functions/jarvisApi, que grava e lê o banco de verdade.
 (function () {
   'use strict';
-  var PADRAO = 'https://superagent-6e379590.base44.app/functions/jarvisApi';
+  var PADRAO = 'https://jarvis-backend-7949.onrender.com/bridge';
   // Para usar seu próprio backend (server/server.js deployado): 
-  // localStorage.setItem('jarvis.api', 'https://SEU-APP.onrender.com/bridge')
+  // localStorage.setItem('jarvis.api', 'https://OUTRO-BACKEND/bridge')
   var BACKEND = null; try { BACKEND = localStorage.getItem('jarvis.api') || PADRAO; } catch (e) { BACKEND = PADRAO; }
   var TOKEN = 'jarvis.sessao';
   var original = window.fetch;
