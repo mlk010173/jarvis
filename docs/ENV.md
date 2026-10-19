@@ -15,6 +15,13 @@ nos provedores. **Nenhum valor secreto aparece aqui — e nenhum segredo vai no 
 `PIX_CHAVE`, `PIX_NOME`, `PIX_CIDADE` — ativam o Pix EMV copia-e-cola no checkout premium.
 Sem elas, a rota `/api/pagamentos/pix` responde 501 com mensagem clara (não finge que funcionou).
 
+## Verificação em 2 etapas (e-mail real)
+
+`JARVIS_EMAIL_URL` + `JARVIS_EMAIL_SIG` — ligam o 2FA: login de dispositivo novo gera código de 6 dígitos
+enviado por e-mail (10 min, uso único, reenvio com espera de 60 s). O remetente é uma função de e-mail
+do ecossistema Base44 que usa o Gmail conectado do dono. **Sem essas variáveis o login continua funcionando
+normalmente, sem verificação** — degradação honesta, nunca bloqueia o usuário.
+
 ## OAuth (login com Google, Discord e GitHub)
 
 Cada provedor só aparece na tela de login quando o par id+segredo está no ambiente
@@ -49,6 +56,9 @@ GitHub  : https://jarvis-backend-7949.onrender.com/api/conta/github/callback
 4. O frontend troca o código em `POST /api/conta/oauth/resgatar` → recebe o token de sessão (30 dias) e guarda em `localStorage('jarvis.sessao')`; o api-bridge o envia em cada chamada. Contas ficam isoladas por token: cada sessão só lê os próprios dados.
 
 ## O que já está configurado no Render
+
+`JARVIS_URL`, `JARVIS_EMAIL_URL`, `JARVIS_EMAIL_SIG` — o resto depende de credenciais que só o dono cria no console de cada provedor
+(o botão correspondente acende sozinho quando o par entrar no ambiente).
 
 `JARVIS_URL` — o resto depende de credenciais que só o dono cria no console de cada provedor
 (o botão correspondente acende sozinho quando o par entrar no ambiente).

@@ -162,6 +162,23 @@ const ROTAS = {
   'GET /api/pagamentos/metodos': () => ({ pix: true, cartao: false, pix_automatico: Boolean(process.env.PIX_CHAVE) }),
 };
 
+/* 2FA real por e-mail: envia código se o remetente estiver configurado (JARVIS_EMAIL_URL/JARVIS_EMAIL_SIG).
+   Sem remetente configurado, o login continua funcionando SEM verificação — nunca bloqueado, nunca falso. */
+const EMAIL_URL = process.env.JARVIS_EMAIL_URL || '';
+const EMAIL_SIG = process.env.JARVIS_EMAIL_SIG || '';
+const enviarEmail = async (para, assunto, texto) => {
+  if (!EMAIL_URL || !EMAIL_SIG) return false;
+  try {
+    const c = new AbortController(); const t = setTimeout(() => c.abort(), 15000);
+    const r = await fetch(EMAIL_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sig: EMAIL_SIG, para, assunto, texto }), signal: c.signal });
+    clearTimeout(t);
+    return r.ok;
+  } catch { return false; }
+};
+const mascaraEmail = (e) => { const [u, d] = String(e).split('@'); return (u || '').slice(0, 2) + '***@' + d; };
+const uaHash = (req) => crypto.createHash('sha256').update((req.headers['user-agent'] || '') + '|' + (req.headers['accept-language'] || '')).digest('hex').slice(0, 20);
+
 async function api(req, res, rota, metodo, corpo, conta) {
   const K = metodo + ' ' + rota;
 
@@ -196,6 +213,21 @@ async function api(req, res, rota, metodo, corpo, conta) {
     const { email, senha } = corpo || {};
     const c = db.contas.find(x => x.email === email);
     if (!c || c.hash !== senhaHash(senha, c.sal)) return { __erro: [401, 'E-mail ou senha incorretos.'] };
+    // dispositivo desconhecido + e-mail configurado → código de 6 dígitos, 10 min
+    const h = uaHash(req);
+    if (EMAIL_URL && !(c.uas || []).includes(h)) {
+      const desafio = crypto.randomBytes(16).toString('hex');
+      const codigo = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
+      const ok = await enviarEmail(c.email, 'Seu código JARVIS: ' + codigo,
+        'Entrada de um dispositivo novo no JARVIS.\n\nCódigo de verificação: ' + codigo + '\n\nEle vale por 10 minutos. Se não foi você, troque sua senha.');
+      if (ok) {
+        (db.desafios = db.desafios || {})[desafio] = { email: c.email, codigo, exp: agora() + 600e3, ua: h, env: Date.now() };
+        salvar();
+        return { verificacao: true, desafio, email: mascaraEmail(c.email) };
+      }
+      // e-mail falhou (remetente fora/limite): login segue normal, sem fingir verificação
+    }
+    (c.uas = c.uas || []).push(h); if (c.uas.length > 12) c.uas.shift(); salvar();
     return { token: novaSessao(email), usuario: { nome: c.nome, email: c.email } };
   }
   if (K === 'POST /api/conta/sair') { const t = tokenDe(req, corpo); if (t) { delete db.sessoes[t]; salvar(); } return { ok: true }; }
@@ -294,6 +326,33 @@ async function api(req, res, rota, metodo, corpo, conta) {
     return { token: novaSessao(c.email), usuario: { nome: c.nome, email: c.email } };
   }
 
+  /* verificação em 2 etapas (públicas: o desafio+ código são a própria credencial) */
+  if (K === 'POST /api/conta/verificar-login') {
+    const { desafio, codigo } = corpo || {};
+    const reg = (db.desafios || {})[String(desafio || '')];
+    if (!reg || reg.exp < agora()) return { __erro: [400, 'Código expirado. Entre de novo.'] };
+    if (String(codigo || '').trim() !== reg.codigo) return { __erro: [401, 'Código incorreto. Confira o e-mail.'] };
+    delete db.desafios[desafio]; // código de uso único
+    const c = db.contas.find(x => x.email === reg.email);
+    if (!c) return { __erro: [401, 'Conta não encontrada.'] };
+    (c.uas = c.uas || []).push(reg.ua); if (c.uas.length > 12) c.uas.shift();
+    salvar();
+    return { token: novaSessao(c.email), usuario: { nome: c.nome, email: c.email } };
+  }
+  if (K === 'POST /api/conta/reenviar-codigo') {
+    const { desafio } = corpo || {};
+    const reg = (db.desafios || {})[String(desafio || '')];
+    if (!reg || reg.exp < agora()) return { __erro: [400, 'Código expirado. Entre de novo.'] };
+    if (Date.now() - (reg.env || 0) < 60e3) return { __erro: [429, 'Aguarde um minuto antes de pedir outro código.'] };
+    const c = db.contas.find(x => x.email === reg.email);
+    if (!c) return { __erro: [401, 'Conta não encontrada.'] };
+    const ok = await enviarEmail(c.email, 'Seu novo código JARVIS: ' + reg.codigo,
+      'Novo código de verificação do JARVIS: ' + reg.codigo + '\n\nVale por 10 minutos a partir de agora.');
+    if (!ok) return { __erro: [503, 'Não consegui reenviar agora. Tente de novo em instantes.'] };
+    reg.env = Date.now(); reg.exp = agora() + 600e3; salvar();
+    return { email: mascaraEmail(c.email) };
+  }
+
   /* download do instalador (público) */
   if (K === 'GET /api/download/instalador') {
     const arq = path.join(ROOT, 'downloads', 'jarvis-setup-1.9.8.exe');
@@ -330,7 +389,7 @@ async function api(req, res, rota, metodo, corpo, conta) {
 
   /* daqui pra baixo: precisa login — rota que não existe aqui é 404, nunca 401 genérico */
   const PROTEGIDAS = [
-    /^\/api\/conta\/(assinatura|discord|pcs|verificar-login|reenviar-codigo|eu|plano|preferencias|memoria|ias|ias-ordem)(\/?.*)$/,
+    /^\/api\/conta\/(assinatura|discord|pcs|eu|plano|preferencias|memoria|ias|ias-ordem)(\/?.*)$/,
     /^\/api\/projetos(\/.*)?$/,
     /^\/api\/pagamentos\//,
     /^\/api\/dono\/negocio$/,
@@ -342,8 +401,6 @@ async function api(req, res, rota, metodo, corpo, conta) {
   if (K === 'GET /api/conta/discord') return { vinculado: Boolean(conta.discord), tag: conta.discord ? conta.discord.tag : null };
   if (K === 'POST /api/conta/discord') return { __erro: [501, 'Vinculação Discord requer o servidor oficial.'] };
   if (K === 'GET /api/conta/pcs' || K === 'GET /api/conta/pcs/') return { pcs: conta.pcs || [] };
-  if (K === 'POST /api/conta/verificar-login') return { __erro: [400, 'Nenhuma verificação pendente para esta conta. Entre de novo.'] };
-  if (K === 'POST /api/conta/reenviar-codigo') return { __erro: [400, 'Nenhum código pendente para reenviar.'] };
   if (K === 'GET /api/conta/google/ativo') return { ativo: Boolean(conta.google) };
   if (K === 'GET /api/dono/negocio') return {
     negocio: { contas: db.contas.length, projetos: db.projetos.length, sessoes: Object.keys(db.sessoes).length, eventos: db.coletiva.eventos },

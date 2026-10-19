@@ -31,7 +31,7 @@
       return r.text().then(function (t) {
         var j; try { j = JSON.parse(t); } catch (e) { j = { erro: 'Resposta inválida do backend.' }; }
         try {
-          if (rota.indexOf('/api/conta/entrar') === 0 || rota.indexOf('/api/conta/cadastro') === 0) { if (j && j.token) localStorage.setItem(TOKEN, j.token); }
+          if (rota.indexOf('/api/conta/entrar') === 0 || rota.indexOf('/api/conta/cadastro') === 0 || rota.indexOf('/api/conta/verificar-login') === 0) { if (j && j.token) localStorage.setItem(TOKEN, j.token); }
           if (rota.indexOf('/api/conta/sair') === 0) localStorage.removeItem(TOKEN);
         } catch (e) {}
         return new Response(JSON.stringify(j), { status: r.status, headers: { 'Content-Type': 'application/json; charset=utf-8' } });
