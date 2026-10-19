@@ -127,5 +127,7 @@ void main(void) {
     raf = requestAnimationFrame(quadro);
   };
   new IntersectionObserver((e) => { visivel = e[0].isIntersecting; if (visivel && !raf) raf = requestAnimationFrame(quadro); }).observe(hero);
+  // aba oculta: para o shader (economiza bateria e CPU no celular)
+  document.addEventListener('visibilitychange', () => { if (document.hidden) visivel = false; else { visivel = true; if (!raf) raf = requestAnimationFrame(quadro); } });
   raf = requestAnimationFrame(quadro);
 })();

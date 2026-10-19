@@ -18,21 +18,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   } catch {}
 
-  // entrar com o Discord (sempre) e com o Google (só aparece se o servidor tiver as credenciais configuradas)
+  // entrar com Google / Discord / GitHub — cada botão só aparece quando o servidor tem o provedor configurado.
+  // Nada de link fixo para fora do site: o destino vem sempre do backend (window.JARVIS_API).
   const qs = new URLSearchParams(location.search);
-  const discord = document.getElementById('discord');
-  if (volta) discord.href = '/discord/entrar?volta=' + encodeURIComponent(volta);
-  const marcarDiscord = () => { try { sessionStorage.setItem('jarvis.dc.entrar', '1'); } catch { /* sem armazenamento */ } }; // a volta do Discord sabe que é login
-  discord.addEventListener('click', marcarDiscord);
-  // vindo do app pelo botão "Continuar com o Discord": vai direto ao Discord
-  if (qs.get('discord') === '1' && !qs.get('erro')) { marcarDiscord(); location.href = discord.href; return; }
-  try {
-    const g = await api('/api/conta/google/ativo');
-    if (g.ativo) { document.getElementById('google').hidden = false; if (volta) document.getElementById('google').href = '/api/conta/google/iniciar?volta=' + encodeURIComponent(volta); }
-    // vindo do app pelo botão "Entrar com o Google": vai direto ao Google (sem Google configurado, fica no formulário)
-    if (g.ativo && qs.get('google') === '1' && qs.get('erro') !== 'google') location.href = document.getElementById('google').href;
-  } catch {}
-  if (new URLSearchParams(location.search).get('erro') === 'google') document.getElementById('g-erro').hidden = false;
+  const ERROS = { google: 'g-erro', discord: 'd-erro', github: 'gh-erro' };
+  const iniciar = (prov) => (window.JARVIS_API || '') + '/api/conta/' + prov + '/iniciar' + (volta ? '?volta=' + encodeURIComponent(volta) : '');
+  for (const prov of ['google', 'discord', 'github']) {
+    const el = document.getElementById(prov);
+    if (!el) continue;
+    try {
+      const r = await api('/api/conta/' + prov + '/ativo');
+      if (r && r.ativo && window.JARVIS_API) {
+        el.hidden = false;
+        el.href = iniciar(prov);
+        // vindo do app pelo botão do provedor: segue direto para a tela dele
+        if (qs.get(prov) === '1' && qs.get('erro') !== prov) { location.href = el.href; return; }
+      }
+    } catch { /* backend fora do ar: o botão fica escondido; o e-mail continua funcionando */ }
+  }
+  const erroProv = qs.get('erro');
+  if (erroProv && ERROS[erroProv]) document.getElementById(ERROS[erroProv]).hidden = false;
+  // volta do OAuth: troca o código de uso único por uma sessão de verdade
+  if (qs.get('oauth') && qs.get('codigo')) {
+    try {
+      const r = await api('/api/conta/oauth/resgatar', { method: 'POST', body: { codigo: qs.get('codigo') } });
+      try { localStorage.setItem('jarvis.sessao', r.token); } catch { /* sem armazenamento */ }
+      location.href = volta || 'jarvis/conta.html'; return;
+    } catch { const d = document.getElementById(ERROS[qs.get('oauth')] || 'g-erro'); if (d) d.hidden = false; }
+  }
   const fe = document.getElementById('form-entrar');
   const fc = document.getElementById('form-cadastro');
   const ae = document.getElementById('aba-entrar');

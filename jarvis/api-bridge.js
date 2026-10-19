@@ -6,6 +6,7 @@
   // Para usar seu próprio backend (server/server.js deployado): 
   // localStorage.setItem('jarvis.api', 'https://OUTRO-BACKEND/bridge')
   var BACKEND = null; try { BACKEND = localStorage.getItem('jarvis.api') || PADRAO; } catch (e) { BACKEND = PADRAO; }
+  try { window.JARVIS_API = BACKEND.replace(/\/bridge$/, ''); } catch (e) {}
   var TOKEN = 'jarvis.sessao';
   var original = window.fetch;
   window.fetch = function (url, opts) {
@@ -17,11 +18,16 @@
     var corpo = null;
     if (opts && opts.body) { try { corpo = JSON.parse(opts.body); } catch (e) { corpo = {}; } }
     var token = null; try { token = localStorage.getItem(TOKEN); } catch (e) {}
+    // sem espera infinita: se o servidor não responder em 20s, devolve erro claro (não trava o celular)
+    var ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    var tempo = setTimeout(function () { if (ctl) ctl.abort(); }, 20000);
     return original(BACKEND, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rota: rota, metodo: metodo, corpo: corpo, token: token })
+      body: JSON.stringify({ rota: rota, metodo: metodo, corpo: corpo, token: token }),
+      signal: ctl ? ctl.signal : undefined
     }).then(function (r) {
+      clearTimeout(tempo);
       return r.text().then(function (t) {
         var j; try { j = JSON.parse(t); } catch (e) { j = { erro: 'Resposta inválida do backend.' }; }
         try {
@@ -30,6 +36,10 @@
         } catch (e) {}
         return new Response(JSON.stringify(j), { status: r.status, headers: { 'Content-Type': 'application/json; charset=utf-8' } });
       });
+    }).catch(function (e) {
+      clearTimeout(tempo);
+      var msg = (e && e.name === 'AbortError') ? 'O servidor demorou demais. Tente de novo em instantes.' : 'Sem conexão com o servidor. Confira sua internet e tente de novo.';
+      return new Response(JSON.stringify({ erro: msg }), { status: (e && e.name === 'AbortError') ? 504 : 502, headers: { 'Content-Type': 'application/json; charset=utf-8' } });
     });
   };
 })();

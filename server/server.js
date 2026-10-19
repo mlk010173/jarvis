@@ -8,6 +8,7 @@
  */
 'use strict';
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -17,6 +18,14 @@ const ROOT = path.resolve(__dirname, '..');
 const DATA = path.join(__dirname, 'data');
 const DB = path.join(DATA, 'db.json');
 const SESSOES_DIAS = 30;
+/* Origem do frontend (para onde o OAuth volta). Configure JARVIS_URL em produção. */
+const JARVIS_URL = (process.env.JARVIS_URL || 'https://mlk010173.github.io/jarvis').replace(/\/+$/, '');
+/* Credenciais OAuth: NUNCA no código. Configure via variáveis de ambiente. */
+const OAUTH = {
+  google: { id: process.env.GOOGLE_CLIENT_ID, segredo: process.env.GOOGLE_CLIENT_SECRET, rotulo: 'Google' },
+  discord: { id: process.env.DISCORD_CLIENT_ID, segredo: process.env.DISCORD_CLIENT_SECRET, rotulo: 'Discord' },
+  github: { id: process.env.GITHUB_CLIENT_ID, segredo: process.env.GITHUB_CLIENT_SECRET, rotulo: 'GitHub' },
+};
 
 /* ---------- armazenamento ---------- */
 let db = null;
@@ -27,6 +36,8 @@ function carregar() {
   if (!db.projetos) db.projetos = [];
   if (!db.sessoes) db.sessoes = {};
   if (!db.coletiva) db.coletiva = { eventos: 0, lotes: 0 };
+  if (!db.oauthEstados) db.oauthEstados = {};
+  if (!db.oauthCodigos) db.oauthCodigos = {};
 }
 function salvar() { fs.mkdirSync(DATA, { recursive: true }); fs.writeFileSync(DB, JSON.stringify(db, null, 1)); }
 carregar();
@@ -49,6 +60,23 @@ function contaDoToken(token) {
   if (!s || s.exp < agora()) return null;
   return db.contas.find(c => c.email === s.email) || null;
 }
+function httpsJSON(url, opcoes) {
+  return new Promise((ok, falha) => {
+    const u = new URL(url);
+    const r = https.request({ hostname: u.hostname, path: u.pathname + u.search, method: (opcoes && opcoes.metodo) || 'GET', headers: (opcoes && opcoes.headers) || {}, timeout: 10000 }, (resp) => {
+      let b = '';
+      resp.on('data', (c) => { b += c; });
+      resp.on('end', () => { try { ok({ status: resp.statusCode, json: b ? JSON.parse(b) : null }); } catch { ok({ status: resp.statusCode, json: null }); } });
+    });
+    r.on('timeout', () => { r.destroy(); falha(new Error('timeout')); });
+    r.on('error', falha);
+    if (opcoes && opcoes.corpo) r.write(opcoes.corpo);
+    r.end();
+  });
+}
+/* volta: só caminhos internos do próprio site (evita open redirect) */
+function voltaSegura(v) { return v && /^\/(?!\/)[\w\-\/.]*(\?[\w\-=&.%]*)?$/.test(v) ? v : ''; }
+
 const erro = (res, codigo, msg) => { res.writeHead(codigo, CT.json); res.end(JSON.stringify({ erro: msg })); };
 
 const CT = { json: { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type, Authorization', 'Access-Control-Allow-Credentials': 'true' } };
@@ -165,6 +193,100 @@ async function api(req, res, rota, metodo, corpo, conta) {
     return { token: novaSessao(email), usuario: { nome: c.nome, email: c.email } };
   }
   if (K === 'POST /api/conta/sair') { const t = tokenDe(req, corpo); if (t) { delete db.sessoes[t]; salvar(); } return { ok: true }; }
+
+
+  /* ---------- conta — OAuth 2.0 real (Google / Discord / GitHub) ---------- */
+  const mOauth = rota.match(/^\/api\/conta\/(google|discord|github)\/(ativo|iniciar|callback)(\?.*)?$/);
+  if (mOauth) {
+    const prov = mOauth[1], acao = mOauth[2];
+    const cfg = OAUTH[prov];
+    const base = 'https://' + (req.headers.host || 'localhost:3000');
+    const voltar = (q) => { res.writeHead(302, { Location: JARVIS_URL + '/entrar.html?' + q }); res.end(); return null; };
+    if (acao === 'ativo') return { ativo: Boolean(cfg.id && cfg.segredo) };
+    if (acao === 'iniciar') {
+      if (!cfg.id || !cfg.segredo) return { __erro: [501, 'Login com ' + cfg.rotulo + ' ainda não está configurado neste servidor.'] };
+      const volta = voltaSegura(String(corpo.volta || ''));
+      const estado = crypto.randomBytes(16).toString('hex');
+      const verificador = prov === 'google' ? crypto.randomBytes(32).toString('base64url') : null;
+      for (const k of Object.keys(db.oauthEstados)) if (db.oauthEstados[k].exp < agora()) delete db.oauthEstados[k];
+      db.oauthEstados[estado] = { prov, volta, verificador, exp: agora() + 600e3 };
+      salvar();
+      const redirect = encodeURIComponent(base + '/api/conta/' + prov + '/callback');
+      let url = '';
+      if (prov === 'google') {
+        const desafio = crypto.createHash('sha256').update(verificador).digest('base64url');
+        url = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=' + encodeURIComponent(cfg.id) + '&redirect_uri=' + redirect + '&response_type=code&scope=' + encodeURIComponent('openid email profile') + '&state=' + estado + '&code_challenge=' + encodeURIComponent(desafio) + '&code_challenge_method=S256';
+      } else if (prov === 'discord') {
+        url = 'https://discord.com/oauth2/authorize?client_id=' + encodeURIComponent(cfg.id) + '&redirect_uri=' + redirect + '&response_type=code&scope=' + encodeURIComponent('identify email') + '&state=' + estado;
+      } else {
+        url = 'https://github.com/login/oauth/authorize?client_id=' + encodeURIComponent(cfg.id) + '&redirect_uri=' + redirect + '&scope=' + encodeURIComponent('read:user user:email') + '&state=' + estado;
+      }
+      res.writeHead(302, { Location: url }); res.end(); return null;
+    }
+    /* callback */
+    const st = corpo.state && db.oauthEstados[corpo.state];
+    if (st) { delete db.oauthEstados[corpo.state]; salvar(); }
+    const volta = st ? st.volta : '';
+    if (corpo.error || corpo.error_description || !corpo.code || !st) return voltar('erro=' + prov + (volta ? '&volta=' + encodeURIComponent(volta) : ''));
+    try {
+      let perfil = null;
+      if (prov === 'google') {
+        const corpo1 = new URLSearchParams({ client_id: cfg.id, client_secret: cfg.segredo, code: corpo.code, grant_type: 'authorization_code', redirect_uri: base + '/api/conta/google/callback', code_verifier: st.verificador }).toString();
+        const tok = await httpsJSON('https://oauth2.googleapis.com/token', { metodo: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, corpo: corpo1 });
+        if (!tok.json || !tok.json.access_token) throw new Error('token');
+        const ui = await httpsJSON('https://openidconnect.googleapis.com/v1/userinfo', { headers: { Authorization: 'Bearer ' + tok.json.access_token } });
+        perfil = { idExt: ui.json && ui.json.sub, email: ui.json && ui.json.email, nome: (ui.json && ui.json.name) || 'Usuário Google' };
+      } else if (prov === 'discord') {
+        const corpo1 = new URLSearchParams({ client_id: cfg.id, client_secret: cfg.segredo, grant_type: 'authorization_code', code: corpo.code, redirect_uri: base + '/api/conta/discord/callback' }).toString();
+        const tok = await httpsJSON('https://discord.com/api/oauth2/token', { metodo: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, corpo: corpo1 });
+        if (!tok.json || !tok.json.access_token) throw new Error('token');
+        const ui = await httpsJSON('https://discord.com/api/users/@me', { headers: { Authorization: 'Bearer ' + tok.json.access_token } });
+        perfil = { idExt: ui.json && ui.json.id, email: ui.json && ui.json.email, nome: (ui.json && (ui.json.global_name || ui.json.username)) || 'Usuário Discord' };
+      } else {
+        const corpo1 = new URLSearchParams({ client_id: cfg.id, client_secret: cfg.segredo, code: corpo.code, redirect_uri: base + '/api/conta/github/callback' }).toString();
+        const tok = await httpsJSON('https://github.com/login/oauth/access_token', { metodo: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' }, corpo: corpo1 });
+        if (!tok.json || !tok.json.access_token) throw new Error('token');
+        const cab = { Authorization: 'Bearer ' + tok.json.access_token, Accept: 'application/vnd.github+json', 'User-Agent': 'jarvis-backend' };
+        const ui = await httpsJSON('https://api.github.com/user', { headers: cab });
+        let email = ui.json && ui.json.email;
+        if (!email) {
+          const em = await httpsJSON('https://api.github.com/user/emails', { headers: cab });
+          const principal = (em.json || []).find((e) => e.primary) || (em.json || [])[0];
+          email = principal && principal.email;
+        }
+        perfil = { idExt: ui.json && String(ui.json.id), email, nome: (ui.json && (ui.json.name || ui.json.login)) || 'Usuário GitHub' };
+      }
+      if (!perfil || !perfil.idExt) throw new Error('perfil');
+      let c = db.contas.find((x) => x.oauth && x.oauth[prov] === perfil.idExt);
+      if (!c && perfil.email) c = db.contas.find((x) => x.email === perfil.email);
+      if (!c) {
+        c = { id: id('c'), nome: perfil.nome, email: perfil.email || (prov + '_' + perfil.idExt + '@oauth.jarvis.local'), plano: 'jarvis', ias: [], memoria: [], criado: agora(), oauth: {} };
+        db.contas.push(c);
+      }
+      if (!c.oauth) c.oauth = {};
+      c.oauth[prov] = perfil.idExt;
+      if (prov === 'discord' && !c.discord) c.discord = { tag: perfil.nome };
+      if (perfil.nome && c.nome === 'Usuário ' + prov.charAt(0).toUpperCase() + prov.slice(1)) c.nome = perfil.nome;
+      salvar();
+      const codigo = crypto.randomBytes(24).toString('hex');
+      for (const k of Object.keys(db.oauthCodigos)) if (db.oauthCodigos[k].exp < agora()) delete db.oauthCodigos[k];
+      db.oauthCodigos[codigo] = { email: c.email, exp: agora() + 60e3 };
+      salvar();
+      res.writeHead(302, { Location: JARVIS_URL + '/entrar.html?oauth=' + prov + '&codigo=' + codigo + (volta ? '&volta=' + encodeURIComponent(volta) : '') });
+      res.end(); return null;
+    } catch (e) {
+      return voltar('erro=' + prov + (volta ? '&volta=' + encodeURIComponent(volta) : ''));
+    }
+  }
+  if (K === 'POST /api/conta/oauth/resgatar') {
+    const codigo = (corpo || {}).codigo;
+    const reg = codigo && db.oauthCodigos[codigo];
+    if (reg) { delete db.oauthCodigos[codigo]; salvar(); }
+    if (!reg || reg.exp < agora()) return { __erro: [401, 'Código de login expirado. Entre de novo.'] };
+    const c = db.contas.find((x) => x.email === reg.email);
+    if (!c) return { __erro: [401, 'Conta não encontrada.'] };
+    return { token: novaSessao(c.email), usuario: { nome: c.nome, email: c.email } };
+  }
 
   /* download do instalador (público) */
   if (K === 'GET /api/download/instalador') {
