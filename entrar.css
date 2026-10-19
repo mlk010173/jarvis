@@ -1,4 +1,4 @@
-/* Entrar / criar conta: à esquerda o anel de energia do app (o mesmo ORION), à direita o cartão com feixes de luz correndo pela borda. */
+/* Entrar / criar conta: à esquerda o anel de energia do app (o mesmo JARVIS), à direita o cartão com feixes de luz correndo pela borda. */
 body.au { min-height: 100vh; margin: 0; background: #000; color: var(--text); font-family: var(--font); overflow-x: hidden; }
 .au-fundo { position: fixed; inset: 0; pointer-events: none; z-index: 0;
   background: radial-gradient(700px 520px at 28% 46%, rgba(18, 82, 200, .26), transparent 70%), radial-gradient(600px 500px at 85% 20%, rgba(0, 210, 255, .07), transparent 70%),

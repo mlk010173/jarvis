@@ -1,0 +1,124 @@
+/* cópia de app/public/jarvis-tema.css (scripts/copiar-visual-app.js): edite no app e copie de novo */
+/* Tema JARVIS do app: tudo preto, detalhes em azul neon (fios de luz, bordas que brilham, grade de "planta técnica").
+   Vale com body.tema-jarvis (padrão nas duas edições; os temas HUD antigos continuam em Configurações → Aparência).
+   Paleta: preto #000, painéis #03070d, neon #2E9BFF, brilho ciano #00D2FF, texto #eaf4ff. Fontes: Geist (texto) e Geist Mono (rótulos do HUD). */
+@font-face { font-family: 'Geist'; src: url('/jarvis/fonts/Geist.woff2') format('woff2'); font-weight: 100 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Geist Mono'; src: url('/jarvis/fonts/GeistMono-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Geist Mono'; src: url('/jarvis/fonts/GeistMono-Medium.woff2') format('woff2'); font-weight: 500 700; font-style: normal; font-display: swap; }
+
+body.tema-jarvis {
+  --neon: #2E9BFF; --neon-rgb: 46, 155, 255; --neon-2: #00D2FF; --neon-fundo: #00101f;
+  /* app principal (style.css) */
+  --font-hud: 'Geist', ui-sans-serif, 'Segoe UI', sans-serif;
+  --font-ui: 'Geist', ui-sans-serif, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, Consolas, monospace;
+  --radius: 12px;
+  --line: rgba(46, 155, 255, .16);
+  --line-strong: rgba(46, 155, 255, .45);
+  --amber: #fbbf24; --red: #ff4d6d; --green: #34d399;
+  /* páginas dos módulos (estudio.css) */
+  --font: 'Geist', ui-sans-serif, 'Segoe UI', sans-serif;
+  --hud: 'Geist', ui-sans-serif, 'Segoe UI', sans-serif;
+  --mono: 'Geist Mono', ui-monospace, Consolas, monospace;
+  --r: 12px;
+  --panel2: #050b14;
+  --line2: rgba(46, 155, 255, .32);
+  --violet: #7c8cff;
+  --jarvis-grad: linear-gradient(135deg, #1F6BFF 0%, #2E9BFF 55%, #00D2FF 100%);
+  --brilho: 0 0 0 1px rgba(46, 155, 255, .22), 0 0 26px -8px rgba(46, 155, 255, .6);
+  font-family: var(--font-ui);
+  background: radial-gradient(900px 600px at 50% 42%, rgba(18, 82, 200, .16), transparent 70%), #000 !important;
+}
+
+/* grade de "planta técnica" no fundo, sumindo nas bordas */
+body.tema-jarvis .bg-grid {
+  opacity: 1;
+  background-image: linear-gradient(rgba(46, 155, 255, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(46, 155, 255, .07) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(ellipse 70% 65% at 50% 45%, #000 20%, transparent 78%);
+}
+body.tema-jarvis .bg-vignette { background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, .75)); }
+
+/* tipografia: rótulos de HUD em mono espaçado; títulos legíveis */
+body.tema-jarvis :is(h1, h2, h4, .brand-name, .brand-sub, .badge, .agent-name, .msg .who, .dlg-head h2, .ctab, .kpi .k, .p-sec h4, .p-sub, .notif .nh, .drop-hint, .toggle, .boot-sub, .boot-btn, .modulos-barra a, .modulos .logo-mod, .modulos a.m, .titulo h1, .card h2) {
+  text-transform: none !important; letter-spacing: .005em !important; font-family: var(--font-ui) !important; text-shadow: none !important;
+}
+body.tema-jarvis :is(h3, .chat-kicker, .stat label, .card h2) {
+  font-family: var(--font-mono) !important; text-transform: uppercase !important; letter-spacing: .18em !important; font-size: 10.5px !important; font-weight: 500 !important; color: #6fb6ff !important; text-shadow: none !important;
+}
+body.tema-jarvis .brand-name { font-size: 17px; font-weight: 650; letter-spacing: .3em !important; color: #fff; text-transform: uppercase !important; }
+body.tema-jarvis .brand-sub { color: var(--muted); }
+body.tema-jarvis .brand-mark { box-shadow: 0 0 18px rgba(46, 155, 255, .55); border-color: rgba(46, 155, 255, .7); }
+body.tema-jarvis .titulo h1 { font-size: 24px; font-weight: 650; letter-spacing: -.01em !important; }
+body.tema-jarvis .badge { padding: 2px 10px; border-radius: 99px; font-size: 11.5px; border-color: rgba(46, 155, 255, .4); color: #9dd0ff; }
+body.tema-jarvis #clock { font-family: var(--font-mono); letter-spacing: .04em; color: #fff; text-shadow: 0 0 14px rgba(46, 155, 255, .45); }
+body.tema-jarvis .stat-hoje span, body.tema-jarvis .kpi .v { font-family: var(--font-ui); letter-spacing: -.01em; }
+
+/* topo e barra de módulos */
+body.tema-jarvis .topbar { background: linear-gradient(180deg, rgba(0, 0, 0, .96), rgba(0, 6, 14, .82)); border-bottom: 1px solid rgba(46, 155, 255, .22); box-shadow: 0 1px 0 rgba(0, 210, 255, .06), 0 10px 30px -18px rgba(46, 155, 255, .5); }
+body.tema-jarvis .modulos { background: rgba(0, 0, 0, .9); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(46, 155, 255, .2); height: 48px; }
+body.tema-jarvis .modulos .logo-mod { font-weight: 650; letter-spacing: .3em !important; text-transform: uppercase !important; color: #fff; }
+body.tema-jarvis .modulos a.m, body.tema-jarvis .modulos-barra a { border-radius: 99px; font-weight: 500; font-size: 13px; border-color: rgba(46, 155, 255, .22); color: #cfe6ff; background: rgba(46, 155, 255, .03); }
+body.tema-jarvis .modulos a.m:hover, body.tema-jarvis .modulos-barra a:hover { border-color: var(--neon); color: #fff; box-shadow: 0 0 18px -6px rgba(46, 155, 255, .8); }
+body.tema-jarvis .modulos a.m.on { background: var(--jarvis-grad); border-color: transparent; color: var(--neon-fundo); font-weight: 600; }
+body.tema-jarvis .modulos-barra { background: rgba(0, 0, 0, .75); border-bottom-color: rgba(46, 155, 255, .16); }
+
+/* painéis e cartões: vidro preto com borda neon e um fio de luz no topo */
+body.tema-jarvis .panel, body.tema-jarvis .card, body.tema-jarvis .dlg-box, body.tema-jarvis .kpi, body.tema-jarvis .p-sec, body.tema-jarvis .ia-row, body.tema-jarvis .conn, body.tema-jarvis .notif {
+  background: linear-gradient(180deg, rgba(6, 14, 28, .9), rgba(1, 4, 9, .94)); border: 1px solid rgba(46, 155, 255, .2); border-radius: 14px;
+  box-shadow: inset 0 1px 0 rgba(120, 190, 255, .07), 0 20px 50px -30px rgba(0, 90, 255, .45);
+}
+body.tema-jarvis .panel::after { display: none; }
+body.tema-jarvis .panel::before { display: block; content: ''; position: absolute; left: 18%; right: 18%; top: -1px; width: auto; height: 1px; border: 0; opacity: 1; background: linear-gradient(90deg, transparent, rgba(0, 210, 255, .85), transparent); pointer-events: none; }
+body.tema-jarvis .kpi::after { background: var(--jarvis-grad); width: 2px; }
+body.tema-jarvis .card h3 { color: var(--text); }
+body.tema-jarvis .tag { border-radius: 99px; }
+
+/* botões: ação principal em gradiente neon */
+body.tema-jarvis .primary-btn, body.tema-jarvis .boot-btn, body.tema-jarvis .btn-primary, body.tema-jarvis button.primary {
+  background: var(--jarvis-grad); border: 0; color: var(--neon-fundo); font-weight: 650; box-shadow: 0 0 0 1px rgba(0, 210, 255, .35), 0 10px 30px -10px rgba(46, 155, 255, .85);
+}
+body.tema-jarvis .primary-btn:hover, body.tema-jarvis .boot-btn:hover { filter: brightness(1.12); background: var(--jarvis-grad); box-shadow: 0 0 0 1px rgba(0, 210, 255, .6), 0 12px 36px -10px rgba(46, 155, 255, 1); }
+body.tema-jarvis .ghost-btn { border-style: solid; border-color: rgba(46, 155, 255, .3); background: rgba(46, 155, 255, .04); color: #d6eaff; }
+body.tema-jarvis .ghost-btn:hover { border-color: var(--neon); background: rgba(46, 155, 255, .1); box-shadow: 0 0 18px -6px rgba(46, 155, 255, .8); }
+body.tema-jarvis .chip, body.tema-jarvis .toggle, body.tema-jarvis .icon-btn, body.tema-jarvis .mini-btn, body.tema-jarvis .comp-btn { border-radius: 11px; border-color: rgba(46, 155, 255, .25); }
+body.tema-jarvis .icon-btn:hover, body.tema-jarvis .mini-btn:hover, body.tema-jarvis .comp-btn:hover, body.tema-jarvis .toggle:hover { border-color: var(--neon); color: #fff; box-shadow: 0 0 16px -6px rgba(46, 155, 255, .9); }
+body.tema-jarvis .toggle.on, body.tema-jarvis .ctab.active { box-shadow: 0 0 18px -8px rgba(46, 155, 255, .9); }
+body.tema-jarvis .toggle.on { border-color: var(--neon); color: #fff; background: rgba(46, 155, 255, .12); }
+body.tema-jarvis .chip { background: rgba(46, 155, 255, .04); color: #d6eaff; }
+body.tema-jarvis .chip:hover { border-color: var(--neon); color: #fff; box-shadow: 0 0 18px -8px rgba(46, 155, 255, .9); }
+body.tema-jarvis .mic-btn { box-shadow: 0 0 0 1px rgba(46, 155, 255, .5), 0 0 40px -6px rgba(46, 155, 255, .8), inset 0 0 22px rgba(46, 155, 255, .25); }
+body.tema-jarvis .send-btn { background: var(--jarvis-grad); color: var(--neon-fundo); border: 0; }
+
+/* campos */
+body.tema-jarvis :is(input:not([type=checkbox]):not([type=range]):not([type=color]), select, textarea) { background: #01040a; border: 1px solid rgba(46, 155, 255, .22); border-radius: 10px; color: #eaf4ff; }
+body.tema-jarvis :is(input, select, textarea):focus { outline: none; border-color: var(--neon); box-shadow: 0 0 0 3px rgba(46, 155, 255, .18), 0 0 20px -8px rgba(46, 155, 255, .9); }
+body.tema-jarvis select option { background: #01040a; }
+
+/* conversa */
+body.tema-jarvis .bubble { border-radius: 14px; box-shadow: none; }
+body.tema-jarvis .msg.user .bubble { background: linear-gradient(135deg, rgba(31, 107, 255, .26), rgba(0, 210, 255, .1)); border: 1px solid rgba(46, 155, 255, .45); }
+body.tema-jarvis .msg.assistant .bubble, body.tema-jarvis .msg.agent .bubble { background: rgba(2, 6, 12, .9); border: 1px solid rgba(46, 155, 255, .16); }
+body.tema-jarvis .composer { border-color: rgba(46, 155, 255, .22); background: rgba(0, 3, 8, .9); }
+
+/* esfera virou o anel de energia: o rótulo de estado vai para cima, como um visor */
+body.tema-jarvis .orb-label { top: 3%; bottom: auto; }
+body.tema-jarvis .state-text { font-family: var(--font-mono); font-size: 13px; letter-spacing: .5em; text-transform: uppercase; color: #8fd0ff; text-shadow: 0 0 16px rgba(46, 155, 255, .9); }
+body.tema-jarvis .state-text::after { content: ''; display: block; width: 190px; height: 6px; margin: 9px auto 0; background: repeating-linear-gradient(90deg, rgba(46, 155, 255, .55) 0 1px, transparent 1px 6px); mask-image: linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent); }
+body.tema-jarvis .state-text.thinking { color: #8fd0ff; text-shadow: 0 0 16px rgba(46, 155, 255, .9); }
+body.tema-jarvis .state-text.error { color: #ff7b93; text-shadow: 0 0 16px rgba(255, 77, 109, .8); }
+body.tema-jarvis .agent-name { font-family: var(--font-mono) !important; font-size: 10.5px; letter-spacing: .3em !important; text-transform: uppercase !important; color: var(--muted); }
+body.tema-jarvis .subtitle { text-shadow: 0 0 18px rgba(46, 155, 255, .35); color: #fff; font-weight: 500; }
+body.tema-jarvis .subtitle.heard { color: #8fd0ff; }
+
+/* o reticulado e as varreduras dos temas HUD antigos saem; a grade neon fica */
+body.tema-jarvis::before, body.tema-jarvis::after { background-image: none !important; }
+body.tema-jarvis .scanlines, body.tema-jarvis .grid-bg, body.tema-jarvis .hud-grid { display: none !important; }
+body.tema-jarvis ::-webkit-scrollbar-thumb { background: rgba(46, 155, 255, .28); }
+body.tema-jarvis ::-webkit-scrollbar-thumb:hover { background: rgba(46, 155, 255, .5); }
+@media (prefers-reduced-motion: reduce) { body.tema-jarvis * { animation-duration: .001s !important; } }
+
+/* páginas dos módulos: não passam pela rotina de aparência, então a paleta JARVIS entra aqui */
+body.tema-jarvis.pagina-modulo { --bg: #000; --bg2: #02060c; --panel: #03070d; --accent: #2E9BFF; --accent-rgb: 46, 155, 255; --text: #eaf4ff; --dim: #a9bed6; --muted: #6b819b; }
+body.tema-jarvis.pagina-modulo a { color: #8fd0ff; }
+body.tema-jarvis.pagina-modulo button:not(.primary-btn):not(.ghost-btn):not(.danger-btn) { border-radius: 10px; }

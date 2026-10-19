@@ -58,7 +58,7 @@ async function iniciar() {
   document.getElementById('sair').addEventListener('click', async (ev) => {
     ev.preventDefault();
     await api('/api/conta/sair', { method: 'POST' }).catch(() => {});
-    location.href = 'orion/';
+    location.href = 'jarvis/';
   });
   window.addEventListener('hashchange', rota);
   rota();
@@ -430,7 +430,7 @@ async function verConta() {
       h('p', {}, h('strong', {}, 'Nome: '), r.usuario.nome),
       h('p', {}, h('strong', {}, 'E-mail: '), r.usuario.email),
       h('p', {}, h('strong', {}, 'Plano: '), PLANO ? (NOME_PLANO[PLANO.plano] || PLANO.plano) : 'Free', ` · ${r.uso_hoje}/${r.limite} pedidos hoje`),
-      h('p', { class: 'muted peq', style: 'margin:0' }, 'Cliente desde ', fmtData(r.usuario.criado_em), '. ', h('a', { href: 'orion/conta.html' }, 'Licenças e modo de uso'), ' · ', h('a', { href: 'orion/#planos' }, 'Ver planos'), '.')),
+      h('p', { class: 'muted peq', style: 'margin:0' }, 'Cliente desde ', fmtData(r.usuario.criado_em), '. ', h('a', { href: 'jarvis/conta.html' }, 'Licenças e modo de uso'), ' · ', h('a', { href: 'jarvis/#planos' }, 'Ver planos'), '.')),
     form);
 }
 

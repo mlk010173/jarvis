@@ -49,7 +49,7 @@ async function aplicarMarca() {
     const info = await api('/api/info');
     window.INFO = info;
     document.querySelectorAll('[data-marca]').forEach((el) => { el.textContent = info.marca; });
-    document.title = document.title.replace(/Orion IA/g, info.marca);
+    document.title = document.title.replace(/Jarvis IA/g, info.marca);
   } catch {}
   document.querySelectorAll('[data-base]').forEach((el) => { el.textContent = el.textContent.replaceAll('{BASE}', location.origin); });
   document.querySelectorAll('[data-copiar]').forEach((b) => b.addEventListener('click', () => {

@@ -1,18 +1,18 @@
-# Arquitetura do ORION Web — Documentação Técnica
+# Arquitetura do JARVIS — Documentação Técnica
 
 > Documento original, escrito a partir da análise do frontend público de `assistanceorion.cloud`
-> (ORION Web, página `/orion/app`), realizada em 17–19/10/2026.
+> (JARVIS, página `/jarvis/app`), realizada em 17–19/10/2026.
 > **Até 19/10/2026 este repo era só descrição técnica;** a partir de agora a pasta `codigo/` contém o espelho completo dos 54 arquivos do frontend público, em `.md` (fatos,
 > estruturas e comportamentos observáveis), para verificação, estudo e planejamento de testes.
 
 ## 1. Visão geral do produto
 
-O ORION é um assistente pessoal de IA brasileiro com três partes que conversam entre si:
+O JARVIS é um assistente pessoal de IA brasileiro com três partes que conversam entre si:
 
 | Parte | Papel |
 |---|---|
-| Site (`assistanceorion.cloud`) | Conta, planos, pagamento (PIX), download do app e o ORION Web (área de trabalho no navegador) |
-| App Windows (ORION Desktop) | Voz, editor de vídeo (corte de silêncio, legendas), motion com IA, mapeamento de leads, central de automação |
+| Site (`assistanceorion.cloud`) | Conta, planos, pagamento (PIX), download do app e o JARVIS (área de trabalho no navegador) |
+| App Windows (JARVIS Desktop) | Voz, editor de vídeo (corte de silêncio, legendas), motion com IA, mapeamento de leads, central de automação |
 | Ponte | Ligação segura site ↔ app no PC do usuário (via conta na nuvem ou rede local) |
 
 Modelo de negócio: plano Free (1 PC, 1 IA) e Premium por PIX (mensal, trimestral ou vitalício,
@@ -25,7 +25,7 @@ Monorepo: um comentário no HTML (`scripts/copiar-visual-app.js`) indica que o a
 compartilham o mesmo repositório; um script copia os arquivos visuais do app para a pasta web.
 
 ```
-/orion/
+/jarvis/
 ├── conta, logo.svg, ponte.js, conta-chip.js, icones.js
 ├── discord-conta.js + discord-conta.css
 ├── ias-tutorial.js        (tutorial de chaves de IA: gemini, groq, openrouter…)
@@ -118,13 +118,13 @@ OpenRouter (grátis). Free usa 1 IA; Premium sem limite (OpenAI, Claude, Gemini,
 
 O **site estático completo** está publicado em:
 
-**https://mlk010173.github.io/orion-web-arquitetura/**
+**https://mlk010173.github.io/jarvis/**
 
-- 80 arquivos, 14 páginas: `/orion/app` (ORION Web), `/entrar`, `/orion/conta`, `/orion/comecar`,
-  `/orion/checkout`, `/orion/novidades`, `/docs`, `/tutoriais`, `/painel`, `/tutorials`,
+- 80 arquivos, 14 páginas: `/jarvis/app` (JARVIS), `/entrar`, `/jarvis/conta`, `/jarvis/comecar`,
+  `/jarvis/checkout`, `/jarvis/novidades`, `/docs`, `/tutoriais`, `/painel`, `/tutorials`,
   `/termos`, `/privacidade`
 - Caminhos absolutos reescritos para relativos (o Pages não serve na raiz do domínio)
-- `orion/pages-shim.js`: intercepta chamadas `/api/*` e devolve resposta amigável — o
+- `jarvis/api-bridge.js`: intercepta chamadas `/api/*` e devolve resposta amigável — o
   backend (login, planos, PIX, ponte com o PC) não existe num site estático
 - As validações do espelho: `node --check` em todos os JS + todos os links internos resolvem
 - `pages-workflow.yml` (na raiz do repo): workflow de Actions pronto. Para ativar, mova para
@@ -139,3 +139,28 @@ backend não analisado.
 
 ## 12. Deploy
 `.github/workflows/pages.yml` valida a sintaxe de todos os JS e os links internos, e publica no Pages a cada push em `main`.
+
+
+## 13. JARVIS: rebrand e backend de verdade (19/10/2026)
+
+O projeto deixou de ser um espelho estático e virou o **JARVIS**, com backend real:
+
+- **Nome:** repositório renomeado para `mlk010173/jarvis`, site em https://mlk010173.github.io/jarvis/
+- **Backend real:** função `jarvisApi` (Base44 backend function, Deno) com banco de dados persistido
+  (entidades `JarvisConta`, `JarvisSessao`, `JarvisProjeto`):
+  - Cadastro e login reais, senha com PBKDF2-SHA256 (60k iterações, salt por usuário)
+  - Sessões com token de 30 dias, logout, troca de senha
+  - Projetos/assistentes persistidos por conta (com proteção contra acesso de outros usuários)
+  - Preferências e memória da conta gravadas no banco
+  - Clima real via MET.no + Open-Meteo geocoding
+  - Limite de 120 requisições/minuto por token
+- **Sem simulação:** `pages-shim.js` (API falsa) foi removido; `jarvis/api-bridge.js` só traduz as
+  chamadas `/api/*` do site para o backend real
+- **Removidas as ligações ao site oficial anterior:** links de suporte apontam para
+  https://github.com/mlk010173/jarvis/issues
+- **O que não existe (por ser verdadeiro):** IA de conversa exige provedor de IA conectado;
+  pagamentos, login Google/Discord e ponte com o app do PC não estão ativos — a API responde
+  com erro honesto, não com dado inventado
+- O espelho histórico em `.md` continua na pasta `codigo/` (documenta a origem ORION do código)
+
+> A pasta `codigo/` e o `AUDITORIA_SEGURANCA.md` preservam a história do projeto (origem ORION).

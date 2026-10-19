@@ -1,9 +1,9 @@
 /* ============================================================
-   ORION — estilos das páginas de desenvolvedor (painel de projetos, API, tutoriais).
+   JARVIS — estilos das páginas de desenvolvedor (painel de projetos, API, tutoriais).
    Mesmo sistema visual do site: fundo #08090A, azul → ciano, Geist.
    ============================================================ */
 
-/* Os tokens (cores, fontes, formas) vêm de /orion/tokens.css — carregue-o antes deste arquivo. */
+/* Os tokens (cores, fontes, formas) vêm de /jarvis/tokens.css — carregue-o antes deste arquivo. */
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }

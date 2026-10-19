@@ -3,40 +3,40 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tutoriais — ORION</title>
-<meta name="description" content="Aprenda a usar o ORION em minutos: conectar a sua IA, cortar silêncios, criar motion, mapear clientes, transcrever e gerar roteiros. Cada passo vem com uma demonstração animada.">
+<title>Tutoriais — JARVIS</title>
+<meta name="description" content="Aprenda a usar o JARVIS em minutos: conectar a sua IA, cortar silêncios, criar motion, mapear clientes, transcrever e gerar roteiros. Cada passo vem com uma demonstração animada.">
 <meta name="theme-color" content="#000000">
-<link rel="icon" type="image/svg+xml" href="orion/logo.svg?v=mvak1f88">
-<link rel="preload" href="orion/fonts/Geist.woff2?v=mvajq3tk" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="orion/tokens.css?v=mvenxghl">
-<link rel="stylesheet" href="orion/orion.css?v=mveng77k">
-<link rel="stylesheet" href="orion/tutorials.css?v=mvennc5k">
-<link rel="stylesheet" href="orion/demos.css?v=mvde5y60">
-<script src="orion/boot.js?v=mvak4oig"></script>
-<script src="orion/conta-chip.js?v=mvb8mwjk" defer></script>
-<script src="orion/nav.js?v=mvb8mxbc" defer></script>
-<script src="orion/orb.js?v=mvebkteo" defer></script>
-<script src="orion/ias-logos.js?v=mvbt0i9k" defer></script>
-<script src="orion/demos.js?v=mvde67fc" defer></script>
-<script src="orion/tutorials.js?v=mvbt8tnc" defer></script>
-<script src="orion/pages-shim.js"></script>
+<link rel="icon" type="image/svg+xml" href="jarvis/logo.svg?v=mvak1f88">
+<link rel="preload" href="jarvis/fonts/Geist.woff2?v=mvajq3tk" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="jarvis/tokens.css?v=mvenxghl">
+<link rel="stylesheet" href="jarvis/jarvis.css?v=mveng77k">
+<link rel="stylesheet" href="jarvis/tutorials.css?v=mvennc5k">
+<link rel="stylesheet" href="jarvis/demos.css?v=mvde5y60">
+<script src="jarvis/boot.js?v=mvak4oig"></script>
+<script src="jarvis/conta-chip.js?v=mvb8mwjk" defer></script>
+<script src="jarvis/nav.js?v=mvb8mxbc" defer></script>
+<script src="jarvis/orb.js?v=mvebkteo" defer></script>
+<script src="jarvis/ias-logos.js?v=mvbt0i9k" defer></script>
+<script src="jarvis/demos.js?v=mvde67fc" defer></script>
+<script src="jarvis/tutorials.js?v=mvbt8tnc" defer></script>
+<script src="jarvis/api-bridge.js"></script>
 </head>
 <body>
 <a class="skip" href="#conteudo">Ir para o conteúdo</a>
 <div class="scrollbar" id="scrollbar" aria-hidden="true"></div>
 
 <header class="pillnav" id="nav">
-  <a class="brand" href="orion/" aria-label="ORION, início"><img src="orion/logo.svg?v=mvak1f88" alt="" width="28" height="28">ORION</a>
+  <a class="brand" href="jarvis/" aria-label="JARVIS, início"><img src="jarvis/logo.svg?v=mvak1f88" alt="" width="28" height="28">JARVIS</a>
   <nav class="pillnav-links" id="nav-links" aria-label="Principal">
-    <a class="nv" href="orion/" aria-label="Início"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg><span>Início</span></a>
-    <a class="nv" href="orion/#modulos" aria-label="Módulos"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Módulos</span></a>
+    <a class="nv" href="jarvis/" aria-label="Início"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg><span>Início</span></a>
+    <a class="nv" href="jarvis/#modulos" aria-label="Módulos"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Módulos</span></a>
     <a class="nv" href="tutorials" aria-current="page" aria-label="Tutoriais"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg><span>Tutoriais</span></a>
-    <a class="nv" href="orion/#planos" aria-label="Planos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg><span>Planos</span></a>
-    <a class="nv" href="orion/#faq" aria-label="Perguntas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/></svg><span>Perguntas</span></a>
+    <a class="nv" href="jarvis/#planos" aria-label="Planos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg><span>Planos</span></a>
+    <a class="nv" href="jarvis/#faq" aria-label="Perguntas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/></svg><span>Perguntas</span></a>
   </nav>
   <div class="pillnav-end">
     <a class="btn btn-sm btn-ghost-hide" id="nav-entrar" href="entrar?volta=/tutorials">Entrar</a>
-    <a class="btn btn-sm btn-primary" id="nav-cta" href="entrar?volta=/orion/comecar#cadastro">Começar grátis</a>
+    <a class="btn btn-sm btn-primary" id="nav-cta" href="entrar?volta=/jarvis/comecar#cadastro">Começar grátis</a>
     <button class="pillnav-toggle" id="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav-links"><span></span></button>
   </div>
 </header>
@@ -44,7 +44,7 @@
 <main id="conteudo">
   <section class="tut-hero">
     <div class="container">
-      <h1><span class="silver-text">Aprenda o ORION</span> <span class="grad-text">vendo funcionar.</span></h1>
+      <h1><span class="silver-text">Aprenda o JARVIS</span> <span class="grad-text">vendo funcionar.</span></h1>
       <p>Cada tutorial tem uma demonstração animada e os passos exatos para repetir no app. Passe o mouse sobre um cartão para ver a demonstração; no celular, toque nele.</p>
       <div class="tut-filtros" role="group" aria-label="Filtrar tutoriais">
         <button type="button" class="on" data-filtro="todos">Todos</button>
@@ -60,14 +60,14 @@
   <section class="container tut-grid" id="lista">
 
     <article class="tut" data-cat="comecar" tabindex="0" aria-labelledby="t1">
-      <div class="tut-demo"><div data-demo="tokens" aria-label="Demonstração animada: criar a chave grátis e colar no cofre do ORION"></div></div>
+      <div class="tut-demo"><div data-demo="tokens" aria-label="Demonstração animada: criar a chave grátis e colar no cofre do JARVIS"></div></div>
       <div class="tut-corpo">
         <div class="tut-meta"><span class="badge">2 min</span><span class="badge badge-blue">Começar</span></div>
         <h2 id="t1">Conectar a sua IA com uma chave grátis</h2>
         <ol>
           <li>Abra <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> e entre com a sua conta Google.</li>
           <li>Clique em <b>Criar chave de API</b> e copie a chave.</li>
-          <li>No ORION, abra <b>Configurações → Cérebro (IAs)</b> e cole no campo do Gemini.</li>
+          <li>No JARVIS, abra <b>Configurações → Cérebro (IAs)</b> e cole no campo do Gemini.</li>
           <li>A chave fica cifrada no cofre do Windows. Ela nunca é enviada ao nosso servidor.</li>
         </ol>
       </div>
@@ -77,7 +77,7 @@
       <div class="tut-demo"><div data-demo="voz" aria-label="Demonstração animada: um comando de voz"></div></div>
       <div class="tut-corpo">
         <div class="tut-meta"><span class="badge">1 min</span><span class="badge badge-blue">Começar</span></div>
-        <h2 id="t2">Falar com o ORION</h2>
+        <h2 id="t2">Falar com o JARVIS</h2>
         <ol>
           <li>Clique no microfone ou use <kbd>Ctrl</kbd> + <kbd>Espaço</kbd> para falar.</li>
           <li>Diga o que quer: “abre o editor”, “que horas são?”, “resumo do dia”.</li>
@@ -140,7 +140,7 @@
           <li>Clique em <b>Buscar no mapa</b> e confira os resultados.</li>
           <li>Edite a mensagem de abordagem (use <code class="inline">{nome}</code>) e clique em <b>Baixar planilha (CSV)</b>.</li>
         </ol>
-        <p class="tut-nota">A exportação em CSV depende do seu plano. Veja os <a href="orion/#planos">planos</a>.</p>
+        <p class="tut-nota">A exportação em CSV depende do seu plano. Veja os <a href="jarvis/#planos">planos</a>.</p>
       </div>
     </article>
 
@@ -155,12 +155,12 @@
           <li>Na etapa <b>Site</b>, ajuste nome, textos, serviços, cores e estilo. Veja a prévia no computador e no celular.</li>
           <li>Clique em <b>Publicar prévia</b> e depois em <b>Enviar no WhatsApp</b>. O lead já fica marcado como contatado.</li>
         </ol>
-        <p class="tut-nota">A prévia fica online por 30 dias com o aviso de que ainda não é o site oficial. Criar sites faz parte do plano Premium. Veja os <a href="orion/#planos">planos</a>.</p>
+        <p class="tut-nota">A prévia fica online por 30 dias com o aviso de que ainda não é o site oficial. Criar sites faz parte do plano Premium. Veja os <a href="jarvis/#planos">planos</a>.</p>
       </div>
     </article>
 
     <article class="tut" id="hospedar" data-cat="clientes" tabindex="0" aria-labelledby="t11">
-      <div class="tut-demo tut-demo-txt" aria-hidden="true"><ol class="tut-hosp"><li><b>index.html</b><span>Baixe o site pronto no ORION</span></li><li><b>Netlify Drop</b><span>Arraste a pasta e o site entra no ar</span></li><li><b>registro.br</b><span>Domínio .com.br no nome do cliente</span></li><li><b>HTTPS</b><span>O cadeado é ativado sozinho</span></li></ol></div>
+      <div class="tut-demo tut-demo-txt" aria-hidden="true"><ol class="tut-hosp"><li><b>index.html</b><span>Baixe o site pronto no JARVIS</span></li><li><b>Netlify Drop</b><span>Arraste a pasta e o site entra no ar</span></li><li><b>registro.br</b><span>Domínio .com.br no nome do cliente</span></li><li><b>HTTPS</b><span>O cadeado é ativado sozinho</span></li></ol></div>
       <div class="tut-corpo">
         <div class="tut-meta"><span class="badge">10 min</span><span class="badge badge-blue">Clientes</span></div>
         <h2 id="t11">Colocar o site do cliente no ar</h2>
@@ -209,7 +209,7 @@
         <h2 id="t9">Limpar e organizar o PC com segurança</h2>
         <ol>
           <li>Abra <b>Central de Automação &amp; IA</b> para ver CPU, memória e disco em tempo real.</li>
-          <li>Em <b>Limpeza segura</b>, marque o que quer limpar e clique em <b>Limpar selecionados</b>. Só arquivos do próprio ORION são apagados.</li>
+          <li>Em <b>Limpeza segura</b>, marque o que quer limpar e clique em <b>Limpar selecionados</b>. Só arquivos do próprio JARVIS são apagados.</li>
           <li>No <b>Organizador de arquivos</b>, use <b>Ver o que será movido</b> e depois <b>Organizar</b>. Nada é apagado.</li>
           <li>Mudou de ideia? <b>Desfazer a última</b> devolve tudo ao lugar.</li>
         </ol>
@@ -221,15 +221,15 @@
     <div class="tut-fim-in">
       <h2>Pronto para testar no seu PC?</h2>
       <p>O plano Free não pede cartão. Se você é desenvolvedor, veja também os <a href="tutoriais">tutoriais da API</a>.</p>
-      <a class="btn btn-lg btn-primary" data-cta-conta href="entrar?volta=/orion/comecar#cadastro">Criar conta grátis</a>
+      <a class="btn btn-lg btn-primary" data-cta-conta href="entrar?volta=/jarvis/comecar#cadastro">Criar conta grátis</a>
     </div>
   </section>
 </main>
 
 <footer class="tut-rodape">
   <div class="container">
-    <a class="brand" href="orion/"><img src="orion/logo.svg?v=mvak1f88" alt="" width="24" height="24">ORION</a>
-    <nav aria-label="Rodapé"><a href="orion/">Início</a><a href="orion/#planos">Planos</a><a href="docs">API</a><a href="tutoriais">Tutoriais da API</a></nav>
+    <a class="brand" href="jarvis/"><img src="jarvis/logo.svg?v=mvak1f88" alt="" width="24" height="24">JARVIS</a>
+    <nav aria-label="Rodapé"><a href="jarvis/">Início</a><a href="jarvis/#planos">Planos</a><a href="docs">API</a><a href="tutoriais">Tutoriais da API</a></nav>
   </div>
 </footer>
 </body>

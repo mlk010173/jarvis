@@ -1,0 +1,83 @@
+/* JARVIS Web: o que o app aplica por código (cores do tema JARVIS) + peças só da versão web (fila de IAs, Meu PC, selo da conta). */
+body.jarvis-web {
+  --accent: #2E9BFF; --accent-rgb: 46, 155, 255;
+  --bg: #000000; --bg2: #020408; --bg-glow: #001226;
+  --panel-rgb: 3, 7, 13; --panel: rgba(3, 7, 13, .94); --panel-solid: rgb(3, 7, 13);
+  --text: #eaf4ff; --text-dim: #a9bed6; --muted: #6b819b;
+  --ok: #34d399; --err: #f87171; --warn: #fbbf24;
+}
+body.jarvis-web .brand { text-decoration: none; color: inherit; }
+.web-head-acoes { display: flex; gap: 6px; }
+.web-head-acoes .ic, .web-head-acoes svg { width: 16px; height: 16px; }
+.msg.bot.erro .bubble { border-color: rgba(248, 113, 113, .45); color: #fecaca; }
+.msg.pensando .bubble { display: inline-flex; align-items: center; gap: 8px; color: var(--text-dim); }
+.msg .via { margin-left: 6px; font-size: 11px; color: var(--muted); }
+.msg .notice { font-size: 12px; color: var(--warn); margin-bottom: 6px; }
+.msg .content p { margin: 0 0 8px; } .msg .content p:last-child { margin-bottom: 0; }
+.msg .content ul, .msg .content ol { margin: 4px 0 8px; padding-left: 20px; }
+.msg .content pre { overflow-x: auto; padding: 10px 12px; border-radius: 10px; background: #01040a; border: 1px solid var(--line); font-size: 13px; }
+.msg .content code { font-family: var(--font-mono); font-size: .92em; }
+.msg .content a { color: #8fd0ff; }
+.welcome-k { font-family: var(--font-mono); letter-spacing: .3em; font-size: 12px; color: var(--accent); margin-bottom: 8px; }
+.welcome .muted { color: var(--muted); }
+.badge.ok { color: #6ee7b7; border-color: rgba(52, 211, 153, .5); }
+.spin { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(var(--accent-rgb), .3); border-top-color: var(--accent); animation: web-gira .8s linear infinite; }
+@keyframes web-gira { to { transform: rotate(360deg); } }
+.toast.out { opacity: 0; transform: translateY(6px); transition: .4s; }
+
+/* fila de IAs */
+.web-contagem { font-size: 12px; color: var(--muted); }
+.web-ias, .web-pc { overflow-y: auto; padding: 4px 16px 16px; display: grid; gap: 12px; align-content: start; }
+.web-fila { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.web-fila .ia-row { display: grid; gap: 8px; padding: 12px; }
+.web-ia-nome { display: flex; align-items: center; gap: 10px; }
+.web-ia-nome b { display: block; font-size: 14.5px; }
+.web-ia-nome small { color: var(--muted); font-size: 12px; }
+.web-rec { display: inline-block; margin: 2px 0 3px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; color: #00101f; background: linear-gradient(90deg, #2E9BFF, #00D2FF); }
+.web-recbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 6px 0 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(46, 155, 255, .28); background: rgba(46, 155, 255, .06); font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+.web-recbar:empty { display: none; }
+.web-motivo { margin-top: -4px; color: #8fd0ff; }
+.web-pos { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font: 12px var(--font-mono); color: var(--accent); border: 1px solid rgba(var(--accent-rgb), .5); flex: none; }
+.web-ia-acoes { display: flex; flex-wrap: wrap; gap: 6px; }
+.web-ia-acoes .ghost-btn { padding: 6px 12px; font-size: 13px; }
+.web-res { font-size: 12.5px; color: var(--text-dim); }
+.web-res.bom { color: #6ee7b7; } .web-res.ruim { color: #fca5a5; }
+.web-conectar { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: rgba(var(--accent-rgb), .03); }
+.web-conectar label { display: grid; gap: 6px; font-size: 13px; color: var(--text-dim); }
+.web-conectar input, .web-conectar select, #dlgAgent input, #dlgAgent textarea, #dlgSettings select { padding: 10px 12px; }
+.web-erro { color: #fca5a5; font-size: 13px; }
+.web-gerar { display: grid; gap: 8px; padding: 14px; border-radius: 14px; border: 1px solid rgba(var(--accent-rgb), .35); background: rgba(var(--accent-rgb), .06); }
+
+/* "Meu PC": o painel da ponte (mesmo do site) com o visual do app */
+.web-pc .hint { color: var(--muted); font-size: 13.5px; line-height: 1.5; margin: 0; }
+.web-pc .alert { padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); font-size: 14px; line-height: 1.5; }
+.web-pc .alert-warn { border-color: rgba(251, 191, 36, .45); background: rgba(251, 191, 36, .06); color: #fde68a; }
+.web-pc .alert-err { border-color: rgba(248, 113, 113, .45); background: rgba(248, 113, 113, .06); color: #fecaca; }
+.web-pc .steps-list { margin: 10px 0 0; padding-left: 20px; display: grid; gap: 8px; color: var(--text-dim); font-size: 14px; line-height: 1.5; }
+.web-pc .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.web-pc .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 10px; border: 1px solid rgba(var(--accent-rgb), .3); background: rgba(var(--accent-rgb), .04); color: var(--text); font: inherit; font-size: 13.5px; cursor: pointer; }
+.web-pc .btn:hover { border-color: var(--accent); }
+.web-pc .btn-primary { border: 0; color: #00101f; font-weight: 600; background: linear-gradient(135deg, #1F6BFF 0%, #2E9BFF 55%, #00D2FF 100%); }
+.web-pc .btn:disabled { opacity: .55; cursor: wait; }
+.web-pc .badge { display: inline-flex; padding: 2px 10px; border-radius: 99px; font-size: 12px; border: 1px solid var(--line); }
+.web-pc .badge-ok { color: #6ee7b7; border-color: rgba(52, 211, 153, .5); }
+.web-pc .badge-warn { color: #fde68a; border-color: rgba(251, 191, 36, .5); }
+.web-pc .badge-err { color: #fecaca; border-color: rgba(248, 113, 113, .5); }
+.web-pc .app-estado { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.web-pc .app-h { margin: 16px 0 6px; }
+.web-pc .app-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.web-pc .app-box { display: grid; gap: 8px; margin: 6px 0; }
+.web-pc .app-lista { display: grid; gap: 6px; }
+.web-pc .check { display: flex; gap: 8px; align-items: center; font-size: 13.5px; color: var(--text-dim); }
+.web-pc .app-diag { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13px; }
+.web-pc select.input, .web-pc input.input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(var(--accent-rgb), .25); background: #01040a; color: var(--text); }
+
+/* selo da conta no topo (o mesmo do site), compacto: o e-mail abre ao passar o mouse */
+.conta-chip-web { --h: 210; display: inline-flex; align-items: center; gap: 0; height: 38px; max-width: 40px; padding: 0 4px; overflow: hidden; border-radius: 999px; color: var(--text); text-decoration: none; border: 1px solid rgba(var(--accent-rgb), .3); background: rgba(var(--accent-rgb), .05); transition: max-width .5s cubic-bezier(.16, 1, .3, 1), gap .5s cubic-bezier(.16, 1, .3, 1), border-color .2s; }
+.conta-chip-web:hover, .conta-chip-web:focus-visible { max-width: 360px; gap: 9px; padding: 0 6px 0 4px; border-color: var(--accent); }
+.ccw-av { display: grid; place-items: center; flex: none; width: 29px; height: 29px; border-radius: 50%; font: 650 13px var(--font-ui); color: #fff; background: linear-gradient(135deg, hsl(var(--h) 75% 50%), hsl(calc(var(--h) + 40) 80% 45%)); }
+.ccw-email { font-size: 13px; white-space: nowrap; opacity: 0; transition: opacity .25s; }
+.ccw-plano { flex: none; padding: 2px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 600; border: 1px solid rgba(255, 255, 255, .2); opacity: 0; transition: opacity .25s; }
+.conta-chip-web:hover .ccw-email, .conta-chip-web:hover .ccw-plano { opacity: 1; }
+.conta-chip-web[data-plano="premium"] .ccw-plano { color: #00101f; border-color: transparent; background: linear-gradient(135deg, #1F6BFF, #00D2FF); }
+.top-right { gap: 10px; }

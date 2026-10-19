@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (s.logado) {
       document.getElementById('lg-nome').textContent = s.nome;
       document.getElementById('lg-email').textContent = s.email;
-      document.getElementById('lg-continuar').href = volta || 'orion/conta.html';
+      document.getElementById('lg-continuar').href = volta || 'jarvis/conta.html';
       document.getElementById('logado').hidden = false;
       document.getElementById('lg-sair').addEventListener('click', async () => {
         try { await api('/api/conta/sair', { method: 'POST', body: {} }); } catch {}
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const qs = new URLSearchParams(location.search);
   const discord = document.getElementById('discord');
   if (volta) discord.href = '/discord/entrar?volta=' + encodeURIComponent(volta);
-  const marcarDiscord = () => { try { sessionStorage.setItem('orion.dc.entrar', '1'); } catch { /* sem armazenamento */ } }; // a volta do Discord sabe que é login
+  const marcarDiscord = () => { try { sessionStorage.setItem('jarvis.dc.entrar', '1'); } catch { /* sem armazenamento */ } }; // a volta do Discord sabe que é login
   discord.addEventListener('click', marcarDiscord);
   // vindo do app pelo botão "Continuar com o Discord": vai direto ao Discord
   if (qs.get('discord') === '1' && !qs.get('erro')) { marcarDiscord(); location.href = discord.href; return; }
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const abas = document.querySelector('.au-abas'); if (abas) abas.dataset.lado = cad ? 'cadastro' : 'entrar';
     const t = document.getElementById('au-titulo'), sub = document.getElementById('au-sub');
     if (t) t.textContent = cad ? 'Crie a sua conta' : 'Bem-vindo de volta';
-    if (sub) sub.textContent = cad ? 'Grátis, sem cartão. Depois eu te guio na configuração, um passo de cada vez.' : 'Entre com o e-mail e a senha da sua conta ORION.';
+    if (sub) sub.textContent = cad ? 'Grátis, sem cartão. Depois eu te guio na configuração, um passo de cada vez.' : 'Entre com o e-mail e a senha da sua conta JARVIS.';
     (cad ? document.getElementById('c-nome') : document.getElementById('e-email')).focus();
   };
   ae.addEventListener('click', () => { history.replaceState(null, '', '#entrar'); mostrar(false); });
@@ -61,12 +61,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       // cadastro: leva a origem da visita (UTMs do anúncio) e um id do evento, que o servidor repete na Conversions API (o Meta junta os dois)
       const cadastro = url.includes('cadastro');
       const eid = cadastro ? 'cad_' + Array.from(crypto.getRandomValues(new Uint8Array(9)), (b) => (b % 36).toString(36)).join('') : null;
-      if (cadastro && window.ORION_MKT) { body.utm = window.ORION_MKT.utm(); body.evento_id = eid; }
+      if (cadastro && window.JARVIS_MKT) { body.utm = window.JARVIS_MKT.utm(); body.evento_id = eid; }
       const r = await api(url, { method: 'POST', body });
       if (r && r.verificacao) { pedirCodigo(r); btn.disabled = false; return; } // rede nova: falta o código enviado por e-mail
-      if (cadastro && window.ORION_MKT) { window.ORION_MKT.evento('cadastro', { id: eid }); await new Promise((r) => setTimeout(r, 300)); } // dá tempo da tag disparar antes de sair da página
-      // conta nova passa pelos primeiros passos, um de cada vez; no fim volta para onde a pessoa estava (ex.: o ORION Web)
-      location.href = cadastro ? 'orion/comecar.html' + (volta && !volta.startsWith('orion/comecar.html') ? '?volta=' + encodeURIComponent(volta) : '') : volta || 'orion/conta.html';
+      if (cadastro && window.JARVIS_MKT) { window.JARVIS_MKT.evento('cadastro', { id: eid }); await new Promise((r) => setTimeout(r, 300)); } // dá tempo da tag disparar antes de sair da página
+      // conta nova passa pelos primeiros passos, um de cada vez; no fim volta para onde a pessoa estava (ex.: o JARVIS Web)
+      location.href = cadastro ? 'jarvis/comecar.html' + (volta && !volta.startsWith('jarvis/comecar.html') ? '?volta=' + encodeURIComponent(volta) : '') : volta || 'jarvis/conta.html';
     } catch (e) {
       erroEl.textContent = e.message;
       btn.disabled = false;
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   fcod.addEventListener('submit', async (ev) => {
     ev.preventDefault(); const erro = document.getElementById('cod-erro'); erro.textContent = ''; const b = fcod.querySelector('button[type=submit]'); b.disabled = true;
-    try { await api('/api/conta/verificar-login', { method: 'POST', body: { desafio, codigo: document.getElementById('cod').value } }); location.href = volta || 'orion/conta.html'; }
+    try { await api('/api/conta/verificar-login', { method: 'POST', body: { desafio, codigo: document.getElementById('cod').value } }); location.href = volta || 'jarvis/conta.html'; }
     catch (e) { erro.textContent = e.message; b.disabled = false; }
   });
   document.getElementById('cod-reenviar').addEventListener('click', async () => {

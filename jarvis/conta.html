@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minha conta — JARVIS</title>
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/svg+xml" href="logo.svg?v=mvak1f88">
+<link rel="stylesheet" href="tokens.css?v=mvenxghl">
+<link rel="stylesheet" href="jarvis.css?v=mveng77k">
+<link rel="stylesheet" href="discord-conta.css?v=mvbq8fn4">
+<script src="conta-chip.js?v=mvb8mwjk" defer></script>
+<script src="conta.js?v=mvddwnag" defer></script>
+<script src="discord-conta.js?v=mvbq7g5c" defer></script>
+<script src="memoria-conta.js?v=mvbrd2ls" defer></script>
+<script src="novidades-aviso.js?v=mvbk341s" defer></script>
+<script src="baixar.js?v=mvamz6bs" defer></script>
+<script src="ponte.js?v=mvbdtqmg" defer></script>
+<script src="api-bridge.js"></script>
+</head>
+<body>
+<div class="shell">
+  <header class="shell-top">
+    <a class="brand" href=""><img src="logo.svg?v=mvak1f88" alt="" width="28" height="28">JARVIS</a>
+    <div class="top-actions">
+      <a class="btn btn-sm" href="#planos">Planos</a>
+      <a class="btn btn-sm" href="#" id="sair">Sair</a>
+    </div>
+  </header>
+  <main class="page">
+    <h1>Minha conta</h1>
+    <p class="lead" id="ola">Carregando…</p>
+    <div id="area"></div>
+    <section class="lic-card" id="memoria" style="margin-top:28px" aria-labelledby="t-memoria">
+      <div class="lic-head"><h2 id="t-memoria">Memória do JARVIS</h2><span class="badge" id="mem-selo">carregando…</span></div>
+      <p class="lic-meta">Conte ao JARVIS quem você é, no que trabalha e como prefere ser atendido. Vale só para a sua conta: entra nas conversas do JARVIS Web e no app logado com este e-mail. Não coloque senhas nem chaves de API aqui.</p>
+      <div class="field"><label for="mem-texto" class="sr-only">Memória do JARVIS</label><textarea id="mem-texto" rows="8" maxlength="6000" placeholder="Ex.: Sou dono de uma loja de keys Steam e uso o JARVIS para criar anúncios e acompanhar vendas. Prefiro respostas curtas e com números."></textarea></div>
+      <div class="actions" style="margin-top:0;align-items:center;gap:12px"><button class="btn btn-primary" id="mem-salvar" type="button">Salvar memória</button><span class="hint" id="mem-conta" style="margin:0">0 / 6000</span></div>
+      <p class="hint" id="mem-msg" role="status" aria-live="polite" style="margin:0"></p>
+    </section>
+
+    <section class="lic-card dc-card" id="discord" style="margin-top:28px" aria-labelledby="t-discord">
+      <div class="lic-head"><h2 id="t-discord"><svg class="dc-logo" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.44.87-.61 1.25a18.3 18.3 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25.08.08 0 0 0-.08-.04 19.7 19.7 0 0 0-4.89 1.52.07.07 0 0 0-.03.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.23-1.99a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.89.08.08 0 0 1-.01-.13l.37-.29a.07.07 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.07 0a.07.07 0 0 1 .08.01l.37.29a.08.08 0 0 1-.01.13c-.6.35-1.22.65-1.87.89a.08.08 0 0 0-.04.11c.36.7.77 1.36 1.23 1.99a.08.08 0 0 0 .08.03 19.8 19.8 0 0 0 6-3.03.08.08 0 0 0 .03-.06c.5-5.18-.84-9.67-3.55-13.66a.06.06 0 0 0-.03-.03zM8.02 15.33c-1.18 0-2.16-1.08-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.09 2.16 2.42 0 1.34-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.09 2.16 2.42 0 1.34-.95 2.42-2.16 2.42z"/></svg>Discord</h2><span class="badge" id="dc-selo">carregando…</span></div>
+      <p class="lic-meta">Vincule a sua conta para receber no servidor do JARVIS os cargos do seu plano. Quando o plano muda, os cargos mudam sozinhos.</p>
+      <div data-corpo></div>
+    </section>
+
+    <section class="lic-card" id="baixar" style="margin-top:28px" aria-labelledby="t-baixar">
+      <div class="lic-head"><h2 id="t-baixar">Baixar o JARVIS para Windows</h2><span class="badge" id="baixar-versao">carregando…</span></div>
+      <p class="lic-meta" id="baixar-texto">Windows 10 e 11 (64 bits). O instalador não pede administrador e não toca nos seus arquivos.</p>
+      <div class="actions" style="margin-top:0"><a class="btn btn-primary" id="baixar-btn" href="https://mlk010173.github.io/jarvis/api/download/instalador" hidden>Baixar o instalador</a></div>
+      <p class="hint" id="baixar-sha" hidden></p>
+      <p class="hint">Como o instalador ainda não tem assinatura digital paga, o Windows pode mostrar “O Windows protegeu o seu PC”. Clique em <b>Mais informações → Executar assim mesmo</b>. Quer ter certeza de que o arquivo é o original? Confira o código SHA-256 acima: ele precisa ser idêntico.</p>
+    </section>
+
+    <section class="lic-card" id="app-pc" aria-labelledby="t-app">
+      <div class="lic-head"><h2 id="t-app">Seu app no PC</h2></div>
+      <div data-corpo></div>
+    </section>
+
+    <section class="card-flat" style="margin-top:28px">
+      <b style="color:var(--text)">Como entrar no app</b>
+      <ol class="steps-list" style="margin:12px 0 0">
+        <li>Abra o JARVIS e vá em Configurações → Conta e site.</li>
+        <li>Entre com o mesmo e-mail e senha desta conta. Criou a conta com o Google? Use <b>Entrar pelo navegador</b> e aprove o pedido no site.</li>
+        <li>O plano da conta vale na hora, sem chave para digitar. Para usar em outro computador, libere o antigo aqui (uma vez a cada 30 dias).</li>
+      </ol>
+    </section>
+
+    <section class="card-flat" style="margin-top:16px">
+      <b style="color:var(--text)">Precisa de ajuda?</b>
+      <p class="hint" style="margin:8px 0 0">Abra um ticket na <a href="https://github.com/mlk010173/jarvis/issues" target="_blank" rel="noopener">comunidade do JARVIS no Discord</a> (canal de tickets) ou escreva para <a href="https://github.com/mlk010173/jarvis/issues">Suporte: GitHub mlk010173/jarvis (Issues)</a>. Para pedidos sobre os seus dados, veja a <a href="../privacidade">Política de Privacidade</a>.</p>
+    </section>
+  </main>
+</div>
+</body>
+</html>
