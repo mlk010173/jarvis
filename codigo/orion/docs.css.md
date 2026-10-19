@@ -1,0 +1,68 @@
+# `orion/docs.css`
+
+> **Fonte:** https://assistanceorion.cloud/orion/docs.css · baixado em 19/10/2026
+> 61 linhas · 5.0 KB · Estilos da página /docs
+
+```css
+/* Documentação do ORION (usa tokens.css e orion.css) */
+body.docs-page { background: var(--bg); color: var(--text-2); font-family: var(--font); }
+.docs-page .shell-top { position: sticky; top: 0; z-index: 20; background: rgba(8, 9, 10, .86); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.dx { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+.dx-nav { position: sticky; top: 78px; align-self: start; max-height: calc(100vh - 90px); overflow-y: auto; padding: 32px 0 24px; display: grid; gap: 2px; font-size: 14px; }
+.dx-nav b { margin: 20px 0 6px; color: var(--text); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+.dx-nav b:first-child { margin-top: 0; }
+.dx-nav a { padding: 6px 10px; color: var(--muted); border-left: 1px solid var(--line); text-decoration: none; transition: color .15s, border-color .15s; }
+.dx-nav a:hover { color: var(--text); }
+.dx-nav a[aria-current='true'] { color: var(--text); border-left-color: var(--cyan); }
+.dx-body { min-width: 0; max-width: 780px; padding: 40px 0 80px; line-height: 1.7; }
+.dx-body h1 { margin: 0 0 8px; font-size: clamp(32px, 4vw, 44px); letter-spacing: -.02em; background: var(--silver); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.dx-body .lead { margin: 0 0 24px; color: var(--muted); font-size: 18px; }
+.dx-body h2 { margin: 56px 0 12px; font-size: 26px; letter-spacing: -.01em; color: var(--text); scroll-margin-top: 90px; }
+.dx-body h3 { margin: 32px 0 8px; font-size: 18px; color: var(--text); scroll-margin-top: 90px; }
+.dx-body p { margin: 0 0 14px; }
+.dx-body a { color: #93c5fd; text-underline-offset: 3px; }
+.dx-body a:hover { color: var(--text); }
+.dx-body code { padding: 1px 6px; font-family: var(--mono); font-size: .88em; color: var(--text); background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; }
+.dx-body pre { position: relative; margin: 12px 0 20px; padding: 16px 20px; overflow-x: auto; background: #0b0e13; border: 1px solid var(--line-2); border-radius: var(--r); line-height: 1.55; }
+.dx-body pre code { padding: 0; background: none; border: 0; font-size: 13px; color: var(--text-2); }
+.dx-copiar { position: absolute; top: 8px; right: 8px; padding: 4px 10px; font: 500 12px var(--font); color: var(--muted); background: var(--surface-2); border: 1px solid var(--line-2); border-radius: 6px; cursor: pointer; }
+.dx-copiar:hover { color: var(--text); border-color: var(--cyan); }
+.dx-lista { margin: 0 0 16px; padding-left: 20px; display: grid; gap: 10px; }
+.dx-passos { margin: 0 0 16px; padding-left: 24px; display: grid; gap: 10px; }
+.dx-aviso { margin: 28px 0 8px; padding: 20px 24px; border: 1px solid rgba(251, 191, 36, .45); border-radius: var(--r-lg); background: linear-gradient(180deg, rgba(251, 191, 36, .09), rgba(251, 191, 36, .03)); }
+.dx-aviso b { display: block; margin-bottom: 8px; color: #fde68a; font-size: 16px; }
+.dx-aviso p:last-child { margin-bottom: 0; }
+.dx-tabela { margin: 12px 0 20px; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); }
+.dx-tabela table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: 14px; }
+.dx-tabela th, .dx-tabela td { padding: 12px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+.dx-tabela th { color: var(--text); font-weight: 600; background: var(--surface); }
+.dx-tabela tr:last-child td { border-bottom: 0; }
+.dx-tabela td:first-child { color: var(--text); }
+.dx-tabela .sim { color: var(--ok); }
+.dx-tabela .nao { color: var(--dim); }
+.metodo { display: inline-block; margin-right: 6px; padding: 2px 8px; font: 600 12px var(--mono); border-radius: 6px; vertical-align: middle; }
+.metodo.post { color: #0b1a14; background: var(--ok); }
+.metodo.get { color: #03121a; background: var(--cyan); }
+.dx-rodape { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--dim); font-size: 14px; }
+@media (max-width: 900px) {
+  .dx { grid-template-columns: 1fr; padding: 0 16px; }
+  .dx-nav { position: static; max-height: none; padding: 20px 0 0; grid-auto-flow: column; grid-auto-columns: max-content; overflow-x: auto; gap: 6px; }
+  .dx-nav b { display: none; }
+  .dx-nav a { border: 1px solid var(--line); border-radius: 99px; padding: 6px 14px; }
+  .dx-nav a[aria-current='true'] { border-color: var(--cyan); }
+}
+
+/* Celular: o cabeçalho quebra em duas linhas em vez de empurrar a página para o lado (antes passava 23 px da borda) */
+@media (max-width: 640px) {
+  .docs-page .shell-top { padding: var(--sp-4); gap: var(--sp-3); flex-wrap: wrap; }
+  .docs-page .top-actions { flex-wrap: wrap; justify-content: flex-end; }
+}
+@media (pointer: coarse) {
+  .dx-nav a { padding-block: var(--sp-3); }
+  .dx-copiar { padding: var(--sp-2) var(--sp-3); }
+}
+@media (pointer: coarse) {
+  .dx-rodape a { display: inline-block; padding-block: var(--sp-3); }
+}
+
+```

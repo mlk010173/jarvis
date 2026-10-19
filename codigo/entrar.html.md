@@ -1,0 +1,126 @@
+# `entrar.html`
+
+> **Fonte:** https://assistanceorion.cloud/entrar · baixado em 19/10/2026
+> 119 linhas · 12.7 KB · Página de login (/entrar)
+
+```html
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar — ORION</title>
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" type="image/svg+xml" href="/orion/logo.svg?v=mvak1f88">
+  <link rel="stylesheet" href="/orion/tokens.css?v=mvenxghl">
+  <link rel="stylesheet" href="/orion/orion.css?v=mveng77k">
+  <link rel="stylesheet" href="/entrar.css?v=mveng77k">
+  <script src="/comum.js?v=mv7a33y0" defer></script>
+  <script src="/orion/mkt.js?v=mvdbgn2w" defer></script>
+  <script src="/orion/orb.js?v=mvebkteo" defer></script>
+  <script src="/entrar.js?v=mvdec88w" defer></script>
+</head>
+<body class="au">
+<div class="au-fundo" aria-hidden="true"></div>
+<a class="au-voltar" href="/orion/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Voltar ao site</a>
+
+<main class="au-grade">
+  <!-- lado da marca: o mesmo anel de energia do app -->
+  <section class="au-marca" aria-label="ORION">
+    <a class="au-logo" href="/orion/"><img src="/orion/logo.svg?v=mvak1f88" alt="" width="30" height="30"><span>ORION</span></a>
+    <div class="au-anel"><canvas id="au-anel" aria-hidden="true"></canvas><span class="au-anel-rot">ONLINE</span></div>
+    <h2 class="au-frase">Fale com o seu PC.<br><span>Ele executa.</span></h2>
+    <ul class="au-fatos">
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span><b>Voz, vídeo e leads</b>Um assistente que edita, transcreve, acha clientes e responde falando.</span></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg><span><b>Suas chaves, seu PC</b>No app, as chaves de IA ficam no cofre do Windows. Nunca no nosso servidor.</span></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10a4 4 0 0 1 0 8H9M7 7l3-3M7 7l3 3M17 17H7a4 4 0 0 1 0-8"/></svg><span><b>Site e app juntos</b>Entre com a mesma conta e o site enxerga o seu PC, sem código.</span></li>
+    </ul>
+  </section>
+
+  <!-- cartão de acesso -->
+  <section class="au-lado">
+    <div class="au-card">
+      <span class="au-feixe f1" aria-hidden="true"></span><span class="au-feixe f2" aria-hidden="true"></span><span class="au-feixe f3" aria-hidden="true"></span><span class="au-feixe f4" aria-hidden="true"></span>
+      <div class="au-cab">
+        <h1 id="au-titulo">Acesse o ORION</h1>
+        <p class="lead" id="au-sub">Entre ou crie a sua conta grátis. Ela começa no plano Free, sem cartão.</p>
+      </div>
+
+      <div class="logado" id="logado" hidden>
+        <div class="logado-quem"><b id="lg-nome"></b><span id="lg-email"></span></div>
+        <p class="hint">Você já está conectado. Pode continuar nesta conta ou trocar por outra. Ao entrar ou criar uma conta nova, a sessão anterior é encerrada.</p>
+        <div class="logado-acoes">
+          <a class="btn btn-sm btn-primary" id="lg-continuar" href="/orion/conta">Continuar nesta conta</a>
+          <button class="btn btn-sm" id="lg-sair" type="button">Sair e usar outra conta</button>
+        </div>
+      </div>
+
+      <div class="tabs au-abas" role="tablist" aria-label="Entrar ou criar conta">
+        <span class="au-aba-marca" aria-hidden="true"></span>
+        <button type="button" id="aba-entrar" class="ativa" role="tab">Entrar</button>
+        <button type="button" id="aba-cadastro" role="tab">Criar conta</button>
+      </div>
+
+      <div id="bloco-google">
+        <a id="google" class="au-google" href="/api/conta/google/iniciar" hidden>
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          <span>Continuar com o Google</span>
+        </a>
+        <a id="discord" class="au-google au-discord" href="/discord/entrar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#5865F2" d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.211.375-.445.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.618-1.25.077.077 0 0 0-.079-.037A19.74 19.74 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.319 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.873-1.295 1.226-1.994a.076.076 0 0 0-.042-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .078-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .079.009c.12.099.246.198.373.292a.077.077 0 0 1-.007.128 12.3 12.3 0 0 1-1.873.891.077.077 0 0 0-.041.107c.36.698.772 1.363 1.225 1.993a.076.076 0 0 0 .084.029 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.029ZM8.02 15.331c-1.183 0-2.157-1.086-2.157-2.42 0-1.332.956-2.418 2.157-2.418 1.21 0 2.176 1.095 2.157 2.419 0 1.333-.956 2.419-2.157 2.419Zm7.975 0c-1.183 0-2.157-1.086-2.157-2.42 0-1.332.955-2.418 2.157-2.418 1.21 0 2.176 1.095 2.157 2.419 0 1.333-.946 2.419-2.157 2.419Z"/></svg>
+          <span>Continuar com o Discord</span>
+        </a>
+        <div class="divider"><span>ou com o e-mail</span></div>
+      </div>
+      <div class="erro" id="g-erro" hidden>Não consegui entrar com o Google. Tente de novo ou use o e-mail e a senha.</div>
+
+      <form id="form-entrar" autocomplete="on" novalidate>
+        <div class="au-campo"><label for="e-email">E-mail</label><span class="au-entrada"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><input id="e-email" type="email" autocomplete="email" maxlength="160" autocapitalize="off" spellcheck="false" required placeholder="voce@email.com"></span></div>
+        <div class="au-campo"><label for="e-senha">Senha</label><span class="au-entrada"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><input id="e-senha" type="password" autocomplete="current-password" maxlength="200" required placeholder="Sua senha"><button type="button" class="au-olho" data-olho="e-senha" aria-label="Mostrar a senha" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></span></div>
+        <div class="erro" id="e-erro"></div>
+        <button class="au-botao" type="submit"><span>Entrar</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <button type="button" class="au-esqueci" id="ir-esqueci">Esqueci a senha</button>
+      </form>
+
+      <form id="form-esqueci" hidden autocomplete="on" novalidate>
+        <p class="hint">Digite o e-mail da sua conta. Enviamos um link para você criar uma senha nova.</p>
+        <div class="au-campo"><label for="r-email">E-mail</label><span class="au-entrada"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><input id="r-email" type="email" autocomplete="email" maxlength="160" autocapitalize="off" spellcheck="false" required placeholder="voce@email.com"></span></div>
+        <div class="erro" id="r-erro"></div>
+        <p class="au-ok" id="r-ok" hidden></p>
+        <button class="au-botao" type="submit"><span>Enviar o link</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <button type="button" class="au-esqueci" data-voltar-login>Voltar para entrar</button>
+      </form>
+
+      <form id="form-redefinir" hidden autocomplete="off" novalidate>
+        <p class="hint">Escolha a senha nova da sua conta ORION. Depois de salvar, entre de novo no site e no app.</p>
+        <div class="au-campo"><label for="n-senha">Senha nova</label><span class="au-entrada"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><input id="n-senha" type="password" autocomplete="new-password" minlength="8" maxlength="200" required placeholder="Pelo menos 8 caracteres"><button type="button" class="au-olho" data-olho="n-senha" aria-label="Mostrar a senha" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></span></div>
+        <div class="au-campo"><label for="n-senha2">Repita a senha nova</label><span class="au-entrada"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><input id="n-senha2" type="password" autocomplete="new-password" minlength="8" maxlength="200" required placeholder="A mesma senha"></span></div>
+        <div class="erro" id="n-erro"></div>
+        <button class="au-botao" type="submit"><span>Salvar a senha nova</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </form>
+
+      <form id="form-codigo" hidden autocomplete="off">
+        <p class="hint" id="cod-msg"></p>
+        <div class="au-campo"><label for="cod">Código de 6 dígitos</label><span class="au-entrada"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><input id="cod" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required placeholder="000000"></span></div>
+        <div class="erro" id="cod-erro"></div>
+        <button class="au-botao" type="submit"><span>Confirmar e entrar</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <button class="btn btn-block" type="button" id="cod-reenviar" style="margin-top:10px">Reenviar o código</button>
+      </form>
+
+      <form id="form-cadastro" hidden autocomplete="on" novalidate>
+        <div class="au-campo"><label for="c-nome">Seu nome</label><span class="au-entrada"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><input id="c-nome" autocomplete="name" required minlength="2" maxlength="80" placeholder="Como você se chama"></span></div>
+        <div class="au-campo"><label for="c-email">E-mail</label><span class="au-entrada"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><input id="c-email" type="email" autocomplete="email" maxlength="160" autocapitalize="off" spellcheck="false" required placeholder="voce@email.com"></span></div>
+        <div class="au-campo"><label for="c-senha">Senha</label><span class="au-entrada"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><input id="c-senha" type="password" autocomplete="new-password" minlength="8" maxlength="200" required placeholder="Pelo menos 8 caracteres"><button type="button" class="au-olho" data-olho="c-senha" aria-label="Mostrar a senha" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></span>
+          <span class="au-forca" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="hint" id="c-forca">Use pelo menos 8 caracteres, de preferência uma senha que você não usa em outro site.</span></div>
+        <div class="erro" id="c-erro"></div>
+        <button class="au-botao" type="submit"><span>Criar minha conta grátis</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <p class="au-nota">Ao criar a conta você concorda com os <a href="/termos">Termos de Uso</a> e a <a href="/privacidade">Política de Privacidade</a>. Você começa no plano Free, sem cartão.</p>
+      </form>
+      <p class="au-nota" style="margin-top:14px">Problemas para entrar? Fale com o suporte: <a href="mailto:assistanceorion.cloud@gmail.com">assistanceorion.cloud@gmail.com</a> ou pelo <a href="https://discord.gg/aFHrJ6Vcew" target="_blank" rel="noopener">Discord</a>.</p>
+    </div>
+  </section>
+</main>
+</body>
+</html>
+
+```

@@ -1,0 +1,20 @@
+# `legal.css`
+
+> **Fonte:** https://assistanceorion.cloud/legal.css · baixado em 19/10/2026
+> 13 linhas · 1.3 KB · Estilos das páginas legais
+
+```css
+/* Política de Privacidade e Termos de Uso: leitura confortável no visual preto e azul do ORION. */
+body.legal { margin: 0; background: #000; color: var(--text-2); font-family: var(--font); }
+.legal-top { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: var(--sp-4) var(--gutter); background: rgba(0, 0, 0, .85); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.legal-top .brand { display: inline-flex; align-items: center; gap: 10px; color: #fff; font-weight: 650; letter-spacing: .3em; }
+.legal-main { max-width: calc(72ch + 2 * var(--gutter)); margin: 0 auto; padding: var(--sp-12) var(--gutter) var(--sp-20); line-height: 1.7; font-size: 16px; }
+.legal-main h1 { color: #fff; font-size: clamp(30px, 4vw, 42px); letter-spacing: -.02em; margin: 0 0 6px; }
+.legal-data { color: var(--muted); font-size: 14px; margin: 0 0 28px; }
+.legal-main h2 { color: #fff; font-size: 20px; margin: 36px 0 10px; }
+.legal-main ul { padding-left: 20px; display: grid; gap: 8px; }
+.legal-main b { color: var(--text); }
+.legal-main a { color: #8fd0ff; border-bottom: 1px solid rgba(143, 208, 255, .35); }
+.legal-rodape { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); }
+
+```

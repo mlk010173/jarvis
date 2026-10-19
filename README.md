@@ -2,7 +2,7 @@
 
 > Documento original, escrito a partir da análise do frontend público de `assistanceorion.cloud`
 > (ORION Web, página `/orion/app`), realizada em 17–19/10/2026.
-> **Este repo não contém código do ORION** — é uma descrição técnica independente (fatos,
+> **Até 19/10/2026 este repo era só descrição técnica;** a partir de agora a pasta `codigo/` contém o espelho completo dos 54 arquivos do frontend público, em `.md` (fatos,
 > estruturas e comportamentos observáveis), para verificação, estudo e planejamento de testes.
 
 ## 1. Visão geral do produto

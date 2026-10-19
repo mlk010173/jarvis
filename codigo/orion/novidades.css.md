@@ -1,0 +1,41 @@
+# `orion/novidades.css`
+
+> **Fonte:** https://assistanceorion.cloud/orion/novidades.css · baixado em 19/10/2026
+> 34 linhas · 3.5 KB · Estilos da página de novidades
+
+```css
+/* Novidades: linha do tempo das versões (a marca de cada versão fica sobre um trilho vertical) e o aviso de versão nova */
+.nv-lista { position: relative; display: grid; gap: 14px; margin-top: 28px; padding-left: 28px; }
+.nv-lista::before { content: ''; position: absolute; left: 6px; top: 18px; bottom: 18px; width: 1px; background: linear-gradient(180deg, var(--blue), var(--line) 30%, transparent); }
+.nv-versao { position: relative; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); }
+.nv-versao[open] { border-color: var(--line-2); }
+.nv-versao summary { display: grid; gap: 6px; padding: 20px 24px; cursor: pointer; list-style: none; }
+.nv-versao summary::-webkit-details-marker { display: none; }
+.nv-versao summary:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; border-radius: var(--r-lg); }
+.nv-marca { position: absolute; left: -26px; top: 22px; width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--line-2); background: var(--bg); }
+.nv-atual .nv-marca { border-color: var(--cyan); background: var(--cyan); box-shadow: 0 0 0 5px rgba(0, 210, 255, .14), 0 0 18px rgba(0, 210, 255, .6); }
+.nv-cab { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.nv-cab b { font-size: 20px; letter-spacing: -.01em; color: var(--text); }
+.nv-data { margin-left: auto; font: 400 13px var(--mono); color: var(--muted); }
+.nv-resumo { color: var(--text-2); font-size: 15px; line-height: 1.5; max-width: 70ch; }
+.nv-corpo { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; padding: 4px 24px 24px; }
+.nv-secao { padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r); background: rgba(255, 255, 255, .015); }
+.nv-secao h3 { margin: 0 0 8px; font-size: 15px; color: var(--text); }
+.nv-secao ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--text-2); font-size: 14px; line-height: 1.45; }
+
+/* aviso de versão nova (site): aparece uma vez por versão, no canto da tela */
+.nv-aviso { position: fixed; left: 16px; bottom: 16px; z-index: 60; display: flex; align-items: center; gap: 14px; max-width: min(440px, calc(100vw - 32px)); padding: 12px 12px 12px 16px; border: 1px solid var(--line-2); border-radius: 16px; background: rgba(5, 10, 18, .92); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: 0 24px 60px -24px rgba(0, 0, 0, .9), 0 0 0 1px rgba(0, 0, 0, .4), 0 0 40px -16px rgba(0, 210, 255, .5); animation: nv-entra .6s var(--ease) both; }
+.nv-aviso-ic { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: var(--grad); color: #03121a; }
+.nv-aviso-ic svg { width: 18px; height: 18px; }
+.nv-aviso-txt { display: grid; gap: 2px; min-width: 0; }
+.nv-aviso-txt b { color: var(--text); font-size: 14px; }
+.nv-aviso-txt span { color: var(--muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nv-aviso .btn { flex: none; }
+.nv-aviso-x { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer; }
+.nv-aviso-x:hover { background: rgba(255, 255, 255, .06); color: var(--text); }
+.nv-aviso-x svg { width: 14px; height: 14px; }
+@keyframes nv-entra { from { opacity: 0; transform: translateY(16px); } }
+@media (prefers-reduced-motion: reduce) { .nv-aviso { animation: none; } }
+@media (max-width: 560px) { .nv-aviso .btn { display: none; } .nv-aviso { cursor: pointer; } .nv-data { margin-left: 0; } }
+
+```

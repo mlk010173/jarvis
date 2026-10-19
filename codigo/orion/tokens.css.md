@@ -1,0 +1,93 @@
+# `orion/tokens.css`
+
+> **Fonte:** https://assistanceorion.cloud/orion/tokens.css · baixado em 19/10/2026
+> 86 linhas · 4.0 KB · Design tokens (cores, fontes)
+
+```css
+/* ORION — tokens do sistema visual (única fonte de cores, tipografia e formas).
+   Páginas novas usam os nomes em inglês; as páginas legadas (painel, docs, tutoriais) usam os apelidos em português no fim. */
+
+@font-face { font-family: 'Geist'; src: url('/orion/fonts/Geist.woff2') format('woff2'); font-weight: 100 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Geist Mono'; src: url('/orion/fonts/GeistMono-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Geist Mono'; src: url('/orion/fonts/GeistMono-Medium.woff2') format('woff2'); font-weight: 500 700; font-style: normal; font-display: swap; }
+
+:root {
+  color-scheme: dark;
+  /* superfícies */
+  /* mesma paleta do app (tema ORION): preto, painéis azulados quase pretos e bordas com um toque de azul neon */
+  --bg: #000000;
+  --surface: #050a12;
+  --surface-2: #0a111c;
+  --surface-3: #0f1826;
+  --line: rgba(46, 155, 255, .13);
+  --line-2: rgba(46, 155, 255, .26);
+  /* texto */
+  --text: #eaf4ff;
+  --text-2: #a9bed6;
+  --muted: #7b90a8;
+  --dim: #6e8298; /* texto apagado: 5:1 sobre preto (era #4f6177, 3:1, abaixo do mínimo WCAG) */
+  /* acento: azul neon → ciano */
+  --blue: #2E9BFF;
+  --cyan: #00D2FF;
+  --grad: linear-gradient(135deg, #1F6BFF 0%, #2E9BFF 55%, #00D2FF 100%);
+  --silver: linear-gradient(180deg, #ffffff 0%, #d5dbe3 60%, #a5aeba 100%);
+  --glow: 0 0 0 1px rgba(46, 155, 255, .4), 0 8px 40px -8px rgba(0, 210, 255, .55);
+  /* estado */
+  --ok: #34d399;
+  --warn: #fbbf24;
+  --err: #f87171;
+  /* forma */
+  --r-sm: 8px;
+  --r: 12px;
+  --r-lg: 20px;
+  --r-pill: 999px;
+  /* tipografia */
+  --font: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'Geist Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --ease: cubic-bezier(.22, 1, .36, 1);
+
+  /* apelidos das páginas legadas (estilo.css) */
+  --fundo: var(--bg);
+  --fundo2: var(--surface);
+  --painel: var(--surface);
+  --painel2: var(--surface-2);
+  --vidro-forte: var(--surface);
+  --borda: var(--line);
+  --borda-forte: var(--line-2);
+  --titulo: var(--text);
+  --texto: #dde2e8;
+  --suave: var(--text-2);
+  --ajuda-cor: var(--muted);
+  --roxo: var(--blue);
+  --roxo2: var(--cyan);
+  --ciano: var(--cyan);
+  --verde: var(--ok);
+  --amarelo: var(--warn);
+  --vermelho: var(--err);
+  --raio: var(--r-lg);
+  --raio-badge: 6px;
+  --raio-input: var(--r-sm);
+  --raio-pill: var(--r-pill);
+  --fonte: var(--font);
+  --display: var(--font);
+  --elev-cartao: 0 1px 0 rgba(255, 255, 255, .04) inset, 0 24px 48px -24px rgba(0, 0, 0, .8);
+  --elev-modal: 0 1px 0 rgba(255, 255, 255, .06) inset, 0 32px 64px -16px rgba(0, 0, 0, .85);
+  --halo: 0 0 0 1px rgba(59, 130, 246, .35), 0 8px 32px -8px rgba(6, 182, 212, .4);
+  /* espaçamento: escala de 4 pt. Use SEMPRE estes tokens em padding, margin e gap (nada de 3, 5, 7, 9, 11, 13, 18, 22, 26 px) */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px; --sp-6: 24px; --sp-7: 28px; --sp-8: 32px;
+  --sp-10: 40px; --sp-12: 48px; --sp-14: 56px; --sp-16: 64px; --sp-20: 80px; --sp-24: 96px; --sp-30: 120px; --sp-32: 128px;
+  --gutter: clamp(16px, 5vw, 40px); /* margem lateral de qualquer página: a mesma no cabeçalho, no conteúdo e no rodapé */
+  --secao-y: clamp(64px, 10vw, 120px); /* respiro vertical entre seções (cai pela metade no celular) */
+  --alvo-toque: 44px; /* altura mínima de link e botão em tela de toque */
+  /* movimento: curvas e tempos (entrada em ease-out; interface rápida: 120 a 200 ms; nada de UI acima de 320 ms) */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --dur-rapido: 120ms; --dur-base: 200ms; --dur-lento: 320ms;
+}
+
+/* Quem pede menos movimento recebe animações e transições praticamente instantâneas */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+
+```
