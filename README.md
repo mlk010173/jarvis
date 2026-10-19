@@ -113,3 +113,21 @@ OpenRouter (grátis). Free usa 1 IA; Premium sem limite (OpenAI, Claude, Gemini,
 2. Conferir se as portas da ponte batem com o instalador atual
 3. Testar os endpoints `/api/v1/*` com uma chave de projeto própria
 4. Reproduzir a revisão de erros: `node --check` nos scripts + varredura de 404 nos assets
+
+## 10. Espelho no GitHub Pages (19/10/2026)
+
+O **site estático completo** está publicado em:
+
+**https://mlk010173.github.io/orion-web-arquitetura/**
+
+- 80 arquivos, 14 páginas: `/orion/app` (ORION Web), `/entrar`, `/orion/conta`, `/orion/comecar`,
+  `/orion/checkout`, `/orion/novidades`, `/docs`, `/tutoriais`, `/painel`, `/tutorials`,
+  `/termos`, `/privacidade`
+- Caminhos absolutos reescritos para relativos (o Pages não serve na raiz do domínio)
+- `orion/pages-shim.js`: intercepta chamadas `/api/*` e devolve resposta amigável — o
+  backend (login, planos, PIX, ponte com o PC) não existe num site estático
+- As validações do espelho: `node --check` em todos os JS + todos os links internos resolvem
+- `pages-workflow.yml` (na raiz do repo): workflow de Actions pronto. Para ativar, mova para
+  `.github/workflows/` na interface do GitHub (o token usado não tinha escopo `workflow`).
+
+> Para editar: os arquivos na raiz do repo são o site; `codigo/` continua sendo o espelho em `.md`.
