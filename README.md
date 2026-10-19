@@ -131,3 +131,11 @@ O **site estático completo** está publicado em:
   `.github/workflows/` na interface do GitHub (o token usado não tinha escopo `workflow`).
 
 > Para editar: os arquivos na raiz do repo são o site; `codigo/` continua sendo o espelho em `.md`.
+
+## 11. Auditoria de segurança
+Relatório em [`AUDITORIA_SEGURANCA.md`](AUDITORIA_SEGURANCA.md): mapeamento de 65 endpoints, varredura de segredos,
+cabeçalhos, teste do renderizador Markdown contra XSS e observações de baixo risco. Nenhuma falha crítica no frontend;
+backend não analisado.
+
+## 12. Deploy
+`.github/workflows/pages.yml` valida a sintaxe de todos os JS e os links internos, e publica no Pages a cada push em `main`.
