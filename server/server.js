@@ -172,7 +172,12 @@ async function api(req, res, rota, metodo, corpo, conta) {
   if (K === 'POST /api/ponte/comando') return { erro: 'Nenhum PC conectado.' };
   if (K === 'GET /api/web/clima') return climaExtern(String(corpo.cidade || 'São Paulo'));
   if (K === 'POST /api/web/clima') return climaExtern(String((corpo || {}).cidade || 'São Paulo'));
-  if (K === 'POST /api/web/melhorar-prompt') return melhorarPrompt((corpo || {}).texto);
+  if (K === 'POST /api/web/melhorar-prompt') {
+    const t = String((corpo || {}).texto || '').trim();
+    if (!t) return { __erro: [400, 'Escreva o texto que você quer melhorar.'] };
+    if (t.length > 8000) return { __erro: [400, 'Texto longo demais (máximo 8.000 caracteres).'] };
+    return melhorarPrompt(t);
+  }
   if (K === 'POST /api/coletiva/lote') { db.coletiva.eventos += (corpo.eventos || []).length; db.coletiva.lotes++; salvar(); return { ok: true }; }
 
   /* conta — sessão */
@@ -180,6 +185,7 @@ async function api(req, res, rota, metodo, corpo, conta) {
   if (K === 'POST /api/conta/cadastro') {
     const { nome, email, senha } = corpo || {};
     if (!nome || !email || !senha || senha.length < 8) return { __erro: [400, 'Confira nome, e-mail e senha (mínimo 8 caracteres).'] };
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(email))) return { __erro: [400, 'E-mail inválido. Confira o endereço digitado.'] };
     if (db.contas.some(c => c.email === email)) return { __erro: [400, 'Já existe uma conta com este e-mail.'] };
     const sal = crypto.randomBytes(12).toString('hex');
     db.contas.push({ id: id('c'), nome, email, sal, hash: senhaHash(senha, sal), plano: 'jarvis', ias: [], memoria: [], criado: agora() });
@@ -322,14 +328,22 @@ async function api(req, res, rota, metodo, corpo, conta) {
     return { __erro: [404, 'Cupom inválido ou expirado.'] };
   }
 
-  /* daqui pra baixo: precisa login */
-  if (!conta) return { __erro: [401, 'Faça login.'] };
+  /* daqui pra baixo: precisa login — rota que não existe aqui é 404, nunca 401 genérico */
+  const PROTEGIDAS = [
+    /^\/api\/conta\/(assinatura|discord|pcs|verificar-login|reenviar-codigo|eu|plano|preferencias|memoria|ias|ias-ordem)(\/?.*)$/,
+    /^\/api\/projetos(\/.*)?$/,
+    /^\/api\/pagamentos\//,
+    /^\/api\/dono\/negocio$/,
+    /^\/api\/v1\//,
+  ];
+  if (!conta && PROTEGIDAS.some((re) => re.test(rota))) return { __erro: [401, 'Faça login.'] };
 
   if (K === 'GET /api/conta/assinatura') return { plano: conta.plano || 'jarvis', status: 'ativo', cobranca: 'aberto' };
   if (K === 'GET /api/conta/discord') return { vinculado: Boolean(conta.discord), tag: conta.discord ? conta.discord.tag : null };
   if (K === 'POST /api/conta/discord') return { __erro: [501, 'Vinculação Discord requer o servidor oficial.'] };
-  if (K === 'GET /api/conta/pcs') return { pcs: conta.pcs || [] };
-  if (K === 'POST /api/conta/verificar-login') return { ok: true, email: conta.email };
+  if (K === 'GET /api/conta/pcs' || K === 'GET /api/conta/pcs/') return { pcs: conta.pcs || [] };
+  if (K === 'POST /api/conta/verificar-login') return { __erro: [400, 'Nenhuma verificação pendente para esta conta. Entre de novo.'] };
+  if (K === 'POST /api/conta/reenviar-codigo') return { __erro: [400, 'Nenhum código pendente para reenviar.'] };
   if (K === 'GET /api/conta/google/ativo') return { ativo: Boolean(conta.google) };
   if (K === 'GET /api/dono/negocio') return {
     negocio: { contas: db.contas.length, projetos: db.projetos.length, sessoes: Object.keys(db.sessoes).length, eventos: db.coletiva.eventos },
@@ -396,7 +410,7 @@ async function api(req, res, rota, metodo, corpo, conta) {
     catch (e) { return { __erro: [502, e.message || 'Todas as IAs falharam.'] }; }
   }
 
-  return { __erro: [404, 'Rota não disponível no JARVIS.'] };
+  return { __erro: [404, 'Rota não encontrada.'] };
 }
 function semSecretos(p) { const { chaves, ...resto } = p; return resto; }
 
