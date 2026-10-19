@@ -143,6 +143,11 @@ backend não analisado.
 
 ## 13. JARVIS: rebrand e backend de verdade (19/10/2026)
 
+**Comandos reais no chat** (dados abertos ao vivo, sem IA): `/clima [cidade]`, `/moeda [USD] [BRL]`,
+`/cripto [bitcoin|ethereum|solana|cardano|dogecoin]`, `/wiki [termo]`, `/feriados [ano]`, `/github`, `/ajuda`.
+Fontes: MET.no/Open-Meteo (clima), AwesomeAPI/Frankfurter-BCE (moedas), CoinGecko/Coinbase (cripto),
+Wikipédia PT, Nager.Date (feriados), GitHub API — todas abertas e sem chave.
+
 O projeto deixou de ser um espelho estático e virou o **JARVIS**, com backend real:
 
 - **Nome:** repositório renomeado para `mlk010173/jarvis`, site em https://mlk010173.github.io/jarvis/
