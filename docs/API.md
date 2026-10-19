@@ -56,3 +56,42 @@ JSON local em `server/data/db.json` (contas, sessões, projetos, chaves, coletiv
 ## Chaves de IA (BYOK)
 Cada conta cadastra provedores OpenAI-compatíveis (OpenAI, Groq, Mistral, DeepSeek, OpenRouter, Google…).
 O teste de projeto usa a primeira IA ativa da fila. As chaves ficam no servidor, nunca no navegador.
+
+---
+
+## Rotas adicionais mapeadas na varredura profunda (19/10/2026)
+
+### Conta e login
+- `POST /api/conta/verificar-login` `{desafio, codigo}` — 2FA por e-mail em rede nova (código 6 dígitos, 10 min)
+- `POST /api/conta/reenviar-codigo` `{desafio}` → `{email}`
+- `GET /api/conta/google/ativo` → `{ativo: true}` (público)
+- `GET /api/conta/google/iniciar` — inicia OAuth Google
+- `GET /api/conta/pcs/` — PCs conectados à conta (login)
+- `GET /api/conta/memoria` — memória da conta (login)
+
+### Admin
+- `/admin` → redireciona para `/entrar?volta=/admin` (área do dono: faturamento, Meta Ads, ROI)
+- `GET /api/dono/negocio` (401 sem login de dono)
+
+### Páginas do site
+- `/orion/comecar`, `/orion/novidades`, `/entrar`, `/docs`, `/tutoriais`, `/termos`, `/privacidade`
+- `/orion/checkout?plano=premium` — checkout próprio
+
+### Marketing e métricas
+- `GET /api/marketing/publico` → IDs de conversão públicos: Google Ads `AW-18521438314`, Facebook Pixel
+- `POST /api/coletiva/lote` — métricas anônimas de uso (opt-in explícito no app)
+
+### Componentes públicos
+- `POST /api/public/v1/card-tokens` — tokens de componentes para sites externos
+- `GET /api/ui/vitrine` — temas CSS servidos pela API
+- `GET /api/ui/pro/midia/` (login Pro)
+
+### API v1
+- `POST /api/v1/chat` — `Authorization: Bearer sk_live_...`, histórico máx. 40 mensagens × 8.000 chars
+- `GET /api/v1/projeto` — info do projeto da chave
+
+### Comportamento verificado ao vivo
+- Erros: sempre `{"erro": "..."}` em pt-BR com código HTTP correto (400/401/404/429/502)
+- Roteamento de métodos real (PUT em rota GET → 404)
+- Login sem sessão: erro genérico, sem leak de existência de conta
+- Detalhes de segurança: `docs/AUDITORIA-ORION.md` · Histórico do produto: `docs/CHANGELOG-ORION.md`
