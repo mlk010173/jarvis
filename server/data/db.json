@@ -21,6 +21,25 @@
    "ias": [],
    "memoria": [],
    "criado": 1792428304709
+  },
+  {
+   "id": "c_dab2af33444c6db4e0",
+   "nome": "QA 2FA",
+   "email": "qa2fa@t.com",
+   "sal": "17fc1bdf6fc9853babd77053",
+   "hash": "5829a5e6960325d4f0e19cf139c70ea919c08e79209f370250f82f441b86b0b8",
+   "plano": "jarvis",
+   "ias": [],
+   "memoria": [],
+   "criado": 1792437203937,
+   "uas": [
+    "ac58aeceb2a252ccaf28",
+    "ac58aeceb2a252ccaf28",
+    "ac58aeceb2a252ccaf28",
+    "cd0e6d2abc504a9ddf4e",
+    "cd0e6d2abc504a9ddf4e",
+    "ac58aeceb2a252ccaf28"
+   ]
   }
  ],
  "projetos": [
@@ -43,10 +62,77 @@
   "2c5ec545816b991f934d10a478084494d89f4ab1dfe2fcd3": {
    "email": "teste@jarvis.dev",
    "exp": 1795020304709
+  },
+  "0ea4a02b22cfc28eea27da6f56cd2963c972f06c27769ae0": {
+   "email": "qa2fa@t.com",
+   "exp": 1795029203938
+  },
+  "442d56dc016831df8637b1f5d9d9b07916c2023af237e157": {
+   "email": "qa2fa@t.com",
+   "exp": 1795029238829
+  },
+  "6b40c40b8c52af1bc25578f6992f6c7b58c8461d500b283f": {
+   "email": "qa2fa@t.com",
+   "exp": 1795029252057
+  },
+  "f65c64e34120cb2092cb105608c726ea22aa5a3fcbda852c": {
+   "email": "qa2fa@t.com",
+   "exp": 1795029254630
+  },
+  "66053026a53246072133f4cdc7e44a2e0725114db3d267c1": {
+   "email": "qa2fa@t.com",
+   "exp": 1795029277515
+  },
+  "f2dda077332637a71849f828ac12f8da89075ab53f00e5cc": {
+   "email": "qa2fa@t.com",
+   "exp": 1795029277571
+  },
+  "a6971f1ba3ccac45e20f2edd188fefb0923f65365a89da98": {
+   "email": "qa2fa@t.com",
+   "exp": 1795029279491
   }
  },
  "coletiva": {
   "eventos": 0,
   "lotes": 0
+ },
+ "oauthEstados": {},
+ "oauthCodigos": {},
+ "desafios": {
+  "c3c04614b259c8940846243d8c9496cb": {
+   "email": "qa2fa@t.com",
+   "codigo": "509432",
+   "exp": 1792437836185,
+   "ua": "cd0e6d2abc504a9ddf4e",
+   "env": 1792437236185
+  },
+  "1d2e753703a696f482a6d697cf970449": {
+   "email": "qa2fa@t.com",
+   "codigo": "936492",
+   "exp": 1792437836912,
+   "ua": "cd0e6d2abc504a9ddf4e",
+   "env": 1792437236912
+  },
+  "26763c46adc2013f9dad2bdf7a15e99f": {
+   "email": "qa2fa@t.com",
+   "codigo": "986272",
+   "exp": 1792437836958,
+   "ua": "148cb56b65a4712096e0",
+   "env": 1792437236958
+  },
+  "b233453c19bd16d42fc61e4e58ee720b": {
+   "email": "qa2fa@t.com",
+   "codigo": "098464",
+   "exp": 1792437849497,
+   "ua": "cd0e6d2abc504a9ddf4e",
+   "env": 1792437249497
+  },
+  "2a6a848c03f06f8b5089b41718450faa": {
+   "email": "qa2fa@t.com",
+   "codigo": "515671",
+   "exp": 1792437877616,
+   "ua": "148cb56b65a4712096e0",
+   "env": 1792437277616
+  }
  }
 }

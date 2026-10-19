@@ -47,6 +47,19 @@ Duas formas de chamar:
 | POST | /api/web/melhorar-prompt | `{texto}` → versão melhorada + dicas |
 | POST | /api/coletiva/lote | métricas anônimas (conta lotes/eventos) |
 | GET | /api/ui/vitrine | tokens visuais |
+| GET | /api/admin/eu | `{erro: "Área restrita ao dono e à equipe."}` |
+| GET | /api/admin/vendas | `{erro: "Área restrita ao dono e à equipe."}` |
+| GET | /api/admin/equipe | `{erro: "Área restrita ao dono e à equipe."}` |
+| GET | /api/admin/cupons | `{erro: "Área restrita ao dono e à equipe."}` |
+| GET | /api/admin/relatorios | `{erro: "Área restrita ao dono e à equipe."}` |
+| GET | /api/admin/resumo | `{erro: "Área restrita ao dono."}` |
+| GET | /api/admin/planos | `{erro: "Área restrita ao dono."}` |
+| GET | /api/admin/usuarios | `{erro: "Área restrita ao dono."}` |
+| GET | /api/admin/assinaturas | `{erro: "Área restrita ao dono."}` |
+| GET | /api/admin/leads | `{erro: "Área restrita ao dono."}` |
+| GET | /api/admin/push | `{erro: "Área restrita ao dono."}` |
+| GET | /api/admin/auditoria | `{erro: "Área restrita ao dono."}` |
+| GET | /api/admin/contas | `{erro: "Área restrita ao dono."}` |
 | GET | /api/dono/eu | `{dono: false}` (honesto: sem painel de dono local) |
 | GET | /api/ponte/apps | `{apps: []}` (sem app de PC conectado) |
 
@@ -95,3 +108,7 @@ O teste de projeto usa a primeira IA ativa da fila. As chaves ficam no servidor,
 - Roteamento de métodos real (PUT em rota GET → 404)
 - Login sem sessão: erro genérico, sem leak de existência de conta
 - Detalhes de segurança: `docs/AUDITORIA-ORION.md` · Histórico do produto: `docs/CHANGELOG-ORION.md`
+
+## Área admin (descoberta em auditoria, 19/10/2026)
+
+Varredura autenticada da API oficial (1157+ candidatos, discriminação 404 vs 401/403) confirmou 13 rotas `/api/admin/*` que exigem papel de dono ou equipe. A API oficial nega com `403 "Área restrita ao dono (e à equipe)."` para contas comuns; o backend JARVIS replica o contrato negando honestamente (`dono: false`). A família `/api/v1/*` é um muro por prefixo: qualquer caminho sob `/api/v1` exige `Authorization: Bearer SUA_CHAVE`.

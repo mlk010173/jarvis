@@ -185,6 +185,22 @@ async function api(req, res, rota, metodo, corpo, conta) {
   /* públicas */
   if (ROTAS[K]) return ROTAS[K]();
   if (K === 'GET /api/dono/eu') return { dono: false, papel: null };
+
+  /* rotas admin descobertas na auditoria da API oficial (19/10/2026, brute-force autorizado):
+     todas exigem dono ou equipe; o backend local não tem dono, então responde honesto. */
+  if (K === 'GET /api/admin/eu') return { erro: 'Área restrita ao dono e à equipe.', dono: false, papel: null };
+  if (K === 'GET /api/admin/vendas') return { erro: 'Área restrita ao dono e à equipe.', dono: false };
+  if (K === 'GET /api/admin/equipe') return { erro: 'Área restrita ao dono e à equipe.', dono: false };
+  if (K === 'GET /api/admin/cupons') return { erro: 'Área restrita ao dono e à equipe.', dono: false };
+  if (K === 'GET /api/admin/relatorios') return { erro: 'Área restrita ao dono e à equipe.', dono: false };
+  if (K === 'GET /api/admin/resumo') return { erro: 'Área restrita ao dono.', dono: false };
+  if (K === 'GET /api/admin/planos') return { erro: 'Área restrita ao dono.', dono: false };
+  if (K === 'GET /api/admin/usuarios') return { erro: 'Área restrita ao dono.', dono: false };
+  if (K === 'GET /api/admin/assinaturas') return { erro: 'Área restrita ao dono.', dono: false };
+  if (K === 'GET /api/admin/leads') return { erro: 'Área restrita ao dono.', dono: false };
+  if (K === 'GET /api/admin/push') return { erro: 'Área restrita ao dono.', dono: false };
+  if (K === 'GET /api/admin/auditoria') return { erro: 'Área restrita ao dono.', dono: false };
+  if (K === 'GET /api/admin/contas') return { erro: 'Área restrita ao dono.', dono: false };
   if (K === 'GET /api/ponte/apps') return { apps: [] };
   if (K === 'POST /api/ponte/comando') return { erro: 'Nenhum PC conectado.' };
   if (K === 'GET /api/web/clima') return climaExtern(String(corpo.cidade || 'São Paulo'));
