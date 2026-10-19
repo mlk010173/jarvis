@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assinar — ORION</title>
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/svg+xml" href="../logo.svg?v=mvak1f88">
+<link rel="stylesheet" href="../tokens.css?v=mvenxghl">
+<link rel="stylesheet" href="../jarvis.css?v=mveng77k">
+<link rel="stylesheet" href="../checkout.css?v=mveng77k">
+<script src="../conta-chip.js?v=mvb8mwjk" defer></script>
+<script src="../vendor/qrcode.js?v=mvao4ckw" defer></script>
+<script src="../mkt.js?v=mvdbgn2w" defer></script>
+<script src="../checkout.js?v=mvc81jw0" defer></script>
+</head>
+<body>
+<div class="shell">
+  <header class="shell-top">
+    <a class="brand" href="../index.html"><img src="../logo.svg?v=mvak1f88" alt="" width="28" height="28">ORION</a>
+    <div class="top-actions"><a class="btn btn-sm" href="../index.html#planos">Ver planos</a></div>
+  </header>
+  <main class="page ck">
+    <h1>Finalizar assinatura</h1>
+    <p class="lead" id="sub">Pague com PIX ou cartão e o plano da sua conta é liberado na hora. Nada de chave para digitar.</p>
+
+    <div class="ck-grade">
+      <section class="card-flat ck-resumo" aria-label="Resumo do pedido">
+        <span class="badge badge-blue" id="r-selo" hidden>Recomendado</span>
+        <h2 id="r-nome">Carregando…</h2>
+        <div class="ciclo-toggle ck-ciclo" role="radiogroup" aria-label="Período" id="ck-ciclo">
+          <button type="button" role="radio" data-ciclo="mensal" aria-checked="true">Mensal</button>
+          <button type="button" role="radio" data-ciclo="trimestral" aria-checked="false">Trimestral</button>
+          <button type="button" role="radio" data-ciclo="vitalicio" aria-checked="false">Vitalício</button>
+        </div>
+        <p class="ck-preco"><s id="r-de" hidden></s><b id="r-preco"></b><span id="r-per"> /mês</span></p>
+        <p class="hint" id="r-equiv" hidden></p>
+        <ul class="ck-lista" id="r-lista"></ul>
+        <p class="hint" id="r-regra">Tudo liberado em qualquer período. Depois de pagar, abra o app e entre com o mesmo e-mail e senha.</p>
+      </section>
+
+      <section class="ck-pagar" aria-live="polite">
+        <form id="form" class="card-flat" autocomplete="on" novalidate>
+          <div class="ck-metodos" role="tablist" aria-label="Forma de pagamento" id="metodos" hidden>
+            <button type="button" role="tab" data-m="pix" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 11l3 3 5-5 5 5 3-3z"/><path d="m7 14 5 5 5-5"/></svg>PIX</button>
+            <button type="button" role="tab" data-m="cartao" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h3"/></svg>Cartão de crédito</button>
+            <button type="button" role="tab" data-m="pixauto" aria-selected="false" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3M4 12a8 8 0 0 1 14-5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg>Pix Automático</button>
+          </div>
+          <p class="hint ck-pa-nota" id="pa-nota" hidden>Você autoriza uma vez no app do seu banco e a renovação acontece sozinha a cada período, sem gerar PIX de novo. Dá para cancelar quando quiser em Minha conta.</p>
+          <h2>Seus dados</h2>
+          <p class="hint">O pagamento exige nome, CPF e telefone de quem paga. Usamos só para gerar a cobrança e não guardamos o CPF.</p>
+          <div class="field"><label for="nome">Nome completo</label><input id="nome" name="name" autocomplete="name" required maxlength="100"></div>
+          <div class="field"><label for="cpf">CPF</label><input id="cpf" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" required maxlength="14"></div>
+          <div class="field"><label for="tel">Telefone com DDD</label><input id="tel" name="tel" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(11) 99999-9999" required maxlength="18"></div>
+
+          <fieldset class="ck-cartao" id="campos-cartao" hidden>
+            <legend>Dados do cartão</legend>
+            <p class="hint">O número e o código de segurança vão direto do seu navegador para a SyncPayments e nunca passam pelo nosso servidor.</p>
+            <div class="field"><label for="cc-num">Número do cartão</label><input id="cc-num" inputmode="numeric" autocomplete="cc-number" placeholder="0000 0000 0000 0000" maxlength="23"></div>
+            <div class="field"><label for="cc-nome">Nome impresso no cartão</label><input id="cc-nome" autocomplete="cc-name" maxlength="100"></div>
+            <div class="ck-duas">
+              <div class="field"><label for="cc-val">Validade</label><input id="cc-val" inputmode="numeric" autocomplete="cc-exp" placeholder="MM/AA" maxlength="5"></div>
+              <div class="field"><label for="cc-cvv">CVV</label><input id="cc-cvv" inputmode="numeric" autocomplete="cc-csc" placeholder="123" maxlength="4"></div>
+            </div>
+            <p class="hint">Pagamento à vista (1x), sem juros.</p>
+          </fieldset>
+
+          <div class="ck-cupom">
+            <button type="button" class="ck-cupom-link" id="cupom-abrir">Tenho um cupom de desconto</button>
+            <div class="ck-cupom-caixa" id="cupom-caixa" hidden>
+              <div class="field"><label for="cupom">Cupom</label><input id="cupom" autocomplete="off" spellcheck="false" maxlength="24" placeholder="EX.: ORION10"></div>
+              <button type="button" class="btn" id="cupom-aplicar">Aplicar</button>
+            </div>
+            <p class="ck-cupom-msg" id="cupom-msg" role="status" hidden></p>
+          </div>
+          <div class="alert alert-err" id="erro" hidden></div>
+          <button class="btn btn-lg btn-primary btn-block" id="gerar" type="submit">Gerar PIX</button>
+        </form>
+
+        <div class="card-flat" id="pix" hidden>
+          <h2>Pague com PIX</h2>
+          <div class="ck-qr" id="qr" role="img" aria-label="QR Code do PIX"></div>
+          <p class="hint">Abra o app do seu banco, escolha <b>PIX → Pagar com QR Code</b> e aponte a câmera. Ou use o código abaixo em <b>PIX Copia e Cola</b>.</p>
+          <div class="keybox"><span id="codigo"></span><button class="btn btn-sm" id="copiar" type="button">Copiar</button></div>
+          <div class="ck-status" id="status"><i></i><span>Aguardando o pagamento…</span></div>
+        </div>
+
+        <div class="card-flat" id="pixauto" hidden>
+          <h2>Autorize o Pix Automático</h2>
+          <div class="ck-qr" id="qr-pa" role="img" aria-label="QR Code de autorização do Pix Automático"></div>
+          <p class="hint">Abra o app do seu banco, escolha <b>Pix → Ler QR Code</b> e confirme a autorização do Pix Automático. É uma vez só: depois o débito acontece sozinho a cada período. Ou use o código abaixo em <b>Pix Copia e Cola</b>.</p>
+          <div class="keybox"><span id="codigo-pa">Gerando o código de autorização…</span><button class="btn btn-sm" id="copiar-pa" type="button" disabled>Copiar</button></div>
+          <div class="ck-status" id="status-pa"><i></i><span>Aguardando a autorização no banco…</span></div>
+        </div>
+
+        <div class="card-flat" id="proc" hidden>
+          <h2>Processando o pagamento</h2>
+          <p class="hint">Estamos confirmando com o banco. Isso leva alguns segundos; não feche esta página.</p>
+          <div class="ck-status" id="status2"><i></i><span>Aguardando a resposta do banco…</span></div>
+        </div>
+
+        <div class="card-flat ck-ok" id="ok" hidden>
+          <h2>Pagamento confirmado</h2>
+          <p id="ok-texto"></p>
+          <div class="actions"><a class="btn btn-lg btn-primary" href="../conta.html">Ir para a minha conta</a><a class="btn btn-lg" href="../app.html">Abrir o ORION Web</a></div>
+        </div>
+
+        <div class="alert alert-warn" id="indisponivel" hidden>O pagamento ainda não está disponível. Volte em instantes ou fale com o suporte.</div>
+      </section>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -121,7 +121,17 @@ const ROTAS = {
   'GET /api/comercial/planos': () => PLANOS,
   'GET /api/web/personalidades': () => PESSOAS,
   'GET /api/ui/vitrine': () => VITRINE,
-  'GET /api/download/info': () => ({ disponivel: false, versao: '1.1.0', bytes: 0, sha256: '' }),
+  'GET /api/download/info': () => {
+    const arq = path.join(ROOT, 'downloads', 'jarvis-setup-1.9.8.exe');
+    const tem = fs.existsSync(arq);
+    return { disponivel: tem, versao: '1.9.8', build: 1792394811,
+             bytes: tem ? fs.statSync(arq).size : 0,
+             sha256: '9E8FB92B372A315779638A0429B88A426192BC8D9297D' };
+  },
+  'GET /api/marketing/publico': () => ({ ga4: null,
+    gads: { id: 'AW-18521438314', compra: '-38eCLjG7KEdEOrw2v9E', cadastro: '-kcXCMat_KEdEOrw2v9E' },
+    fb: '235962338795367' }),
+  'GET /api/pagamentos/metodos': () => ({ pix: true, cartao: false, pix_automatico: Boolean(process.env.PIX_CHAVE) }),
 };
 
 async function api(req, res, rota, metodo, corpo, conta) {
@@ -156,9 +166,52 @@ async function api(req, res, rota, metodo, corpo, conta) {
   }
   if (K === 'POST /api/conta/sair') { const t = tokenDe(req, corpo); if (t) { delete db.sessoes[t]; salvar(); } return { ok: true }; }
 
+  /* download do instalador (público) */
+  if (K === 'GET /api/download/instalador') {
+    const arq = path.join(ROOT, 'downloads', 'jarvis-setup-1.9.8.exe');
+    if (!fs.existsSync(arq)) return { __erro: [404, 'Instalador não encontrado neste servidor.'] };
+    res.writeHead(200, { 'Content-Type': 'application/octet-stream', 'Access-Control-Allow-Origin': '*',
+      'Content-Disposition': 'attachment; filename="jarvis-setup-1.9.8.exe"' });
+    fs.createReadStream(arq).pipe(res);
+    return null; // resposta já enviada
+  }
+
+  /* pagamentos — Pix real via chave do dono (env PIX_CHAVE), senão aviso claro */
+  if (K === 'POST /api/pagamentos/pix' || K === 'POST /api/pagamentos/cartao') {
+    if (!conta) return { __erro: [401, 'Faça login.'] };
+    const chave = process.env.PIX_CHAVE;
+    if (!chave) return { __erro: [503, 'Pagamentos não configurados neste backend: defina PIX_CHAVE (e opcional PIX_NOME/PIX_CIDADE) no ambiente.'] };
+    if (K === 'POST /api/pagamentos/cartao') return { __erro: [501, 'Cartão não suportado neste backend próprio.'] };
+    const nome = (process.env.PIX_NOME || 'JARVIS').slice(0, 25);
+    const cid = (process.env.PIX_CIDADE || 'SAO PAULO').slice(0, 15);
+    const ref = crypto.randomBytes(4).toString('hex').toUpperCase();
+    const fld = (n, v) => n + String(v.length).padStart(2, '0') + v;
+    let emv = fld('00', '01') + fld('26', fld('00', 'br.gov.bcb.pix') + fld('01', chave)) + fld('52', '0000') + fld('53', '986');
+    emv += fld('58', 'BR') + fld('59', nome) + fld('60', cid) + fld('62', fld('05', ref));
+    emv += '6304';
+    const crc = (str) => { let r = 0xFFFF; for (const c of Buffer.from(str, 'utf8')) { r ^= c << 8; for (let i = 0; i < 8; i++) r = (r & 0x8000) ? ((r << 1) ^ 0x1021) & 0xFFFF : (r << 1) & 0xFFFF; } return r.toString(16).toUpperCase().padStart(4, '0'); };
+    const copiaecola = emv + crc(emv);
+    return { ok: true, modo: 'pix_estatico', referencia: ref, copia_e_cola: copiaecola, expira_em: agora() + 30 * 60e3 };
+  }
+  if (K === 'POST /api/cupons/validar') {
+    const c = String((corpo || {}).cupom || '').trim().toUpperCase();
+    const validos = (process.env.CUPONS || '').split(',').map(x => x.trim().toUpperCase()).filter(Boolean);
+    if (validos.includes(c)) return { ok: true, cupom: c, desconto: Number(process.env.CUPOM_DESCONTO || 10) };
+    return { __erro: [404, 'Cupom inválido ou expirado.'] };
+  }
+
   /* daqui pra baixo: precisa login */
   if (!conta) return { __erro: [401, 'Faça login.'] };
 
+  if (K === 'GET /api/conta/assinatura') return { plano: conta.plano || 'jarvis', status: 'ativo', cobranca: 'aberto' };
+  if (K === 'GET /api/conta/discord') return { vinculado: Boolean(conta.discord), tag: conta.discord ? conta.discord.tag : null };
+  if (K === 'POST /api/conta/discord') return { __erro: [501, 'Vinculação Discord requer o servidor oficial.'] };
+  if (K === 'GET /api/conta/pcs') return { pcs: conta.pcs || [] };
+  if (K === 'POST /api/conta/verificar-login') return { ok: true, email: conta.email };
+  if (K === 'GET /api/conta/google/ativo') return { ativo: Boolean(conta.google) };
+  if (K === 'GET /api/dono/negocio') return {
+    negocio: { contas: db.contas.length, projetos: db.projetos.length, sessoes: Object.keys(db.sessoes).length, eventos: db.coletiva.eventos },
+    aviso: 'Estatísticas deste servidor (dados locais).' };
   if (K === 'GET /api/conta/eu') return { usuario: { nome: conta.nome, email: conta.email }, uso_hoje: 0, limite: 100 };
   if (K === 'GET /api/conta/plano') return { id: conta.plano || 'jarvis', nome: 'JARVIS', uso_hoje: 0, limite: 100 };
   if (K === 'GET /api/conta/preferencias') return conta.preferencias || {};
@@ -249,6 +302,7 @@ http.createServer(async (req, res) => {
     const corpo = await lerBody(req);
     const conta = contaDoToken(corpo.token);
     const r = await api(req, res, corpo.rota, corpo.metodo || 'GET', corpo.corpo || {}, conta);
+    if (r === null) return; // stream já enviado
     if (r && r.__erro) return erro(res, r.__erro[0], r.__erro[1]);
     res.writeHead(200, CT.json); return res.end(JSON.stringify(r));
   }
@@ -257,6 +311,7 @@ http.createServer(async (req, res) => {
     const corpo = req.method === 'POST' || req.method === 'PUT' ? await lerBody(req) : Object.fromEntries(u.searchParams);
     const conta = contaDoToken(tokenDe(req, corpo));
     const r = await api(req, res, rota, req.method, corpo, conta);
+    if (r === null) return; // resposta já enviada (ex.: stream do instalador)
     if (r && r.__erro) return erro(res, r.__erro[0], r.__erro[1]);
     res.writeHead(200, CT.json);
     return res.end(JSON.stringify(r));

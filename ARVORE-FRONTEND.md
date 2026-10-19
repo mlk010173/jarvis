@@ -101,3 +101,10 @@ assistanceorion.cloud
 - Sintaxe OK nos scripts principais (node --check)
 - 33/33 assets referenciados respondem 200
 - Frontend público saudável; nenhum arquivo faltando
+
+## Completo em 19/10/2026
+Adicionadas: admin.html, jarvis/planos.html, jarvis/precos.html, jarvis/recursos.html,
+jarvis/app_offline.html, jarvis/checkout/premium.html, jarvis/orion.css (alias), 
+jarvis/web/orion-tema.css (alias), downloads/jarvis-setup-1.9.8.exe (instalador real, 
+servido pela rota /api/download/instalador). Todas as referências internas das páginas 
+novas foram validadas (0 links quebrados).

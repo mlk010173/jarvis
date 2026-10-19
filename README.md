@@ -212,3 +212,29 @@ render.yaml, Dockerfile, package.json
 - **1.1.0 (19/10/2026)** — frontend completo no repo (landing com hero, app com todos os painéis),
   backend próprio `server/`, api-bridge configurável, login funcionando no GitHub Pages,
   documentação (`docs/API.md`) e configs de deploy (Render/Docker).
+
+---
+
+## Atualização 19/10/2026 — site completo no repositório
+
+**Novas páginas** (agora o repositório cobre 100% das páginas públicas do site original):
+- `admin.html` — painel do dono (antes faltando)
+- `jarvis/planos.html`, `jarvis/precos.html`, `jarvis/recursos.html`
+- `jarvis/app_offline.html`, `jarvis/checkout/premium.html` (mesma URL do original)
+- `jarvis/orion.css` e `jarvis/web/orion-tema.css` — CSS também com o nome original, garantia de que nenhuma referência quebra
+
+**Backend ampliado** (`server/server.js`, zero dependências):
+- `GET /api/download/instalador` → serve `downloads/jarvis-setup-1.9.8.exe` (48 MB, SHA-256 verificado `9E8FB92B…D9297D`)
+- `GET /api/download/info` → metadados reais do instalador (v1.9.8, build 1792394811, 50.209.953 bytes)
+- `GET /api/marketing/publico` → IDs reais de Google Ads / Meta Pixel
+- `POST /api/pagamentos/pix` → **Pix EMV real** (padrão Banco Central, "copia e cola") quando `PIX_CHAVE` está no ambiente; `PIX_NOME`, `PIX_CIDADE`, `CUPONS` e `CUPOM_DESCONTO` opcionais
+- `POST /api/cupons/validar`, `GET /api/conta/assinatura|discord|pcs|google/ativo`, `POST /api/conta/verificar-login`, `GET /api/dono/negocio` (estatísticas do servidor)
+- Testado end-to-end: cadastro → login → rotas autenticadas → download do instalador
+
+**Como rodar o site completo localmente** (idêntico ao original, com backend):
+```bash
+npm start           # ou: node server/server.js → http://localhost:3000
+```
+No deploy (render.yaml), o mesmo servidor entrega o frontend estático E a API. Para o
+GitHub Pages, o `jarvis/api-bridge.js` continua redirecionando `/api/*` para o backend
+configurável (`localStorage.setItem('jarvis.api', 'https://SEU-BACKEND/bridge')`).

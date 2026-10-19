@@ -10,6 +10,17 @@
    "ias": [],
    "memoria": [],
    "criado": 1792423376351
+  },
+  {
+   "id": "c_176813064bf72fd841",
+   "nome": "Nicolas",
+   "email": "teste@jarvis.dev",
+   "sal": "8fbc67d279ca6f955b04425e",
+   "hash": "9ef989b2b9d994fa09ac3f57cd042af9666f932ca447fbb534bde71b5eb3e8f0",
+   "plano": "jarvis",
+   "ias": [],
+   "memoria": [],
+   "criado": 1792428304709
   }
  ],
  "projetos": [
@@ -28,6 +39,10 @@
   "815732437289f8ff4f3a0f89e40e9842ec1a2ee3d3040db8": {
    "email": "t@x.com",
    "exp": 1795015376351
+  },
+  "2c5ec545816b991f934d10a478084494d89f4ab1dfe2fcd3": {
+   "email": "teste@jarvis.dev",
+   "exp": 1795020304709
   }
  },
  "coletiva": {
