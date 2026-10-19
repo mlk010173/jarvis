@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: jarvis-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install --omit=dev || true
+    startCommand: node server/server.js
+    healthCheckPath: /api/info
+    envVars:
+      - key: NODE_VERSION
+        value: 18

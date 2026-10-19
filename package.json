@@ -1,0 +1,10 @@
+{
+  "name": "jarvis-web",
+  "version": "1.1.0",
+  "private": true,
+  "description": "JARVIS Web — frontend completo (espelho funcional) + backend próprio sem dependências",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "engines": { "node": ">=18" }
+}

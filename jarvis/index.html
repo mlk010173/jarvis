@@ -2,10 +2,421 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="refresh" content="0; url=app.html">
-<title>JARVIS Web</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JARVIS — o assistente que executa no seu PC</title>
+<meta name="description" content="JARVIS é um assistente por voz que roda no seu computador: encontra clientes, cria e hospeda sites, edita vídeo com motion e escreve roteiros que já viram vídeo — com as suas próprias chaves de IA.">
+<meta name="theme-color" content="#000000">
+<meta property="og:title" content="JARVIS — o assistente que executa no seu PC">
+<meta property="og:description" content="Clientes, sites prontos, edição de vídeo com motion e roteiros num só assistente por voz. Suas chaves de IA ficam no seu PC.">
+<meta property="og:image" content="https://mlk010173.github.io/jarvisapp.htmlimg/og.png">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/svg+xml" href="logo.svg?v=mvak1f88">
+<link rel="preload" href="fonts/Geist.woff2?v=mvajq3tk" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="tokens.css?v=mvenxghl">
+<link rel="stylesheet" href="jarvis.css?v=mveng77k">
+<link rel="stylesheet" href="landing.css?v=mvenh0j4">
+<link rel="stylesheet" href="demos.css?v=mvde5y60">
+<script type="application/json" id="dados-iniciais">{"planos":{"planos":[{"id":"free","nome":"Free","publico":"Testes e experimentação","preco_centavos":0,"precos":null,"periodo":"mes","moeda":"BRL","limites":{"modulos":["transcritor","roteiros"],"dispositivos":1,"export_max":"720p","marca_dagua":true,"transcricao_max_min":5,"diarizacao":false,"csv_mes":0,"mapa_somente_ver":true,"whatsapp":false,"plugins":false,"webhooks":false,"prioridade":false,"ias_max":1,"hibrido":false,"elevenlabs":false,"recomendado":false},"destaques":["Acesso a apenas 1 IA por vez","Módulos básicos de produtividade em 1 PC","✕ Sistema de edição de vídeo e Auto-Cut","✕ Gerar legendas dinâmicas","✕ Encontrar clientes potenciais para sites (Mapeamento)","✕ Multi-IA Failover (encadeamento de IAs)","✕ Suporte a vozes ElevenLabs VIP"],"ativo":true,"ordem":1,"checkout_url":null},{"id":"premium","nome":"Premium","publico":"Tudo liberado: você só escolhe o período","preco_centavos":2990,"precos":{"mensal":2990,"trimestral":7990,"vitalicio":12999},"periodo":"mes","moeda":"BRL","limites":{"modulos":["editor","transcritor","roteiros","mapa","central"],"dispositivos":3,"export_max":"4k","marca_dagua":false,"transcricao_max_min":null,"diarizacao":true,"csv_mes":null,"mapa_somente_ver":false,"whatsapp":true,"plugins":true,"webhooks":true,"prioridade":true,"ias_max":null,"hibrido":true,"elevenlabs":true,"recomendado":true},"destaques":["Exportação 4K ilimitada e vídeo vertical","Legendas dinâmicas ilimitadas (com identificação de vozes)","Ilimitado: conecte qualquer modelo (OpenAI, Claude, Gemini, Ollama e outros)","Multi-IA Failover ilimitado: troca automática de IA sem perder o contexto","Encontrar clientes potenciais para sites (Mapeamento + CSV + WhatsApp)","Vozes avançadas: Microsoft Edge TTS + API ElevenLabs VIP","Até 3 PCs: app minimizado em segundo plano (bandeja do sistema)"],"ativo":true,"ordem":3,"checkout_url":null}],"checkout":{"pix":true,"cartao":false}},"vitrine":{"base_css":".oc-tema{--oc-azul:#2E9BFF;--oc-ciano:#00D2FF;--oc-fundo:#000;--oc-caixa:#050c16;--oc-linha:rgba(46,155,255,.22);--oc-linha-forte:rgba(46,155,255,.5);--oc-texto:#e6f1ff;--oc-mudo:#7f95ae;--oc-ok:#34d399;--oc-aviso:#fbbf24;--oc-erro:#ff5c7a;--oc-raio:14px;font-family:'Geist',ui-sans-serif,'Segoe UI',system-ui,sans-serif;color:var(--oc-texto);-webkit-font-smoothing:antialiased}\n.oc-tema *,.oc-tema *::before,.oc-tema *::after{box-sizing:border-box}","midia_base":"/api/ui/pro/midia/","totais":{"react":106,"html":91,"free":53,"basic":112,"premium":197},"react":[{"slug":"beams-background","nome":"Feixes de luz","categoria":"Fundos","nivel":"premium","imagem":"beams-background.png","video":"beams-background.mp4"},{"slug":"globe","nome":"Globo 3D","categoria":"Efeitos","nivel":"premium","imagem":"globe.png","video":"globe.mp4"},{"slug":"retro-grid","nome":"Grade retrô","categoria":"Fundos","nivel":"free","imagem":"retro-grid.png","video":"retro-grid.mp4"},{"slug":"rainbow-button","nome":"Botão arco-íris","categoria":"Botões","nivel":"premium","imagem":"rainbow-button.png","video":"rainbow-button.mp4"},{"slug":"glitch-text","nome":"Texto com glitch","categoria":"Textos animados","nivel":"premium","imagem":"glitch-text.png","video":"glitch-text.mp4"},{"slug":"typing-animation","nome":"Texto digitando","categoria":"Textos animados","nivel":"free","imagem":"typing-animation.png","video":"typing-animation.mp4"}],"html":[{"id":"texto-brilho","nome":"Texto com brilho passando","categoria":"Efeitos e animações","nivel":"free","html":"\u003cp class=\"oc-txt-brilho\">Disponível agora para Windows \u003csvg viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\">\u003cpath d=\"M5 12h14M13 6l6 6-6 6\"/>\u003c/svg>\u003c/p>","css":".oc-txt-brilho{display:inline-flex;align-items:center;gap:8px;margin:0;padding:8px 16px;border:1px solid var(--oc-linha);border-radius:999px;font-size:14px;font-weight:550;color:rgba(200,222,245,.55);background-image:linear-gradient(110deg,transparent 35%,#ffffff 50%,transparent 65%);background-size:250% 100%;background-repeat:no-repeat;-webkit-background-clip:text;background-clip:text;animation:oc-txt-brilho 3.2s cubic-bezier(.6,.6,0,1) infinite}\n@keyframes oc-txt-brilho{0%{background-position:150% 0}100%{background-position:-50% 0}}\n@media (prefers-reduced-motion:reduce){.oc-txt-brilho{animation:none;color:#cfe6ff}}"},{"id":"ondas-radar","nome":"Ondas de radar","categoria":"Efeitos e animações","nivel":"premium","html":"\u003cdiv class=\"oc-ondas\">\u003ci>\u003c/i>\u003ci>\u003c/i>\u003ci>\u003c/i>\u003ci>\u003c/i>\u003ci>\u003c/i>\u003cspan class=\"oc-ondas-c\">\u003csvg viewBox=\"0 0 24 24\" width=\"22\" height=\"22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\">\u003crect x=\"9\" y=\"3\" width=\"6\" height=\"11\" rx=\"3\"/>\u003cpath d=\"M5 11a7 7 0 0 0 14 0M12 18v3\"/>\u003c/svg>\u003c/span>\u003c/div>","css":".oc-ondas{position:relative;display:grid;place-items:center;width:300px;height:300px;overflow:hidden;-webkit-mask:radial-gradient(circle,#000 45%,transparent 72%);mask:radial-gradient(circle,#000 45%,transparent 72%)}\n.oc-ondas i{position:absolute;width:calc(96px + var(--n) * 46px);height:calc(96px + var(--n) * 46px);border-radius:50%;border:1px solid rgba(46,155,255,calc(.55 - var(--n) * .09));background:rgba(46,155,255,calc(.12 - var(--n) * .02));animation:oc-onda 3.4s ease-in-out infinite;animation-delay:calc(var(--n) * .14s)}\n.oc-ondas i:nth-child(1){--n:0}.oc-ondas i:nth-child(2){--n:1}.oc-ondas i:nth-child(3){--n:2}.oc-ondas i:nth-child(4){--n:3}.oc-ondas i:nth-child(5){--n:4}\n.oc-ondas-c{position:relative;display:grid;place-items:center;width:64px;height:64px;border-radius:50%;color:#00101f;background:linear-gradient(135deg,var(--oc-azul),var(--oc-ciano));box-shadow:0 0 34px -4px var(--oc-azul)}\n@keyframes oc-onda{0%,100%{transform:scale(1)}50%{transform:scale(.9)}}\n@media (prefers-reduced-motion:reduce){.oc-ondas i{animation:none}}"},{"id":"borda-brilhante","nome":"Borda que brilha","categoria":"Efeitos e animações","nivel":"premium","html":"\u003cdiv class=\"oc-shine\">\u003csmall>Plano recomendado\u003c/small>\u003cb>Premium\u003c/b>\u003cp>Tudo liberado, 4K e a biblioteca inteira.\u003c/p>\u003c/div>","css":".oc-shine{position:relative;display:grid;gap:6px;width:300px;padding:24px;border-radius:18px;background:radial-gradient(120% 100% at 50% 0,#0b2038,#030a14)}\n.oc-shine::before{content:\"\";position:absolute;inset:0;padding:1.5px;border-radius:inherit;background:radial-gradient(transparent,transparent,var(--oc-azul),var(--oc-ciano),transparent,transparent);background-size:300% 300%;animation:oc-shine-anda 10s linear infinite;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}\n.oc-shine small{font-size:11.5px;font-weight:600;letter-spacing:.04em;color:#8fd0ff}\n.oc-shine b{font-size:24px}.oc-shine p{margin:0;color:var(--oc-mudo);font-size:13.5px}\n@keyframes oc-shine-anda{0%,100%{background-position:0 0}50%{background-position:100% 100%}}\n@media (prefers-reduced-motion:reduce){.oc-shine::before{animation:none;background-position:50% 50%}}"},{"id":"selo-gradiente","nome":"Selo de novidade animado","categoria":"Efeitos e animações","nivel":"premium","html":"\u003ca class=\"oc-selo-g\" href=\"#\">\u003cspan class=\"oc-selo-g-ic\">\u003csvg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\">\u003cpath d=\"M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8\"/>\u003c/svg>\u003c/span>\u003ci aria-hidden=\"true\">\u003c/i>\u003cspan class=\"oc-selo-g-txt\">Novo: o JARVIS agora mexe no navegador\u003c/span>\u003csvg viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\">\u003cpath d=\"M5 12h14M13 6l6 6-6 6\"/>\u003c/svg>\u003c/a>","css":".oc-selo-g{position:relative;display:inline-flex;align-items:center;gap:10px;padding:8px 14px 8px 10px;border-radius:999px;font-size:13.5px;font-weight:550;text-decoration:none;color:#cfe6ff;background:rgba(46,155,255,.07);box-shadow:inset 0 -6px 12px rgba(46,155,255,.12);transition:box-shadow .3s}\n.oc-selo-g::before{content:\"\";position:absolute;inset:0;padding:1px;border-radius:inherit;background:linear-gradient(90deg,var(--oc-azul),var(--oc-ciano),#8b7bff,var(--oc-azul));background-size:300% 100%;animation:oc-selo-g-anda 6s linear infinite;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}\n.oc-selo-g:hover{box-shadow:inset 0 -6px 14px rgba(46,155,255,.28)}\n.oc-selo-g-ic{display:grid;place-items:center;color:var(--oc-ciano)}\n.oc-selo-g i{width:1px;height:16px;background:rgba(46,155,255,.35)}\n.oc-selo-g-txt{background:linear-gradient(90deg,var(--oc-azul),var(--oc-ciano),#8b7bff,var(--oc-azul));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:oc-selo-g-anda 6s linear infinite}\n.oc-selo-g>svg:last-child{color:#8fd0ff;transition:transform .25s}.oc-selo-g:hover>svg:last-child{transform:translateX(3px)}\n@keyframes oc-selo-g-anda{to{background-position:300% 0}}\n@media (prefers-reduced-motion:reduce){.oc-selo-g::before,.oc-selo-g-txt{animation:none}}"},{"id":"anel-progresso","nome":"Anel de progresso","categoria":"Dados e gráficos","nivel":"premium","html":"\u003cdiv class=\"oc-anel\" style=\"--p:72\" role=\"img\" aria-label=\"72% da meta\">\u003cb>72%\u003c/b>\u003csmall>da meta\u003c/small>\u003c/div>","css":".oc-anel{position:relative;display:grid;place-items:center;align-content:center;width:130px;height:130px;border-radius:50%;background:conic-gradient(var(--oc-azul) calc(var(--p)*1%),rgba(46,155,255,.1) 0)}\n.oc-anel::before{content:'';position:absolute;inset:11px;border-radius:50%;background:#01050b}\n.oc-anel>*{position:relative}.oc-anel b{font-size:26px}.oc-anel small{font-size:11.5px;color:var(--oc-mudo)}"},{"id":"botao-pulsante","nome":"Botão pulsante","categoria":"Efeitos e animações","nivel":"free","html":"\u003cbutton class=\"oc-pulsa\" type=\"button\">\u003csvg viewBox=\"0 0 24 24\" width=\"17\" height=\"17\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\">\u003cpath d=\"M21 12a8 8 0 0 1-11.8 7L3 21l2-6A8 8 0 1 1 21 12z\"/>\u003c/svg>Falar com o JARVIS\u003c/button>","css":".oc-pulsa{display:inline-flex;align-items:center;gap:8px;height:46px;padding:0 22px;border:0;border-radius:14px;font:600 14.5px/1 inherit;font-family:inherit;color:#00101f;background:linear-gradient(135deg,var(--oc-azul),var(--oc-ciano));cursor:pointer;animation:oc-pulsa 1.9s ease-out infinite}\n.oc-pulsa:focus-visible{outline:2px solid #fff;outline-offset:3px}\n@keyframes oc-pulsa{0%{box-shadow:0 0 0 0 rgba(46,155,255,.65)}75%,100%{box-shadow:0 0 0 18px rgba(46,155,255,0)}}\n@media (prefers-reduced-motion:reduce){.oc-pulsa{animation:none}}"}]}}</script>
+<script src="boot.js?v=mvak4oig"></script>
+<script src="conta-chip.js?v=mvb8mwjk" defer></script>
+<script src="nav.js?v=mvb8mxbc" defer></script>
+<script src="mkt.js?v=mvdbgn2w" defer></script>
+<script src="orb.js?v=mvebkteo" defer></script>
+<script src="ias-logos.js?v=mvbt0i9k" defer></script>
+<script src="demos.js?v=mvde67fc" defer></script>
+<script src="landing.js?v=mvdb6ae8" defer></script>
+<script src="novidades-aviso.js?v=mvbk341s" defer></script>
+<script src="shader-hero.js?v=mvak3l5s" defer></script>
+<script src="halftone-footer.js?v=mvak3l5s" defer></script>
 </head>
 <body>
-<p>Redirecionando para o <a href="app.html">JARVIS Web</a>…</p>
+<a class="skip" href="#conteudo">Ir para o conteúdo</a>
+<div class="scrollbar" id="scrollbar" aria-hidden="true"></div>
+
+<header class="pillnav" id="nav">
+  <a class="brand" href="app.html" aria-label="JARVIS, início"><img src="logo.svg?v=mvak1f88" alt="" width="28" height="28">JARVIS</a>
+  <nav class="pillnav-links" id="nav-links" aria-label="Principal">
+    <a class="nv" href="#modulos" aria-label="Módulos"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Módulos</span></a>
+    <a class="nv" href="#sites" aria-label="Sites para clientes"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><span>Sites para clientes</span></a>
+    <a class="nv" href="#como" aria-label="Como funciona"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg><span>Como funciona</span></a>
+    <a class="nv" href="../tutorials.html" aria-label="Tutoriais"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg><span>Tutoriais</span></a>
+    <a class="nv" href="#planos" aria-label="Planos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg><span>Planos</span></a>
+    <a class="nv" href="#faq" aria-label="Perguntas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/></svg><span>Perguntas</span></a>
+  </nav>
+  <div class="pillnav-end">
+    <a class="btn btn-sm btn-ghost-hide" id="nav-entrar" href="../entrar.html?volta=conta.html">Entrar</a>
+    <a class="btn btn-sm btn-primary" id="nav-cta" href="../entrar.html?volta=comecar.html#cadastro">Começar grátis</a>
+    <button class="pillnav-toggle" id="nav-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav-links"><span></span></button>
+  </div>
+</header>
+
+<main id="conteudo">
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="hero">
+  <canvas id="shader-canvas" aria-hidden="true"></canvas>
+  <div class="hero-fade" aria-hidden="true"></div>
+  <div class="container hero-inner">
+    <a class="hero-pill" href="#seguranca">
+      <span class="dot" aria-hidden="true"></span>
+      No app, suas chaves de IA ficam só no seu PC
+      <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5"/></svg>
+    </a>
+    <h1 class="hero-title">
+      <span class="silver-text">Fale com o seu PC.</span>
+      <span class="grad-text">Ele executa.</span>
+    </h1>
+    <p class="hero-sub">O JARVIS é um assistente por voz que encontra clientes, cria e hospeda sites, edita vídeo com motion e escreve roteiros que já viram vídeo — direto no seu computador, com as suas próprias chaves de IA.</p>
+    <div class="hero-cta">
+      <a class="btn btn-lg btn-primary" href="../entrar.html?volta=comecar.html#cadastro">Começar grátis</a>
+      <a class="btn btn-lg" href="#modulos">Ver os módulos</a>
+    </div>
+    <p class="hero-note">Plano Free sem cartão · Instalador para Windows 10 e 11 na sua conta</p>
+  </div>
+
+  <div class="container hero-stage">
+    <div class="frame frame-hero" id="hero-frame">
+      <div class="frame-bar"><i></i><i></i><i></i><span>JARVIS · apresentação</span></div>
+      <div data-demo="filme" data-autoplay aria-label="Apresentação animada do JARVIS: um comando de voz, clientes no mapa, um site criado pela IA, um anúncio em motion criado a partir de uma frase e um roteiro"></div>
+    </div>
+  </div>
+</section>
+
+<!-- faixa de capacidades -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <div class="marquee-set"><span>Comando por voz</span><span>Negócios sem site no mapa</span><span>Sites completos com IA</span><span>Hospedagem e domínio</span><span>Mensagens de abordagem</span><span>Corte automático de silêncio</span><span>Motion com IA</span><span>Legendas palavra por palavra</span><span>Roteiros com gancho</span><span>Narração com IA</span><span>Limpeza segura do PC</span></div>
+    <div class="marquee-set"><span>Comando por voz</span><span>Negócios sem site no mapa</span><span>Sites completos com IA</span><span>Hospedagem e domínio</span><span>Mensagens de abordagem</span><span>Corte automático de silêncio</span><span>Motion com IA</span><span>Legendas palavra por palavra</span><span>Roteiros com gancho</span><span>Narração com IA</span><span>Limpeza segura do PC</span></div>
+  </div>
+</div>
+
+<!-- ================= RESULTADOS ================= -->
+<section class="results" aria-label="O que você ganha">
+  <div class="container results-grid">
+    <article data-reveal>
+      <h2>Ache clientes e entregue o site no ar</h2>
+      <p>Negócios sem site saem do Google Maps direto para o funil, a IA programa o site completo e o JARVIS ajuda a hospedar com domínio próprio.</p>
+    </article>
+    <article data-reveal>
+      <h2>Economize horas de edição</h2>
+      <p>O corte automático tira os silêncios do vídeo em um clique, e o motion com IA monta o título animado a partir de uma frase.</p>
+    </article>
+    <article data-reveal>
+      <h2>Do roteiro ao vídeo pronto</h2>
+      <p>O roteiro sai com gancho e cenas e, em seguida, vira motion, legenda no seu vídeo e narração com voz de IA.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ================= MÓDULOS (rolagem interativa) ================= -->
+<section class="showcase" id="modulos" aria-labelledby="t-modulos">
+  <div class="container">
+    <header class="section-head" data-reveal>
+      <h2 id="t-modulos">Quatro módulos. Um só assistente.</h2>
+      <p>Role para ver cada ferramenta em ação. As animações mostram, passo a passo, o que o app faz no seu PC.</p>
+    </header>
+
+    <div class="showcase-grid" id="showcase">
+      <ol class="steps" id="steps">
+
+        <li class="step is-active" data-i="0" id="m-core">
+          <span class="step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span>
+          <h3>Orion Core &amp; Voz</h3>
+          <p class="step-lead">Seu PC obedece à sua voz.</p>
+          <p>Abre programas, roda as suas rotinas, pesquisa e responde em voz alta. A voz pode ser a do ElevenLabs, a do Edge ou a nativa do Windows — você escolhe. O cérebro é a IA que você configurar, com chave grátis do Gemini ou a sua própria.</p>
+          <ul class="chips"><li>Rotinas locais</li><li>Comando por voz</li><li>Cofre de chaves (BYOK)</li><li>Gemini · ElevenLabs · Edge</li></ul>
+          <div class="step-demo" data-demo-m="voz" aria-label="Demonstração animada: um comando de voz abre o editor e corta os silêncios"></div>
+        </li>
+
+        <li class="step" data-i="1" id="m-mapa">
+          <span class="step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.6 7-11a7 7 0 0 0-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
+          <h3>Mapeamento de Leads</h3>
+          <p class="step-lead">Ache o cliente e entregue o site pronto, no ar.</p>
+          <p>Escolha o ramo e a cidade: o JARVIS busca no Google Maps os negócios sem site, com telefone, WhatsApp e nota, e organiza tudo num funil até virar cliente. Com um clique a IA programa o site completo do negócio, você manda a prévia para o cliente e, quando ele fechar, o JARVIS publica com hospedagem grátis na Vercel e liga o domínio próprio, com o passo a passo de cada etapa. Se o lead responder, ele sugere o que dizer.</p>
+          <ul class="chips"><li>Google Maps</li><li>Funil de vendas</li><li>Site completo com IA</li><li>Hospedagem e domínio</li><li>Respostas para o lead</li></ul>
+          <div class="step-demo" data-demo-m="mapa" aria-label="Demonstração animada: negócios sem site aparecem no mapa e entram no funil"></div>
+        </li>
+
+        <li class="step" data-i="2" id="m-editor">
+          <span class="step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 4v5M16 4v5M10 14l4 2.5-4 2.5z"/></svg></span>
+          <h3>Editor &amp; Motion com IA</h3>
+          <p class="step-lead">Uma frase vira um vídeo em motion.</p>
+          <p>Descreva o que quer (“anúncio da minha hamburgueria com o combo por R$ 29,90”) e o Motion com IA monta as cenas: título com zoom e brilho, número que cresce, partículas e botão de chamada, nas cores do pedido. No mesmo editor, o corte automático tira os silêncios, as legendas saem palavra por palavra e a detecção de setup aponta cada peça. Ajuste na linha do tempo e exporte até 4K no Premium.</p>
+          <ul class="chips"><li>Motion com IA</li><li>Anúncios e intros</li><li>Corte automático</li><li>Legendas por palavra</li><li>Exportação 4K</li></ul>
+          <div class="step-demo" data-demo-m="anuncio" aria-label="Demonstração animada: uma frase vira um anúncio em motion, com gancho, título, contador e botão de chamada"></div>
+        </li>
+
+        <li class="step" data-i="3" id="m-roteiros">
+          <span class="step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4zM13.5 6.5l4 4"/></svg></span>
+          <h3>Roteiros que viram vídeo</h3>
+          <p class="step-lead">Do roteiro ao vídeo pronto, sem trocar de programa.</p>
+          <p>Diga o tema e o JARVIS escreve o roteiro para Reels, TikTok, Shorts, YouTube ou anúncio, com gancho nos 3 primeiros segundos, cenas e marcações de edição. Em seguida, no mesmo lugar, ele monta o motion das cenas, legenda o seu vídeo palavra por palavra e gera a narração com voz de IA. Prefere gravar você mesmo? Leia no teleprompter.</p>
+          <ul class="chips"><li>Gancho em 3 segundos</li><li>Roteiro que vira motion</li><li>Legendas no seu vídeo</li><li>Narração com IA</li><li>Teleprompter</li></ul>
+          <div class="step-demo" data-demo-m="roteiro" aria-label="Demonstração animada: um roteiro de Reels com gancho e cenas"></div>
+        </li>
+      </ol>
+
+      <aside class="stage" aria-label="Pré-visualização do módulo">
+        <div class="stage-sticky">
+          <div class="stage-tabs" role="tablist" aria-label="Módulos">
+            <button type="button" role="tab" aria-selected="true" data-i="0">Core</button>
+            <button type="button" role="tab" aria-selected="false" data-i="1">Leads</button>
+            <button type="button" role="tab" aria-selected="false" data-i="2">Editor</button>
+            <button type="button" role="tab" aria-selected="false" data-i="3">Roteiros</button>
+          </div>
+          <div class="frame frame-stage">
+            <div class="frame-bar"><i></i><i></i><i></i><span id="stage-title">JARVIS · Núcleo</span></div>
+            <div class="stage-shots" id="stage-shots">
+              <div class="is-on" data-demo="voz" aria-label="Demonstração animada: um comando de voz abre o editor e corta os silêncios"></div>
+              <div data-demo="mapa" aria-label="Demonstração animada: negócios sem site aparecem no mapa e entram no funil"></div>
+              <div data-demo="anuncio" aria-label="Demonstração animada: uma frase vira um anúncio em motion, com gancho, título, contador e botão de chamada"></div>
+              <div data-demo="roteiro" aria-label="Demonstração animada: um roteiro de Reels com gancho e cenas"></div>
+            </div>
+          </div>
+          <div class="stage-rail" aria-hidden="true"><i id="stage-rail"></i></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DO LEAD AO SITE ================= -->
+<section class="leadsite" id="sites" aria-labelledby="t-sites">
+  <div class="container">
+    <header class="section-head" data-reveal>
+      <h2 id="t-sites">Do lead ao site no ar, em minutos</h2>
+      <p>O JARVIS acha negócios da sua região que ainda não têm site, analisa cada um com IA e monta um site profissional pronto para você mostrar ao cliente. Você só abre o WhatsApp e envia o link.</p>
+    </header>
+    <div class="ls-grade">
+      <ol class="ls-passos">
+        <li class="spot" data-reveal><span class="ls-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><div><h3>Encontre</h3><p>Em Leads e clientes, escolha o ramo e a cidade: aparecem os negócios do Google Maps sem site, com telefone, WhatsApp e nota.</p></div></li>
+        <li class="spot" data-reveal><span class="ls-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span><div><h3>Analise</h3><p>A IA estuda o negócio: público, pontos fortes, o que falta na internet, a proposta de valor e a mensagem de abordagem.</p></div></li>
+        <li class="spot" data-reveal><span class="ls-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 14h8"/></svg></span><div><h3>Gere o site</h3><p>A IA programa o site completo, com serviços, mapa, horário e botão de WhatsApp, e ajusta o que você pedir em português. Ou comece por um dos sites prontos.</p></div></li>
+        <li class="spot" data-reveal><span class="ls-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg></span><div><h3>Publique e envie</h3><p>Um clique gera o link da prévia online. O JARVIS abre o WhatsApp do cliente com a mensagem e o link prontos.</p></div></li>
+      </ol>
+      <div class="ls-demo" data-reveal><div data-demo="leadsite" data-autoplay aria-label="Demonstração animada: a IA analisa um negócio sem site, monta o site e envia a prévia no WhatsApp"></div></div>
+    </div>
+    <div class="ls-hosp" id="hospedar">
+      <header class="ls-hosp-cab" data-reveal><h3>O cliente aprovou? O JARVIS coloca o site no ar</h3><p>Tudo pelo passo a passo dentro do editor do site: prévia só para o lead, fechamento do negócio, demonstração grátis, domínio próprio e publicação oficial.</p></header>
+      <div class="ls-cards">
+        <article class="ls-card spot" data-reveal><b>Demonstração grátis em um clique</b><p>Conecte a sua conta da <a href="https://vercel.com" rel="noopener" target="_blank">Vercel</a> uma vez: o JARVIS publica o site num endereço .vercel.app com HTTPS, de graça, para o cliente ver como vai ficar.</p></article>
+        <article class="ls-card spot" data-reveal><b>Domínio próprio sem mistério</b><p>O cliente registra o .com.br no <a href="https://registro.br" rel="noopener" target="_blank">registro.br</a> (cerca de R$ 40 por ano). O JARVIS liga o domínio ao site e mostra exatamente o que configurar no DNS.</p></article>
+        <article class="ls-card spot" data-reveal><b>Revisado antes de publicar</b><p>Na publicação oficial, o JARVIS revisa a segurança do código. Prefere outra hospedagem? Baixe o index.html, que funciona em qualquer uma.</p></article>
+      </div>
+      <div class="ls-cta" data-reveal><a class="btn btn-primary" href="#planos">Ver o plano Premium</a><a class="btn" href="../tutorials.html#sites">Ler o passo a passo</a><span>Mapeamento de Leads e criação de sites fazem parte do plano Premium.</span></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ================= COMPONENTES (biblioteca visual) ================= -->
+<section class="comps" id="componentes" aria-labelledby="t-comps">
+  <div class="container comps-grid">
+    <div class="comps-texto" data-reveal>
+      <h2 id="t-comps">Componentes prontos para os seus sites</h2>
+      <p>Fundos animados, botões com brilho, textos que se escrevem sozinhos, globo 3D e muito mais. Cada componente aparece funcionando, com o código pronto para copiar e colar. A biblioteca fica dentro do JARVIS, no app e no navegador.</p>
+      <ul class="comps-lista">
+        <li><b>React e Tailwind</b><span><span data-comps="react">106</span> componentes animados, com o comando de instalação e o CSS que falta.</span></li>
+        <li><b>HTML e CSS</b><span><span data-comps="html">91</span> peças que funcionam em qualquer site, sem instalar nada.</span></li>
+        <li><b>Do Free ao Premium</b><span>No Free você já usa <span data-comps="free">53</span> componentes. O Premium libera a biblioteca inteira, com <span data-comps="premium">197</span>.</span></li>
+      </ul>
+      <div class="comps-cta"><a class="btn btn-primary" href="../entrar.html?volta=comecar.html#cadastro">Começar grátis</a><a class="btn" href="#planos">Ver os planos</a></div>
+    </div>
+    <div class="frame comps-vitrine" id="comps-vitrine" data-reveal>
+      <div class="frame-bar"><i></i><i></i><i></i><span>JARVIS · Componentes &amp; UI</span></div>
+      <div class="comps-topo">
+        <div class="comps-abas" role="tablist" aria-label="Tipo de componente">
+          <button type="button" role="tab" id="comps-aba-react" aria-selected="true" aria-controls="comps-palco" data-aba="react">React</button>
+          <button type="button" role="tab" id="comps-aba-html" aria-selected="false" aria-controls="comps-palco" data-aba="html" tabindex="-1">HTML + CSS</button>
+        </div>
+      </div>
+      <div class="comps-palco" id="comps-palco" role="tabpanel" aria-labelledby="comps-aba-react"></div>
+    </div>
+  </div>
+</section>
+
+<section class="ias" id="ias" aria-labelledby="t-ias">
+  <div class="container ias-grid">
+    <div class="ias-text" data-reveal>
+      <h2 id="t-ias">Acabou o crédito? A próxima IA assume.</h2>
+      <p>Conecte várias IAs ao núcleo do JARVIS e defina a ordem. Se uma falhar, o pedido segue para a seguinte com toda a conversa e a tarefa em andamento, sem recomeçar nada.</p>
+      <ul class="ias-lista">
+        <li>Você escolhe a ordem de prioridade e quais IAs entram na fila.</li>
+        <li>O contexto da conversa e o que já foi executado viajam junto para a próxima IA.</li>
+        <li>O Free usa 1 IA; no Premium não tem limite (OpenAI, Claude, Gemini, Ollama e outras).</li>
+      </ul>
+    </div>
+    <div class="frame" data-reveal>
+      <div class="frame-bar"><i></i><i></i><i></i><span>JARVIS · fila de IAs</span></div>
+      <div data-demo="failover" data-autoplay aria-label="Demonstração animada: duas IAs falham e a terceira termina o pedido com o mesmo contexto"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SITE + APP (híbrido) ================= -->
+<section class="modos" id="modos" aria-labelledby="t-modos">
+  <div class="container">
+    <header class="section-head" data-reveal>
+      <h2 id="t-modos">Site e app, um JARVIS só</h2>
+      <p>Você pede pelo navegador ou pela voz no PC. A conta é a mesma e tudo fica em sincronia.</p>
+    </header>
+    <div class="modos-grid modos-3">
+      <article class="modo spot" data-reveal>
+        <span class="step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></span>
+        <h3>Pelo navegador</h3>
+        <p>Converse, crie roteiros e projetos e acompanhe tudo pelo JARVIS Web, de qualquer lugar.</p>
+        <small>Funciona até no celular.</small>
+      </article>
+      <article class="modo spot" data-reveal>
+        <span class="step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M7 7h.01M10 7h.01"/></svg></span>
+        <h3>No seu PC</h3>
+        <p>O app faz o que precisa do computador: edição de vídeo, voz, arquivos e automações.</p>
+        <small>Suas chaves de IA ficam só no seu PC.</small>
+      </article>
+      <article class="modo spot" data-reveal>
+        <span class="step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10a4 4 0 0 1 0 8H9M7 7l3-3M7 7l3 3M17 17H7a4 4 0 0 1 0-8"/></svg></span>
+        <h3>Em sincronia</h3>
+        <p>Pediu no site, o app executa no PC e o resultado aparece nos dois lados.</p>
+        <small>Você aprova cada computador com um código.</small>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COMO FUNCIONA ================= -->
+<section class="how" id="como" aria-labelledby="t-como">
+  <div class="container">
+    <header class="section-head" data-reveal>
+      <h2 id="t-como">Do cadastro ao primeiro comando em três passos</h2>
+    </header>
+    <ol class="how-grid">
+      <li class="how-step spot" data-reveal>
+        <span class="how-n">1</span>
+        <h3>Crie a conta</h3>
+        <p>Entre com o Google ou com e-mail e senha. Você começa no plano Free, sem cartão.</p>
+      </li>
+      <li class="how-step spot" data-reveal>
+        <span class="how-n">2</span>
+        <h3>Entre no app</h3>
+        <p>Abra o JARVIS no PC e entre com o mesmo e-mail e senha. O plano da conta vale na hora, sem chave para digitar.</p>
+      </li>
+      <li class="how-step spot" data-reveal>
+        <span class="how-n">3</span>
+        <h3>Conecte a sua IA</h3>
+        <p>Cole a sua chave do Gemini (existe uma grátis) no cofre do app. Pronto: fale com o JARVIS.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= SEGURANÇA / CENTRAL ================= -->
+<section class="bento" id="seguranca" aria-labelledby="t-seg">
+  <div class="container">
+    <header class="section-head" data-reveal>
+      <h2 id="t-seg">Seu computador, suas chaves, seu controle</h2>
+      <p>No app para PC, o servidor só conhece a sua conta e o seu plano, nunca as chaves das suas IAs. No modo web, as chaves ficam cifradas no nosso servidor.</p>
+    </header>
+    <div class="bento-grid">
+      <article class="bento-card bento-wide spot" data-reveal>
+        <div class="bento-text">
+          <h3>Central de automação</h3>
+          <p>Veja CPU, memória e disco em tempo real, limpe arquivos temporários com segurança e organize pastas por tipo e mês — com opção de desfazer. Atalhos de um clique mandam pedidos prontos para o JARVIS.</p>
+        </div>
+        <div class="frame frame-mini"><div data-demo="central" data-autoplay aria-label="Demonstração animada: uso do PC em tempo real e limpeza segura"></div></div>
+      </article>
+      <article class="bento-card spot" data-reveal>
+        <span class="step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.2-8.2M16 7l3 3M14 9l2 2"/></svg></span>
+        <h3>Cofre de chaves local</h3>
+        <p>No app, as chaves de IA são cifradas pelo Windows e ficam só no seu PC. Nada disso viaja para a nuvem.</p>
+      </article>
+      <article class="bento-card spot" data-reveal>
+        <span class="step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></span>
+        <h3>Plano ligado à conta</h3>
+        <p>Entre no app com a sua conta e o plano vale na hora. O Free conecta 1 PC; o Premium, até 3. Para trocar de PC, libere o antigo em Minha conta.</p>
+      </article>
+      <article class="bento-card bento-wide spot" data-reveal>
+        <span class="step-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m8 16-4-4 4-4M16 8l4 4-4 4M14 5l-4 14"/></svg></span>
+        <h3>Para desenvolvedores</h3>
+        <p>Crie um projeto, gere chaves de API e consulte o uso por uma API somente-leitura. O que a sua aplicação faz com a IA nunca toca nas chaves de outras pessoas.</p>
+        <p class="bento-links"><a href="../docs.html">Documentação da API</a><a href="../tutoriais.html">Tutoriais</a></p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLANOS ================= -->
+<section class="plans" id="planos" aria-labelledby="t-planos">
+  <div class="container">
+    <header class="section-head" data-reveal>
+      <h2 id="t-planos">Comece de graça. Libere tudo quando quiser.</h2>
+      <p>O Free é para testar. No Premium vem tudo liberado: todos os módulos, IAs sem limite e a biblioteca de componentes inteira. Você só escolhe por quanto tempo.</p>
+    </header>
+    <div class="plans-grid" id="planos-area" aria-live="polite">
+      <div class="plan plan-skel"></div><div class="plan plan-skel"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="faq" id="faq" aria-labelledby="t-faq">
+  <div class="container faq-grid">
+    <header class="section-head" data-reveal>
+      <h2 id="t-faq">Perguntas frequentes</h2>
+      <p>Não achou o que procurava? Crie a conta grátis e teste.</p>
+    </header>
+    <div class="faq-list" data-reveal>
+      <details>
+        <summary>Onde ficam as minhas chaves de IA?</summary>
+        <p>No cofre do Windows, cifradas no seu computador. O JARVIS usa a chave direto do seu PC para falar com o Gemini, o ElevenLabs ou o Groq. O nosso servidor nunca recebe esses dados.</p>
+      </details>
+      <details>
+        <summary>Preciso pagar alguma IA?</summary>
+        <p>Não para começar. O Gemini tem chave grátis e a voz do Windows/Edge é gratuita. Serviços como ElevenLabs cobram do seu próprio plano, se você quiser usar.</p>
+      </details>
+      <details>
+        <summary>Posso usar a mesma conta em dois computadores?</summary>
+        <p>O Free ativa 1 PC; o Premium, até 3. Para trocar de computador, você libera o antigo no painel da conta — uma vez a cada 30 dias.</p>
+      </details>
+      <details>
+        <summary>O JARVIS funciona sem internet?</summary>
+        <p>As rotinas locais sim. Os recursos de IA precisam de internet porque usam as APIs que você configurou. O plano da conta segue válido por alguns dias offline e renova sozinho quando você volta a ficar online.</p>
+      </details>
+      <details>
+        <summary>Já dá para baixar o app?</summary>
+        <p>Sim. Crie a conta grátis e baixe o instalador do Windows em “Minha conta”. Como ele ainda não tem assinatura digital paga, o Windows pode avisar que o editor é desconhecido: clique em “Mais informações” e “Executar assim mesmo”. O código SHA-256 do arquivo fica na mesma página para você conferir.</p>
+      </details>
+      <details>
+        <summary>Como funciona o pagamento dos planos pagos?</summary>
+        <p>Você escolhe o período: mensal, trimestral ou vitalício (pagamento único, que nunca vence). Em qualquer um vem tudo liberado. O pagamento é por PIX e o plano vale na hora na sua conta, no site e no app. No mensal e no trimestral, você pode ligar o Pix Automático para renovar sozinho, ou pagar de novo quando quiser: o novo período soma ao que já existe.</p>
+      </details>
+      <details>
+        <summary>Prospectar pelo mapa é permitido?</summary>
+        <p>O JARVIS usa só informações públicas de negócios (Google Maps e OpenStreetMap) e deixa você revisar cada mensagem antes de enviar. Respeite a LGPD: ofereça sempre a opção de não receber mais mensagens.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA FINAL ================= -->
+<section class="final">
+  <div class="container final-inner" data-reveal>
+    <h2>Seu próximo vídeo, cliente ou roteiro começa com uma frase.</h2>
+    <a class="btn btn-lg btn-primary" href="../entrar.html?volta=comecar.html#cadastro">Criar conta grátis</a>
+  </div>
+</section>
+</main>
+
+<footer class="hwf-root" id="rodape-halftone" data-palavra="orion">
+  <span class="hwf-sr">orion</span>
+  <div class="hwf-top">
+    <div class="hwf-brand"><strong>JARVIS</strong><span>Assistente pessoal de IA</span></div>
+    <nav class="hwf-col" aria-label="Produto"><h3>Produto</h3><ul><li><a href="#modulos">Módulos</a></li><li><a href="../tutorials.html">Tutoriais</a></li><li><a href="#planos">Planos</a></li><li><a href="app.html">JARVIS Web</a></li><li><a href="novidades.html">Novidades</a></li><li><a href="#faq">Perguntas</a></li></ul></nav>
+    <nav class="hwf-col" aria-label="Conta"><h3>Conta</h3><ul><li><a href="../entrar.html?volta=conta.html">Entrar</a></li><li><a href="../entrar.html?volta=comecar.html#cadastro">Criar conta</a></li><li><a href="conta.html">Minha conta</a></li></ul></nav>
+    <nav class="hwf-col" aria-label="Desenvolvedores"><h3>Desenvolvedores</h3><ul><li><a href="../docs.html">Documentação</a></li><li><a href="../tutoriais.html">Tutoriais da API</a></li></ul></nav>
+    <nav class="hwf-col" aria-label="Suporte"><h3>Suporte</h3><ul><li><a href="https://discord.gg/aFHrJ6Vcew" target="_blank" rel="noopener">Comunidade no Discord</a></li><li><a href="mailto:mlk010173.github.io/jarvis@gmail.com">mlk010173.github.io/jarvis@gmail.com</a></li></ul></nav>
+    <nav class="hwf-col" aria-label="Legal"><h3>Legal</h3><ul><li><a href="../privacidade.html">Privacidade</a></li><li><a href="../termos.html">Termos de uso</a></li></ul></nav>
+  </div>
+  <div class="hwf-rule"><span class="hwf-nota">JARVIS · assistente pessoal de IA · suporte pelo Discord e por e-mail</span><button type="button" class="hwf-up">Voltar ao topo ↑</button></div>
+</footer>
 </body>
 </html>

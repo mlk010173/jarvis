@@ -169,3 +169,46 @@ O projeto deixou de ser um espelho estático e virou o **JARVIS**, com backend r
 - O espelho histórico em `.md` continua na pasta `codigo/` (documenta a origem ORION do código)
 
 > A pasta `codigo/` e o `AUDITORIA_SEGURANCA.md` preservam a história do projeto (origem ORION).
+
+---
+
+## 3. Como rodar 100% online (frontend + backend juntos)
+
+O repositório agora é **completo**: frontend inteiro (landing, app, painéis) + backend próprio.
+
+```bash
+# Requisito: Node 18+
+npm start            # ou: node server/server.js
+# → http://localhost:3000  (landing em /, app em /jarvis/app.html)
+```
+
+O servidor (`server/server.js`) não tem dependências, serve os arquivos estáticos
+e implementa toda a API (`docs/API.md`): contas com sessão, projetos (agentes),
+chaves de API, clima real (Open-Meteo), personalidades, melhorar-prompt e coletiva.
+Dados em JSON local (`server/data/db.json`).
+
+### Deploy grátis
+- **Render**: o `render.yaml` está pronto — New Web Service → repositório → plano free.
+- **Docker**: `Dockerfile` pronto (Fly.io, Railway, VPS…).
+- Depois do deploy, para que o **GitHub Pages** use o SEU backend, rode no console do navegador:
+  `localStorage.setItem('jarvis.api', 'https://SEU-APP.onrender.com/bridge')`
+  (sem isso, o Pages usa o backend compartilhado configurado por padrão no `api-bridge.js`).
+
+### Estrutura
+
+```
+/                      páginas: entrar.html, painel.html, docs, tutoriais, termos, privacidade
+jarvis/                landing (index.html), app (app.html), painéis, checkout, conta
+jarvis/web/            estilos + web.js + host-web.js do app
+jarvis/web/paineis/   pn-*.js — painéis do app
+jarvis/api-bridge.js   ponte frontend↔backend (base configurável via localStorage)
+server/server.js       backend Node sem dependências (API completa + arquivos estáticos)
+docs/API.md            contrato de todas as rotas
+render.yaml, Dockerfile, package.json
+```
+
+## 4. Versões
+
+- **1.1.0 (19/10/2026)** — frontend completo no repo (landing com hero, app com todos os painéis),
+  backend próprio `server/`, api-bridge configurável, login funcionando no GitHub Pages,
+  documentação (`docs/API.md`) e configs de deploy (Render/Docker).

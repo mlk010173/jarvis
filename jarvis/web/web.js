@@ -12,7 +12,7 @@
   async function api(url, metodo = 'GET', corpo) {
     const r = await fetch(url, { method: metodo, headers: corpo ? { 'Content-Type': 'application/json' } : {}, body: corpo ? JSON.stringify(corpo) : undefined, credentials: 'same-origin' });
     const j = await r.json().catch(() => ({}));
-    if (r.status === 401 && !url.includes('/ponte/')) { location.href = '../../entrar?volta=/jarvis/app'; throw new Error('login'); }
+    if (r.status === 401 && !url.includes('/ponte/')) { location.href = '../entrar.html?volta=jarvis/app.html'; throw new Error('login'); }
     if (!r.ok) throw Object.assign(new Error(j.erro || 'Erro ' + r.status), { status: r.status });
     return j;
   }
@@ -456,7 +456,7 @@
     iniciarOrb(); animar(); sincBotoes(); estado();
     try {
       const sessao = await api('/api/conta/sessao');
-      if (!sessao.logado) { location.href = '../../entrar?volta=/jarvis/app'; return; }
+      if (!sessao.logado) { location.href = '../entrar.html?volta=jarvis/app.html'; return; }
       // configuração inicial da conta (feita no site, um passo por vez, ou no app): o que este navegador ainda não escolheu vem dela
       const pref = await api('/api/conta/preferencias').catch(() => null);
       if (pref && pref.configurado === false) { location.replace('/jarvis/comecar?volta=/jarvis/app'); return; }

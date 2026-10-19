@@ -1,0 +1,37 @@
+{
+ "contas": [
+  {
+   "id": "c_dcde96ed9d5826ad07",
+   "nome": "Teste",
+   "email": "t@x.com",
+   "sal": "244d99a41780c473f8834d5a",
+   "hash": "99601a5ae3f3ea07cb08a990f5e930e5d846b89a801ebc834b7ce00c28d80756",
+   "plano": "jarvis",
+   "ias": [],
+   "memoria": [],
+   "criado": 1792423376351
+  }
+ ],
+ "projetos": [
+  {
+   "id": "p_c9d89343413b01147f",
+   "email": "t@x.com",
+   "nome": "Demo",
+   "descricao": "teste",
+   "instrucoes": "",
+   "assistente": "JARVIS",
+   "chaves": [],
+   "criado": 1792423376419
+  }
+ ],
+ "sessoes": {
+  "815732437289f8ff4f3a0f89e40e9842ec1a2ee3d3040db8": {
+   "email": "t@x.com",
+   "exp": 1795015376351
+  }
+ },
+ "coletiva": {
+  "eventos": 0,
+  "lotes": 0
+ }
+}
