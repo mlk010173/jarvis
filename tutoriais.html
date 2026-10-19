@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tutoriais da API — ORION</title>
+  <link rel="icon" type="image/svg+xml" href="orion/logo.svg?v=mvak1f88">
+  <link rel="stylesheet" href="orion/tokens.css?v=mvenxghl">
+  <link rel="stylesheet" href="estilo.css?v=mvenh0j4">
+  <script src="comum.js?v=mv7a33y0" defer></script>
+<script src="orion/pages-shim.js"></script>
+</head>
+<body>
+  <header class="topo">
+    <div class="container">
+      <a class="logo" href=""><img src="orion/logo.svg?v=mvak1f88" alt="" width="26" height="26" style="margin-right:2px"><span data-marca>ORION</span></a>
+      <nav class="nav"><a href="tutorials">Tutoriais do app</a><a href="docs">API</a><a class="btn prim peq" href="painel">Ir para o painel</a></nav>
+    </div>
+  </header>
+
+  <div class="container doc">
+    <nav aria-label="Tutoriais">
+      <a class="titulo" href="#comecar">Primeiros passos</a>
+      <a href="#t1">1. Criar a conta</a>
+      <a href="#t2">2. Conectar uma IA grátis</a>
+      <a href="#t3">3. Criar um projeto</a>
+      <a href="#t4">4. Escrever boas instruções</a>
+      <a href="#t5">5. Testar o assistente</a>
+      <a class="titulo" href="#integrar">Usar fora do painel</a>
+      <a href="#t6">6. Gerar uma chave de API</a>
+      <a href="#t7">7. Colocar no site ou bot</a>
+      <a class="titulo" href="#problemas">Ajuda</a>
+      <a href="#problemas">Deu problema?</a>
+      <a href="#glossario">Glossário</a>
+    </nav>
+
+    <article>
+      <h2 id="comecar">Primeiros passos</h2>
+      <p>Estes tutoriais são para quem <strong>nunca mexeu com IA ou programação</strong>. Siga na ordem. Cada passo leva poucos minutos.</p>
+
+      <details class="ajuda tutorial" id="t1" open><summary>1. Criar a sua conta</summary><div class="corpo">
+        <ol>
+          <li>Clique em <a href="entrar#cadastro">Criar conta grátis</a>.</li>
+          <li>Preencha seu nome, e-mail e uma senha com pelo menos 8 caracteres.</li>
+          <li>Clique em "Criar minha conta grátis". Você já entra no painel.</li>
+        </ol>
+        <p>Para voltar depois, use "Entrar" com o mesmo e-mail e senha.</p>
+      </div></details>
+
+      <details class="ajuda tutorial" id="t2"><summary>2. Conectar uma IA grátis (Gemini)</summary><div class="corpo">
+        <p>A "IA" é o cérebro do assistente. Você usa a sua própria conta, e o Gemini do Google tem plano grátis.</p>
+        <ol>
+          <li>No painel, clique em <strong>Minhas IAs</strong>.</li>
+          <li>No cartão "Gemini (Google)", clique em <strong>Pegar a chave →</strong>. Abre o site do Google.</li>
+          <li>Entre com sua conta Google e clique em <strong>Create API key</strong>.</li>
+          <li>Copie a chave (um código longo que começa com <code>AIza</code>).</li>
+          <li>Volte ao painel, cole no campo do Gemini e clique em <strong>Conectar</strong>.</li>
+          <li>Se aparecer "Funcionando", deu certo.</li>
+        </ol>
+        <p><strong>Dica:</strong> conecte também o Groq e o OpenRouter (grátis). Se uma IA atingir o limite, a outra responde no lugar.</p>
+      </div></details>
+
+      <details class="ajuda tutorial" id="t3"><summary>3. Criar um projeto</summary><div class="corpo">
+        <p>Um projeto é um assistente com nome e jeito próprios. Você pode ter vários: um para atender clientes, outro para criar posts...</p>
+        <ol>
+          <li>Em <strong>Meus projetos</strong>, escreva um nome (ex.: "Atendimento da loja").</li>
+          <li>Clique em <strong>Criar projeto</strong>. Você vai para a tela dele.</li>
+        </ol>
+      </div></details>
+
+      <details class="ajuda tutorial" id="t4"><summary>4. Escrever boas instruções</summary><div class="corpo">
+        <p>As instruções são o "treinamento" do assistente. Escreva como se estivesse explicando o trabalho para um funcionário novo.</p>
+        <p><strong>Modelo para copiar e adaptar:</strong></p>
+        <pre><code>Você é a Luna, atendente da Loja X, que vende keys de jogos Steam.
+Seja educada, simpática e responda em poucas frases.
+
+O que você sabe:
+- A entrega é automática, logo após o pagamento, no e-mail do cliente.
+- Pagamento por PIX ou cartão.
+- Garantia de 7 dias se a key não funcionar.
+- Suporte humano: WhatsApp (11) 99999-9999, das 9h às 18h.
+
+Regras:
+- Nunca invente preços ou promoções. Se não souber, mande o link da loja.
+- Se o cliente estiver bravo, peça desculpas e passe o WhatsApp do suporte.</code></pre>
+        <p>Cole no campo <strong>Instruções</strong> da aba "Configurar" e clique em <strong>Salvar alterações</strong>.</p>
+      </div></details>
+
+      <details class="ajuda tutorial" id="t5"><summary>5. Testar o assistente</summary><div class="corpo">
+        <ol>
+          <li>Abra a aba <strong>Testar</strong> do projeto.</li>
+          <li>Escreva perguntas que seus clientes fariam e veja as respostas.</li>
+          <li>Não gostou de alguma? Volte em "Configurar", ajuste as instruções e teste de novo.</li>
+        </ol>
+        <p>Embaixo de cada resposta aparece qual IA respondeu (ex.: "via Gemini").</p>
+      </div></details>
+
+      <h2 id="integrar">Usar fora do painel</h2>
+
+      <details class="ajuda tutorial" id="t6"><summary>6. Gerar uma chave de API</summary><div class="corpo">
+        <p>A chave de API é uma senha que deixa outro programa (seu site, bot, automação) falar com o assistente.</p>
+        <ol>
+          <li>No projeto, abra a aba <strong>Chaves de API</strong>.</li>
+          <li>Dê um nome (ex.: "Bot do Discord") e clique em <strong>Gerar nova chave</strong>.</li>
+          <li><strong>Copie na hora</strong>: por segurança ela só aparece uma vez.</li>
+          <li>Guarde num lugar seguro. Se vazar, clique em <strong>Revogar</strong> e gere outra.</li>
+        </ol>
+      </div></details>
+
+      <details class="ajuda tutorial" id="t7"><summary>7. Colocar no site ou num bot</summary><div class="corpo">
+        <p>Essa parte normalmente é feita por quem cuida do seu site ou bot. Mande para essa pessoa:</p>
+        <ul>
+          <li>A chave de API que você gerou.</li>
+          <li>O link da <a href="docs">Documentação da API</a> (tem exemplos prontos, inclusive de bot do Discord).</li>
+        </ul>
+        <p>Se você mesmo for fazer, comece pelo exemplo "cURL" da documentação: dá para testar só copiando e colando no terminal.</p>
+      </div></details>
+
+      <h2 id="problemas">Deu problema?</h2>
+      <dl class="glossario">
+        <dt>"Nenhuma IA conectada"</dt><dd>Faça o tutorial 2 e conecte pelo menos uma IA.</dd>
+        <dt>"Todas as IAs conectadas falharam"</dt><dd>Em "Minhas IAs", clique em "Testar" em cada uma. Chave errada? Cole de novo. Limite grátis acabou? Conecte outra IA como reserva.</dd>
+        <dt>"Limite diário do plano atingido"</dt><dd>Você usou todos os pedidos de hoje. O contador zera à meia-noite.</dd>
+        <dt>"Chave de API inválida ou revogada"</dt><dd>A chave foi digitada errada, falta o "Bearer " antes dela, ou ela foi revogada. Gere outra.</dd>
+        <dt>As respostas estão ruins</dt><dd>Melhore as instruções (tutorial 4): seja específico, dê exemplos e diga o que ele NÃO deve fazer.</dd>
+      </dl>
+
+      <h2 id="glossario">Glossário</h2>
+      <dl class="glossario">
+        <dt>IA (Inteligência Artificial)</dt><dd>Programa que entende e escreve texto, como o ChatGPT e o Gemini.</dd>
+        <dt>Projeto</dt><dd>Um assistente seu, com nome, instruções e chaves próprias.</dd>
+        <dt>Instruções</dt><dd>O texto que diz ao assistente quem ele é e como deve responder.</dd>
+        <dt>API</dt><dd>Uma "porta" para outros programas conversarem com o seu assistente.</dd>
+        <dt>Chave de API</dt><dd>A senha dessa porta. Quem tem a chave consegue usar o seu assistente.</dd>
+        <dt>Modelo</dt><dd>A versão da IA (ex.: gemini-2.5-flash). Pode deixar o padrão.</dd>
+        <dt>Token</dt><dd>Pedacinho de texto que as IAs usam para medir o tamanho das mensagens.</dd>
+      </dl>
+    </article>
+  </div>
+
+  <footer class="rodape"><div class="container"><span>© 2026 <span data-marca>ORION</span></span><span><a href="">Início</a> · <a href="docs">API</a></span></div></footer>
+</body>
+</html>

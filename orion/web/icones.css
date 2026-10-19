@@ -1,0 +1,34 @@
+/* cópia de app/public/icones.css (scripts/copiar-visual-app.js): edite no app e copie de novo */
+/* Ícones vetoriais e micro-emojis do ORION nas telas do app (acompanham a cor de destaque do tema; ciano #06B6D4 no tema ORION) */
+.ic { display: inline-grid; place-items: center; flex: none; width: 1.15em; height: 1.15em; vertical-align: -.2em; }
+.ic svg, .h-ic svg { width: 100%; height: 100%; fill: none; stroke: currentColor; }
+.h-ic { display: inline-grid; place-items: center; flex: none; width: 26px; height: 26px; padding: 5px; margin-right: 9px; vertical-align: middle; color: var(--accent, #06B6D4); border: 1px solid rgba(var(--accent-rgb, 6, 182, 212), .4); border-radius: 9px; background: rgba(var(--accent-rgb, 6, 182, 212), .09); box-shadow: 0 0 16px -6px rgba(var(--accent-rgb, 6, 182, 212), .7); }
+.h-ic svg { filter: drop-shadow(0 0 4px rgba(var(--accent-rgb, 6, 182, 212), .7)); stroke-width: 1.8; }
+h2.com-icone, h3.com-icone, h4.com-icone { display: flex; align-items: center; justify-content: flex-start; }
+.com-icone > .mini-btn:last-child, h3.com-icone > button:last-child { margin-left: auto; }
+.h-emoji { margin-left: 8px; font-size: .8em; display: inline-block; animation: ic-flutua 4.6s ease-in-out infinite; }
+.btn-ic { width: 15px; height: 15px; margin-right: 7px; vertical-align: -3px; color: var(--accent, #06B6D4); flex: none; transition: transform .25s ease; }
+button:hover > .btn-ic, a:hover > .btn-ic { transform: scale(1.14); }
+button.com-icone, a.com-icone { display: inline-flex; align-items: center; justify-content: center; }
+.primary-btn .btn-ic, .modulos a.m.on .ic, .btn-primary .btn-ic, .primario .btn-ic { color: inherit; }
+.tabs { overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs button { display: inline-flex; align-items: center; flex: none; white-space: nowrap; padding-left: 12px; padding-right: 12px; font-size: 14px; transition: color .2s, border-color .2s, background .2s; }
+.tabs button:hover { background: rgba(var(--accent-rgb, 6, 182, 212), .05); }
+.boot-btn .btn-ic { color: inherit; }
+.tabs button .ic, .ctab .ic { width: 16px; height: 16px; margin-right: 7px; vertical-align: -3px; color: var(--accent, #06B6D4); }
+.tabs button .em { margin-left: 6px; font-style: normal; font-size: .9em; opacity: .9; }
+.modulos a.m .ic, .modulos-barra a .ic { width: 15px; height: 15px; margin-right: 7px; vertical-align: -3px; color: var(--accent, #06B6D4); }
+.modulos a.voltar { display: inline-flex; align-items: center; }
+.modulos a.voltar .ic { width: 15px; height: 15px; margin-right: 6px; }
+.modulos a.m .em, .modulos-barra a .em { margin-left: 6px; font-style: normal; font-size: .95em; }
+@keyframes ic-flutua { 50% { transform: translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .h-emoji { animation: none; } .btn-ic { transition: none; } }
+/* ícones que substituíram os emojis (avisos, anexos, pendências, atalho do resumo, alertas da Central) */
+.notif .ni .ic { width: 20px; height: 20px; color: var(--accent, #06B6D4); }
+.notif.venda .ni .ic { color: #5dffa9; }
+.arq .arq-ico.ic { width: 22px; height: 22px; color: var(--accent, #06B6D4); }
+.pend .pend-ico.ic { color: var(--accent, #06B6D4); }
+.pend .pend-ico.ic svg { width: 22px; height: 22px; }
+.chip .ic { width: 15px; height: 15px; margin-right: 6px; vertical-align: -3px; color: var(--accent, #06B6D4); }
+.alerta .ic { width: 16px; height: 16px; margin-right: 4px; vertical-align: -3px; color: #fbbf24; }

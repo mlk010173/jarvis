@@ -1,0 +1,73 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Sintaxe de todos os JS
+        run: |
+          falha=0
+          while IFS= read -r f; do
+            if ! node --check "$f"; then falha=1; fi
+          done < <(find . -name "*.js" -not -path "./.git/*" -not -path "./codigo/*")
+          exit $falha
+      - name: Links internos das páginas HTML
+        run: |
+          python3 - << 'PY'
+          import os, re, sys
+          def resolve(base, path):
+              path = re.split(r"[?#]", path)[0]
+              if not path: return None
+              if path.endswith("/"): alvo = os.path.normpath(os.path.join(os.path.dirname(base), path, "index.html"))
+              else: alvo = os.path.normpath(os.path.join(os.path.dirname(base), path))
+              if os.path.isfile(alvo): return alvo
+              if os.path.isfile(alvo + ".html"): return alvo + ".html"
+              return None
+          quebrados = []
+          for root, _, files in os.walk("."):
+              if ".git" in root or "codigo" in root or ".github" in root: continue
+              for fn in files:
+                  if not fn.endswith(".html"): continue
+                  p = os.path.join(root, fn)
+                  for m in re.finditer(r'(?:href|src)="([^"]+)"', open(p, encoding="utf-8").read()):
+                      v = m.group(1)
+                      if v.startswith(("#","http","mailto:","data:","javascript:")): continue
+                      if resolve(p, v) is None: quebrados.append((p, v))
+          if quebrados:
+              for q in quebrados: print("QUEBRA:", q)
+              sys.exit(1)
+          print("OK: todos os links internos resolvem")
+          PY
+
+  deploy:
+    needs: validar
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
