@@ -60,6 +60,15 @@ Duas formas de chamar:
 | GET | /api/admin/push | `{erro: "Área restrita ao dono."}` |
 | GET | /api/admin/auditoria | `{erro: "Área restrita ao dono."}` |
 | GET | /api/admin/contas | `{erro: "Área restrita ao dono."}` |
+| GET | /api/admin/contas/:id | `{erro: "Área restrita ao dono."}` (padrão com parâmetro) |
+| GET | /api/admin/analytics | `{erro: "Área restrita ao dono e à equipe."}` |
+| GET | /api/admin/clientes | `{erro: "Área restrita ao dono e à equipe."}` |
+| GET | /api/admin/licencas | `{erro: "Área restrita ao dono."}` |
+| GET | /api/admin/sites | `{erro: "Área restrita ao dono."}` |
+| GET | /api/admin/transacoes | `{erro: "Área restrita ao dono."}` |
+| POST | /api/admin/equipe | `{erro: "Área restrita ao dono."}` (convite/equipe) |
+| POST | /api/admin/cupons | `{erro: "Área restrita ao dono."}` (criar cupom) |
+| PUT | /api/admin/leads | `{erro: "Área restrita ao dono."}` (editar lead) | `{erro: "Área restrita ao dono."}` |
 | GET | /api/dono/eu | `{dono: false}` (honesto: sem painel de dono local) |
 | GET | /api/ponte/apps | `{apps: []}` (sem app de PC conectado) |
 
@@ -111,4 +120,4 @@ O teste de projeto usa a primeira IA ativa da fila. As chaves ficam no servidor,
 
 ## Área admin (descoberta em auditoria, 19/10/2026)
 
-Varredura autenticada da API oficial (1157+ candidatos, discriminação 404 vs 401/403) confirmou 13 rotas `/api/admin/*` que exigem papel de dono ou equipe. A API oficial nega com `403 "Área restrita ao dono (e à equipe)."` para contas comuns; o backend JARVIS replica o contrato negando honestamente (`dono: false`). A família `/api/v1/*` é um muro por prefixo: qualquer caminho sob `/api/v1` exige `Authorization: Bearer SUA_CHAVE`.
+Varredura autenticada da API oficial (1157+ candidatos, discriminação 404 vs 401/403) confirmou 18 rotas GET `/api/admin/*` + 3 de escrita (POST equipe/cupons, PUT leads) + padrão `/api/admin/contas/:id` que exigem papel de dono ou equipe. A API oficial nega com `403 "Área restrita ao dono (e à equipe)."` para contas comuns; o backend JARVIS replica o contrato negando honestamente (`dono: false`). A família `/api/v1/*` é um muro por prefixo: qualquer caminho sob `/api/v1` exige `Authorization: Bearer SUA_CHAVE`.
