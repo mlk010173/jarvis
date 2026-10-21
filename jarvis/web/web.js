@@ -87,8 +87,26 @@
     return lista.find((v) => v.name === salva) || (S.vozConta ? lista.find((v) => new RegExp('microsoft.*' + S.vozConta, 'i').test(v.name)) : null) || lista.find((v) => /microsoft.*(antonio|francisca|thalita)/i.test(v.name)) || lista.find((v) => /google/i.test(v.name) && /BR/i.test(v.lang)) || lista.find((v) => v.lang === 'pt-BR') || lista[0] || null;
   }
   function limparParaFala(t) { return String(t).replace(/```[\s\S]*?```/g, ' (código na tela) ').replace(/[*_#>`]/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/https?:\/\/\S+/g, 'link').slice(0, 1800); }
+  let audioAtual = null;
+  async function falarEstudio(texto, aoAcabar) {
+    const limpo = limparParaFala(texto).slice(0, 2000);
+    S.falando = true; estado();
+    if (!S.legendas) legenda(limpo.slice(0, 120));
+    try {
+      const r = await api('/api/voz/elevenlabs', 'POST', { texto: limpo });
+      audioAtual = new Audio('data:audio/mpeg;base64,' + r.audio_base64);
+      audioAtual.onended = () => { S.falando = false; estado(); audioAtual = null; aoAcabar?.(); };
+      audioAtual.onerror = () => { S.falando = false; estado(); audioAtual = null; aoAcabar?.(); };
+      await audioAtual.play();
+    } catch (e) {
+      S.falando = false; estado();
+      toast('Voz de estúdio falhou: ' + e.message + ' — /voz off volta à voz do navegador.', 'bad', 8000);
+      aoAcabar?.();
+    }
+  }
   function falar(texto, aoAcabar) {
     if (!temVoz || !S.voz || !texto) { aoAcabar?.(); return; }
+    if (local.get('voz.elevenlabs')) { falarEstudio(texto, aoAcabar); return; }
     speechSynthesis.cancel();
     const partes = limparParaFala(texto).match(/[^.!?…]+[.!?…]*\s*/g) || [texto];
     const v = vozEscolhida(); let i = 0;
@@ -104,7 +122,7 @@
     };
     proxima();
   }
-  const pararFala = () => { if (temVoz) speechSynthesis.cancel(); S.falando = false; estado(); };
+  const pararFala = () => { if (temVoz) speechSynthesis.cancel(); if (audioAtual) { try { audioAtual.pause(); } catch { } audioAtual = null; } S.falando = false; estado(); };
   if (temVoz) speechSynthesis.onvoiceschanged = () => preencherVozes();
 
   // ---------- microfone (reconhecimento de voz do navegador) ----------
@@ -216,7 +234,7 @@
     icones(caixa); caixa.scrollTop = caixa.scrollHeight;
     desenharAtalhos();
   }
-  const ATALHOS = ['/clima', '/moeda', '/cripto bitcoin', '/feriados', 'Escreva um roteiro de 30 segundos para Reels', 'Ideias de post para o meu Instagram', 'Me ajude a responder um cliente', 'Resuma este texto em tópicos', 'Monte um plano de estudos de 7 dias'];
+  const ATALHOS = ['/clima', '/moeda', '/pesquisar ', '/abrir https://', '/feriados', 'Escreva um roteiro de 30 segundos para Reels', 'Ideias de post para o meu Instagram', 'Me ajude a responder um cliente', 'Resuma este texto em tópicos', 'Monte um plano de estudos de 7 dias'];
   function desenharAtalhos() { $('#quick').replaceChildren(...ATALHOS.map((t) => el('button', { type: 'button', class: 'chip', onclick: () => enviar(t) }, t))); }
 
   // ---------- comandos reais (dados abertos ao vivo, sem IA) ----------
@@ -226,7 +244,27 @@
     const c = m[1]; const arg = t.trim().slice(m[1].length).trim();
     const pedir = async (rota) => { try { return await api(rota); } catch (e) { return { erro: e.message }; } };
     const ok = (r) => r && !r.erro;
-    if (c === 'ajuda' || c === 'comandos') return 'Comandos reais do JARVIS (dados ao vivo e abertos): /clima [cidade] · /moeda [USD] [BRL] · /cripto [bitcoin, ethereum, solana, cardano, dogecoin] · /wiki [termo] · /feriados [ano] · /github — dados do projeto.';
+    if (c === 'ajuda' || c === 'comandos') return 'Comandos reais do JARVIS (dados ao vivo): /clima [cidade] · /moeda [USD] [BRL] · /cripto [bitcoin, ethereum, solana, cardano, dogecoin] · /wiki [termo] · /feriados [ano] · /github · /pesquisar [termo] · /abrir [endereço] · /voz (voz de estúdio ElevenLabs) · com IA conectada, o modo Agente pesquisa sozinho.';
+    if (c === 'voz') {
+      const sub = arg.split(' ')[0]; const resto = arg.slice(sub.length).trim();
+      const cfgVoz = async (corpoV) => api('/api/voz/config', 'PUT', corpoV);
+      if (!sub || sub === 'status') { try { const v = await api('/api/voz/config'); return 'Voz de estúdio (ElevenLabs): ' + (v.on ? 'ligada' : 'desligada') + (v.tem_chave ? ' · chave configurada' : ' · sem chave') + '. Comandos: /voz on · /voz off · /voz chave SUA-CHAVE · /voz vozes · /voz usar ID.'; } catch (e) { return 'Voz: ' + e.message; } }
+      if (sub === 'on' || sub === 'off') { try { const v = await cfgVoz({ on: sub === 'on' }); local.set('voz.elevenlabs', sub === 'on' ? '1' : ''); return sub === 'on' ? (v.tem_chave ? 'Voz de estúdio ligada: vou falar com a voz da ElevenLabs.' : 'Voz de estúdio ligada, mas falta a chave: /voz chave SUA-CHAVE (crie grátis em 11labs.io).') : 'Voz de estúdio desligada: volto à voz do navegador.'; } catch (e) { return 'Voz: ' + e.message; } }
+      if (sub === 'chave') { if (!resto) return 'Informe a chave: /voz chave SUA-CHAVE (crie grátis em 11labs.io).'; try { await cfgVoz({ chave: resto }); return 'Chave da ElevenLabs guardada. Use /voz on para ativar e /voz vozes para escolher a voz.'; } catch (e) { return 'Voz: ' + e.message; } }
+      if (sub === 'vozes') { try { const v = await api('/api/voz/vozes'); return 'Vozes: ' + v.vozes.slice(0, 10).map((x) => x.nome + ' (' + x.id + ')').join(' · ') + '. Use /voz usar ID.'; } catch (e) { return 'Voz: ' + e.message; } }
+      if (sub === 'usar') { if (!resto) return 'Informe o ID: /voz usar ID-DA-VOZ.'; try { await cfgVoz({ voz_id: resto }); return 'Voz atualizada.'; } catch (e) { return 'Voz: ' + e.message; } }
+      return 'Voz: /voz status, on, off, chave SUA-CHAVE, vozes, usar ID.';
+    }
+    if (c === 'pesquisar' || c === 'busca' || c === 'buscar') {
+      if (!arg) return 'Pesquisa: informe o termo (ex.: /pesquisar lançamentos de foguete).';
+      const r = await pedir('/api/web/pesquisar?q=' + encodeURIComponent(arg));
+      return ok(r) ? 'Busca por "' + arg + '":\n' + r.resultados.slice(0, 5).map((x, i) => (i + 1) + '. ' + x.titulo + ' — ' + x.url + (x.resumo ? '\n   ' + x.resumo : '')).join('\n') + '\nFonte: DuckDuckGo.' : 'Busca: ' + (r.erro || 'indisponível.');
+    }
+    if (c === 'abrir' || c === 'site') {
+      if (!arg) return 'Abrir: informe o endereço (ex.: /abrir https://exemplo.com).';
+      const r = await pedir('/api/web/abrir?url=' + encodeURIComponent(arg));
+      return ok(r) ? (r.titulo ? r.titulo + '\n' : '') + r.texto.slice(0, 1200) : 'Abrir: ' + (r.erro || 'indisponível.');
+    }
     if (c === 'clima') { const cid = arg || local.get('cidade', ''); const r = await pedir('/api/web/clima' + (cid ? '?cidade=' + encodeURIComponent(cid) : '')); return ok(r) && r.configurado ? 'Clima em ' + r.cidade + ': ' + Math.round(r.temperatura) + '°C, ' + r.descricao + ' · mín ' + Math.round(r.minima) + '° / máx ' + Math.round(r.maxima) + '° · umidade ' + Math.round(r.umidade) + '% · vento ' + Math.round(r.vento) + ' km/h' : 'Clima: ' + ((r && (r.mensagem || r.erro)) || 'indisponível.'); }
     if (c === 'moeda' || c === 'dolar' || c === 'dólar' || c === 'euro') { const partes = arg.toUpperCase().split(/[\s>→-]+/).filter(Boolean); const de = (c === 'euro' ? 'EUR' : partes[0] || 'USD'); const para = (c === 'euro' ? 'BRL' : partes[1] || (de === 'BRL' ? 'USD' : 'BRL')); const r = await pedir('/api/web/moeda?de=' + de + '&para=' + para); return ok(r) ? '1 ' + r.de + ' = ' + r.valor + ' ' + r.para + ' · ' + r.titulo + ' · fonte: ' + r.fonte + ' (' + r.atualizado + ')' : 'Moeda: ' + (r.erro || 'indisponível.'); }
     if (c === 'cripto' || c === 'bitcoin' || c === 'btc' || c === 'ethereum' || c === 'solana' || c === 'dogecoin') { const id = (c === 'cripto' ? (arg || 'bitcoin') : (c === 'btc' ? 'bitcoin' : c)).toLowerCase(); const r = await pedir('/api/web/cripto?id=' + encodeURIComponent(id)); return ok(r) ? '1 ' + r.nome + ' = R$ ' + Number(r.valor_brl).toLocaleString('pt-BR') + ' · fonte: ' + r.fonte : 'Cripto: ' + (r.erro || 'indisponível.'); }

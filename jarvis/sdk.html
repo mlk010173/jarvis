@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDK do JARVIS — integre em qualquer site</title>
+<style>
+:root{--azul:#2E9BFF;--fundo:#04101b;--caixa:#050c16;--linha:rgba(46,155,255,.25);--texto:#e8ecf6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fundo);color:var(--texto);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;line-height:1.7}
+main{max-width:880px;margin:0 auto;padding:40px 20px 80px}
+h1{font-size:32px;background:linear-gradient(90deg,#2E9BFF,#00D2FF);-webkit-background-clip:text;background-clip:text;color:transparent;margin:0 0 8px}
+h2{font-size:20px;margin:40px 0 12px;color:#cfe3ff}
+p{opacity:.85}
+code,pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px}
+pre{background:var(--caixa);border:1px solid var(--linha);border-radius:12px;padding:16px;overflow:auto}
+.caixa{background:var(--caixa);border:1px solid var(--linha);border-radius:14px;padding:18px;margin:16px 0}
+.aba{display:inline-block;margin:12px 8px 0 0;padding:7px 14px;border-radius:999px;border:1px solid var(--linha);color:var(--azul);text-decoration:none;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:9px 12px;border-bottom:1px solid var(--linha);text-align:left}
+th{opacity:.6;font-weight:500}
+a{color:var(--azul)}
+</style>
+</head>
+<body>
+<main>
+<h1>SDK do JARVIS</h1>
+<p>Integre o chat com IA, as ferramentas reais e o modo Agente (que pesquisa na internet) em qualquer site ou app seu com poucas linhas.</p>
+<a class="aba" href="index.html">← Início</a><a class="aba" href="app.html">Abrir o app</a>
+
+<h2>1. Inclua o SDK</h2>
+<pre>&lt;script src="https://mlk010173.github.io/jarvis/jarvis/jarvis-sdk.js"&gt;&lt;/script&gt;</pre>
+
+<h2>2. Conecte e use as ferramentas reais (sem IA)</h2>
+<pre>const jv = new JarvisSDK({ token: 'SEU_TOKEN' }); // entre com jv.entrar(email, senha)
+
+const clima = await jv.clima('Vitória');
+const dolar = await jv.moeda('USD', 'BRL');
+const btc   = await jv.cripto('bitcoin');
+const busca = await jv.pesquisar('notícias de hoje');
+const moto  = await jv.abrir('https://exemplo.com/pagina');
+const news  = await jv.noticias(); // manchetes do Brasil agora</pre>
+
+<h2>3. Chat com IA + modo Agente</h2>
+<p>A conta conecta a própria IA em <b>Minhas IAs</b> (Google Gemini tem plano grátis). Com o <b>modo agente</b>, a IA pesquisa na internet e abre páginas sozinha quando precisa.</p>
+<pre>const p = await jv.criarProjeto('Atendimento', 'Responda com simpatia.', 'JARVIS');
+const r = await jv.chat([{ role: 'user', content: 'qual o dólar hoje e a previsão?' }], p.id, 'agente');
+console.log(r.resposta, r.ia_nome);</pre>
+
+<h2>4. MCP: catálogo e execução de ferramentas</h2>
+<pre>const cats = await jv.ferramentas();       // lista de ferramentas com esquemas
+const r = await jv.executar('pesquisar', { q: 'github jarvis' });</pre>
+
+<div class="caixa">
+<table>
+<tr><th>Ferramenta</th><th>Parâmetros</th><th>Fonte</th></tr>
+<tr><td>clima</td><td>cidade</td><td>MET.no</td></tr>
+<tr><td>moeda</td><td>de, para</td><td>AwesomeAPI / BCE</td></tr>
+<tr><td>cripto</td><td>id</td><td>CoinGecko / Coinbase</td></tr>
+<tr><td>wiki</td><td>q</td><td>Wikipédia PT</td></tr>
+<tr><td>feriados</td><td>ano</td><td>Nager.Date</td></tr>
+<tr><td>pesquisar</td><td>q</td><td>DuckDuckGo</td></tr>
+<tr><td>abrir</td><td>url</td><td>leitura real da página</td></tr>
+<tr><td>noticias</td><td>—</td><td>Google News / BBC / G1</td></tr>
+<tr><td>chat</td><td>mensagens, projeto_id</td><td>IA da conta (Gemini, OpenAI, Claude…)</td></tr>
+</table>
+</div>
+
+<h2>Provedores de IA suportados</h2>
+<p>Google Gemini (plano grátis) · OpenAI · Anthropic Claude · Groq (grátis) · OpenRouter (tem modelos grátis) · DeepSeek · Mistral. A fila tenta na ordem: se uma falha, a próxima assume.</p>
+
+<p style="opacity:.6;font-size:13px">Backend: https://jarvis-backend-7949.onrender.com/bridge · Repositório: https://github.com/mlk010173/jarvis</p>
+</main>
+</body>
+</html>
