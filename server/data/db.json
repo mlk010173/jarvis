@@ -1,0 +1,46 @@
+{
+ "contas": [
+  {
+   "id": "c_14be4a9dd66904601c",
+   "nome": "QA",
+   "email": "qa5@t.com",
+   "sal": "310caac6f2852ea39c97127a",
+   "hash": "b3fe82fd03adc24c9e4f2ae7e09c24ef317488da08bc2630b77f18eabff5f61f",
+   "plano": "jarvis",
+   "ias": [],
+   "memoria": [],
+   "criado": 1792624689663
+  }
+ ],
+ "projetos": [
+  {
+   "id": "p_fbb28272a036c3da94",
+   "email": "qa5@t.com",
+   "nome": "QA",
+   "descricao": "",
+   "instrucoes": "",
+   "assistente": "JARVIS",
+   "chaves": [
+    {
+     "id": "k_a1a849ed43754a599f",
+     "nome": "k",
+     "valor": "jv_72c571c9b1f221289806733775e9d72d03ea17c2",
+     "criado": 1792624689709
+    }
+   ],
+   "criado": 1792624689682
+  }
+ ],
+ "sessoes": {
+  "25bfaa9a8838d76b71bd10a0504cae9f53f4a2ddd1cab3e2": {
+   "email": "qa5@t.com",
+   "exp": 1795216689663
+  }
+ },
+ "coletiva": {
+  "eventos": 0,
+  "lotes": 0
+ },
+ "oauthEstados": {},
+ "oauthCodigos": {}
+}

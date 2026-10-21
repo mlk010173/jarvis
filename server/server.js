@@ -657,8 +657,8 @@ async function api(req, res, rota, metodo, corpo, conta) {
     /^\/api\/projetos(\/.*)?$/,
     /^\/api\/pagamentos\//,
     /^\/api\/dono\/negocio$/,
-    /^\/api\/v1\//,
-  ];
+  ]; /* /api/v1/* faz a própria checagem de Bearer (chave de projeto) */
+
   if (!conta && PROTEGIDAS.some((re) => re.test(rota))) return { __erro: [401, 'Faça login.'] };
 
   if (K === 'GET /api/conta/assinatura') return { plano: 'premium', nome: 'Premium', pago: true, continua: true, expira_em: null, status: 'ativo', cobranca: 'aberto', limites: PLANO.limites };
