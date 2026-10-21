@@ -129,3 +129,11 @@ Varredura autenticada da API oficial (1157+ candidatos, discriminação 404 vs 4
 - Ferramenta do agente: `{EMAIL:consulta}` no Modo Agente (ex.: "quais e-mails chegaram hoje?").
 - Devtools: `jarvis/devtools.html` — status da API, ferramentas do agente, console de erros e permissões reais do dispositivo (microfone, câmera, notificações, localização, clipboard).
 - Conector: função jarvisEmail (Base44) com o Gmail conectado do dono; ações enviar/listar/ler. Se o canal externo estiver no limite de créditos, as rotas respondem 502 com o motivo real — nunca dados falsos.
+
+## Monitoramento e segurança (21/10/2026, v1.3.1)
+
+- `GET /api/logs/ia` — últimas 120 execuções de IA: modelo, provedor, latência (ms), tokens in/out, custo estimado em USD e erro quando houver. Login exigido.
+- `GET /api/logs/ia/resumo` — por mês: execuções, erros, custo total e quebra por modelo (tabela de preços embutida por modelo; modelos free contam custo 0).
+- Segurança: `abrirWeb`/ferramenta ABRIR agora aceita apenas **https público** — localhost, IPs privados (10.x, 127.x, 172.16-31.x, 192.168.x), link-local 169.254.x (metadados de nuvem) e http:// são bloqueados (anti-SSRF).
+- Rate limit: `POST /api/v1/chat` limitado a 20 chamadas por minuto por chave (429 acima disso).
+- Ollama no catálogo de IAs: base `http://127.0.0.1:11434/v1` — modelos locais no PC, grátis e privados.

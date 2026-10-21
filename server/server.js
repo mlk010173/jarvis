@@ -225,11 +225,38 @@ const CATALOGO_IAS = [
   { id: 'groq', nome: 'Groq', tipo: 'openai', site: 'https://console.groq.com/keys', gratis: true, base: 'https://api.groq.com/openai/v1', modelo_padrao: 'llama-3.3-70b-versatile', recomendacao: { posicao: 4, motivo: 'Grátis e absurdamente rápido (Llama).' } },
   { id: 'openrouter', nome: 'OpenRouter', tipo: 'openai', site: 'https://openrouter.ai/keys', gratis: true, base: 'https://openrouter.ai/api/v1', modelo_padrao: 'meta-llama/llama-3.3-70b-instruct:free', recomendacao: { posicao: 5, motivo: 'Uma chave, dezenas de modelos (inclusive gratuitos).' } },
   { id: 'deepseek', nome: 'DeepSeek', tipo: 'openai', site: 'https://platform.deepseek.com/api_keys', gratis: false, base: 'https://api.deepseek.com/v1', modelo_padrao: 'deepseek-chat', recomendacao: { posicao: 6, motivo: 'Custo baixo e bom raciocínio.' } },
+  { id: 'ollama', nome: 'Ollama (local no seu PC)', tipo: 'openai', site: 'https://ollama.com', gratis: true, base: 'http://127.0.0.1:11434/v1', modelo_padrao: 'llama3.2', recomendacao: { posicao: 8, motivo: 'Roda na sua máquina pelo app do PC: grátis, privado e sem limite.' } },
   { id: 'mistral', nome: 'Mistral', tipo: 'openai', site: 'https://console.mistral.ai/api-keys', gratis: false, base: 'https://api.mistral.ai/v1', modelo_padrao: 'mistral-small-latest', recomendacao: { posicao: 7, motivo: 'Modelos europeus, preço justo.' } },
 ];
 const iaCatalogo = (idIa) => CATALOGO_IAS.find((x) => x.id === idIa);
 
 /* ---------- chamada real às IAs (gemini / openai-compatível / anthropic) ---------- */
+/* ---------- observabilidade (padrão Langfuse): cada execução de IA com modelo, latência, tokens, custo estimado e erro ---------- */
+const PRECO_1M_USD = [ [/gpt-4o-mini/, 0.15, 0.6], [/gpt-4o\b/, 2.5, 10], [/^o\d/, 1.25, 10], [/claude-3-5-haiku/, 0.8, 4], [/claude.*haiku/, 1, 5], [/claude.*sonnet/, 3, 15], [/gemini-2.0-flash/, 0.1, 0.4], [/gemini/, 0.3, 1.2], [/deepseek/, 0.14, 0.28], [/mistral-small/, 0.2, 0.6], [/grok/, 0.5, 2] ]; /* entrada, saída por 1M tokens */
+const OBS = { log: [] };
+const RL_CHAT = new Map();
+const mesAtual = () => new Date().toISOString().slice(0, 7);
+function custoUsd(modelo, tin, tout) {
+  const p = PRECO_1M_USD.find((x) => x[0].test(String(modelo || '')));
+  if (!p) return 0; /* modelos free (llama, groq free) e desconhecidos: 0 */
+  return (Number(tin || 0) / 1e6) * p[1] + (Number(tout || 0) / 1e6) * p[2];
+}
+function registrarObs(ev) {
+  ev.mes = mesAtual();
+  OBS.log.push(ev);
+  if (OBS.log.length > 800) OBS.log.splice(0, OBS.log.length - 800);
+}
+async function chamarIA(ia, mensagens, rotulo) {
+  const t0 = Date.now();
+  try {
+    const r = await chamarIAInterna(ia, mensagens);
+    registrarObs({ quando: t0, rotulo: rotulo || 'chat', provedor: ia.provedor || ia.id || '?', modelo: r.modelo || ia.modelo || '?', ms: Date.now() - t0, ok: true, tokens_in: r.tokens_in || 0, tokens_out: r.tokens_out || 0, custo_usd: custoUsd(r.modelo || ia.modelo, r.tokens_in, r.tokens_out) });
+    return r;
+  } catch (e) {
+    registrarObs({ quando: t0, rotulo: rotulo || 'chat', provedor: ia.provedor || ia.id || '?', modelo: ia.modelo || '?', ms: Date.now() - t0, ok: false, erro: String(e.message || e).slice(0, 140), tokens_in: 0, tokens_out: 0, custo_usd: 0 });
+    throw e;
+  }
+}
 async function chamarIA(ia, mensagens) {
   const cat = iaCatalogo(ia.id) || { tipo: 'openai', base: ia.base_url || 'https://api.openai.com/v1', modelo_padrao: 'gpt-4o-mini' };
   const modelo = ia.modelo || cat.modelo_padrao;
@@ -245,7 +272,7 @@ async function chamarIA(ia, mensagens) {
     const txt = (((j.candidates || [])[0] || {}).content || {}).parts || [];
     const resposta = txt.map((p) => p.text || '').join('').trim();
     if (!resposta) throw new Error('Gemini não devolveu texto.');
-    return { texto: resposta, ia: cat.nome, modelo: j.model || modelo };
+    return { texto: resposta, ia: cat.nome, modelo: j.model || modelo, tokens_in: (j.usageMetadata && j.usageMetadata.promptTokenCount) || 0, tokens_out: (j.usageMetadata && j.usageMetadata.candidatesTokenCount) || 0 };
   }
   if (cat.tipo === 'anthropic') {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
@@ -256,7 +283,7 @@ async function chamarIA(ia, mensagens) {
     if (!r.ok) throw new Error((j.error && j.error.message) || 'Claude recusou (status ' + r.status + ').');
     const resposta = (j.content || []).map((b) => b.text || '').join('').trim();
     if (!resposta) throw new Error('Claude não devolveu texto.');
-    return { texto: resposta, ia: cat.nome, modelo: j.model || modelo };
+    return { texto: resposta, ia: cat.nome, modelo: j.model || modelo, tokens_in: (j.usage && j.usage.input_tokens) || 0, tokens_out: (j.usage && j.usage.output_tokens) || 0 };
   }
   const base = cat.base || ia.base_url || 'https://api.openai.com/v1';
   const r = await fetch(base + '/chat/completions', {
@@ -267,7 +294,7 @@ async function chamarIA(ia, mensagens) {
   if (!r.ok) throw new Error((j.error && (j.error.message || j.error)) || 'IA recusou (status ' + r.status + ').');
   const resposta = (j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content || '').trim();
   if (!resposta) throw new Error('A IA não devolveu texto.');
-  return { texto: resposta, ia: cat.nome, modelo: j.model || modelo };
+  return { texto: resposta, ia: cat.nome, modelo: j.model || modelo, tokens_in: (j.usage && j.usage.prompt_tokens) || 0, tokens_out: (j.usage && j.usage.completion_tokens) || 0 };
 }
 
 /* ---------- ferramentas do modo agente: pesquisa e leitura reais ---------- */
@@ -296,8 +323,18 @@ async function pesquisarWeb(q) {
   }
   throw new Error('A busca não respondeu agora. Tente de novo.');
 }
+/* guarda SSRF: o agente só abre endereços públicos https */
+const hostPermitido = (u) => {
+  let h; try { h = new URL(u).hostname; } catch { return false; }
+  if (!/^https:/.test(String(u) || '')) return false;
+  if (/^(localhost|.*\.local)$/i.test(h)) return false;
+  if (/^(10\.|127\.|192\.168\.|169\.254\.|0\.)/.test(h)) return false;
+  const m172 = h.match(/^172\.(\d+)\./); if (m172 && +m172[1] >= 16 && +m172[1] <= 31) return false;
+  if (h === '::1' || h === '[::1]' || h === '::') return false;
+  return true;
+};
 async function abrirWeb(url) {
-  if (!/^https?:\/\/.+/i.test(String(url || ''))) throw new Error('Informe um endereço http(s).');
+  if (!hostPermitido(String(url || ''))) throw new Error('Só endereços https públicos são permitidos.');
   const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128.0 Safari/537.36' } });
   if (!r.ok) throw new Error('A página respondeu status ' + r.status + '.');
   const html = (await r.text()).slice(0, 2 * 1024 * 1024);
@@ -827,6 +864,11 @@ async function api(req, res, rota, metodo, corpo, conta) {
   /* API pública v1 (chave do projeto) */
   if (K === 'POST /api/v1/chat') {
     const chave = (req.headers.authorization || '').replace(/^Bearer /, '');
+    const agoraMs = Date.now();
+    const rl = RL_CHAT.get(chave) || [];
+    const recentes = rl.filter((t) => agoraMs - t < 60e3);
+    if (recentes.length >= 20) return { __erro: [429, 'Muitas chamadas seguidas; aguarde um minuto.'] };
+    recentes.push(agoraMs); RL_CHAT.set(chave, recentes);
     const proj = db.projetos.find(x => x.chaves.some(c => c.valor === chave));
     if (!proj) return { __erro: [401, 'Chave ausente, errada ou revogada.'] };
     const dono = db.contas.find(c => c.email === proj.email);
@@ -1114,6 +1156,26 @@ async function api(req, res, rota, metodo, corpo, conta) {
     conta.logs = conta.logs || [];
     return { eventos: conta.logs.slice(-150).reverse().map((l) => ({ tipo: 'Conexão com o site', texto: l.texto, quando: l.em })) };
   }
+  /* monitor de execuções de IA (Langfuse-lite): uso, custo estimado e falhas */
+  if (K === 'GET /api/logs/ia') {
+    if (!conta) return { __erro: [401, 'Faça login.'] };
+    return { total: OBS.log.length, execucoes: OBS.log.slice(-120).reverse().map((e) => ({ quando: new Date(e.quando).toISOString(), rotulo: e.rotulo, provedor: e.provedor, modelo: e.modelo, ms: e.ms, ok: e.ok, erro: e.erro || null, tokens_in: e.tokens_in, tokens_out: e.tokens_out, custo_usd: Math.round(e.custo_usd * 1e6) / 1e6 })) };
+  }
+  if (K === 'GET /api/logs/ia/resumo') {
+    if (!conta) return { __erro: [401, 'Faça login.'] };
+    const mes = mesAtual();
+    const doMes = OBS.log.filter((e) => e.mes === mes);
+    const porModelo = {};
+    for (const e of doMes) {
+      const k = e.modelo;
+      porModelo[k] = porModelo[k] || { chamadas: 0, erros: 0, ms_total: 0, tokens: 0, custo_usd: 0 };
+      porModelo[k].chamadas += 1; porModelo[k].erros += e.ok ? 0 : 1; porModelo[k].ms_total += e.ms;
+      porModelo[k].tokens += (e.tokens_in || 0) + (e.tokens_out || 0); porModelo[k].custo_usd += e.custo_usd || 0;
+    }
+    for (const k of Object.keys(porModelo)) porModelo[k].custo_usd = Math.round(porModelo[k].custo_usd * 1e6) / 1e6;
+    return { mes, execucoes: doMes.length, erros: doMes.filter((e) => !e.ok).length, custo_total_usd: Math.round(doMes.reduce((a, e) => a + (e.custo_usd || 0), 0) * 1e6) / 1e6, por_modelo: porModelo };
+  }
+
   if (K === 'GET /api/logs') {
     if (!conta) return { __erro: [401, 'Faça login.'] };
     conta.logs = conta.logs || [];
