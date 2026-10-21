@@ -121,3 +121,11 @@ O teste de projeto usa a primeira IA ativa da fila. As chaves ficam no servidor,
 ## Área admin (descoberta em auditoria, 19/10/2026)
 
 Varredura autenticada da API oficial (1157+ candidatos, discriminação 404 vs 401/403) confirmou 18 rotas GET `/api/admin/*` + 3 de escrita (POST equipe/cupons, PUT leads) + padrão `/api/admin/contas/:id` que exigem papel de dono ou equipe. A API oficial nega com `403 "Área restrita ao dono (e à equipe)."` para contas comuns; o backend JARVIS replica o contrato negando honestamente (`dono: false`). A família `/api/v1/*` é um muro por prefixo: qualquer caminho sob `/api/v1` exige `Authorization: Bearer SUA_CHAVE`.
+
+## Conector de e-mail e Devtools (21/10/2026)
+
+- `POST /api/email/caixa {consulta?, max?}` — lista e-mails da caixa do dono (consulta no formato do Gmail: `in:inbox newer_than:7d`, `from:hotmart`, etc.). Exige login.
+- `POST /api/email/ler {id}` — corpo completo de uma mensagem. Exige login.
+- Ferramenta do agente: `{EMAIL:consulta}` no Modo Agente (ex.: "quais e-mails chegaram hoje?").
+- Devtools: `jarvis/devtools.html` — status da API, ferramentas do agente, console de erros e permissões reais do dispositivo (microfone, câmera, notificações, localização, clipboard).
+- Conector: função jarvisEmail (Base44) com o Gmail conectado do dono; ações enviar/listar/ler. Se o canal externo estiver no limite de créditos, as rotas respondem 502 com o motivo real — nunca dados falsos.

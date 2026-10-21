@@ -10,6 +10,28 @@
    "ias": [],
    "memoria": [],
    "criado": 1792624689663
+  },
+  {
+   "id": "c_89504fea4b5ee66824",
+   "nome": "QA",
+   "email": "qa@t.com",
+   "sal": "808a8b4467099b0633775ae8",
+   "hash": "12781019ba30b69d54b8437876387b072de6c5b0eec89207ae6b2feebccdd67e",
+   "plano": "jarvis",
+   "ias": [],
+   "memoria": [],
+   "criado": 1792625446379
+  },
+  {
+   "id": "c_a92c4f18a8b2b983bc",
+   "nome": "QA",
+   "email": "qa6@t.com",
+   "sal": "02e7c365bb9bec10344cf93b",
+   "hash": "27df10d7579eb896cd5989b1214eafefc96de99a1aea0d028edf14690eb596ff",
+   "plano": "jarvis",
+   "ias": [],
+   "memoria": [],
+   "criado": 1792625458055
   }
  ],
  "projetos": [
@@ -35,6 +57,14 @@
   "25bfaa9a8838d76b71bd10a0504cae9f53f4a2ddd1cab3e2": {
    "email": "qa5@t.com",
    "exp": 1795216689663
+  },
+  "00b85954bb4a1ad8998dff2f25dbea2956d60caee472c0d2": {
+   "email": "qa@t.com",
+   "exp": 1795217446381
+  },
+  "44970cec9b4f096b830f4c168ff64f53225f3089e98df581": {
+   "email": "qa6@t.com",
+   "exp": 1795217458056
   }
  },
  "coletiva": {

@@ -310,6 +310,9 @@ async function abrirWeb(url) {
 async function rodarFerramenta(nome, arg) {
   if (nome === 'PESQUISAR') { const r = await pesquisarWeb(arg); return r.resultados.map((x, i) => (i + 1) + '. ' + x.titulo + ' — ' + x.url + (x.resumo ? ' | ' + x.resumo : '')).join('\n'); }
   if (nome === 'ABRIR') { const p = await abrirWeb(arg); return (p.titulo ? p.titulo + '\n' : '') + p.texto; }
+  if (nome === 'EMAIL') { const r = await chamarCanalEmail('listar', { consulta: String(arg || 'in:inbox newer_than:7d').slice(0, 140), max: 10 });
+    if (r.__erro) return 'AVISO: ' + r.__erro[1];
+    return 'Caixa de entrada:\n' + (r.mensagens || []).map((m, i) => (i + 1) + '. [' + String(m.de || '').slice(0, 60) + '] ' + String(m.assunto || '').slice(0, 80) + ' — resumo: ' + String(m.resumo || '').slice(0, 100)).join('\n'); }
   throw new Error('Ferramenta desconhecida: ' + nome);
 }
 
@@ -408,6 +411,18 @@ const enviarEmail = async (para, assunto, texto) => {
   } catch { return false; }
 };
 const mascaraEmail = (e) => { const [u, d] = String(e).split('@'); return (u || '').slice(0, 2) + '***@' + d; };
+const chamarCanalEmail = async (acao, extra) => {
+  if (!EMAIL_URL || !EMAIL_SIG) return { __erro: [503, 'Conector de e-mail não configurado neste servidor (JARVIS_EMAIL_URL).'] };
+  try {
+    const c = new AbortController(); const t = setTimeout(() => c.abort(), 20000);
+    const r = await fetch(EMAIL_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ sig: EMAIL_SIG, acao }, extra || {})), signal: c.signal });
+    clearTimeout(t);
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) return { __erro: [502, r.status === 402 ? 'conector de e-mail no limite de créditos deste mês (renova automaticamente)' : (j.erro || ('canal de e-mail respondeu ' + r.status)) ] };
+    return j;
+  } catch (e) { return { __erro: [502, 'Canal de e-mail indisponível agora: ' + (e.name === 'AbortError' ? 'tempo esgotado' : e.message)] }; }
+};
 const uaHash = (req) => crypto.createHash('sha256').update((req.headers['user-agent'] || '') + '|' + (req.headers['accept-language'] || '')).digest('hex').slice(0, 20);
 
 async function api(req, res, rota, metodo, corpo, conta) {
@@ -657,6 +672,7 @@ async function api(req, res, rota, metodo, corpo, conta) {
     /^\/api\/projetos(\/.*)?$/,
     /^\/api\/pagamentos\//,
     /^\/api\/dono\/negocio$/,
+    /^\/api\/email\//,
   ]; /* /api/v1/* faz a própria checagem de Bearer (chave de projeto) */
 
   if (!conta && PROTEGIDAS.some((re) => re.test(rota))) return { __erro: [401, 'Faça login.'] };
@@ -675,6 +691,20 @@ async function api(req, res, rota, metodo, corpo, conta) {
   if (K === 'PUT /api/conta/preferencias') { conta.preferencias = corpo || {}; salvar(); return conta.preferencias; }
   if (K === 'GET /api/conta/memoria') return { itens: conta.memoria || [] };
   if (K === 'PUT /api/conta/memoria') { conta.memoria = (corpo.itens || corpo || []).slice(0, 500); salvar(); return { itens: conta.memoria }; }
+  /* conector de e-mail: o agente vê a caixa do dono (permissão dada pelo próprio dono) */
+  if (K === 'POST /api/email/caixa') {
+    const r = await chamarCanalEmail('listar', { consulta: String((corpo || {}).consulta || 'in:inbox newer_than:7d').slice(0, 140), max: Number((corpo || {}).max) || 10 });
+    if (r.__erro) return { __erro: r.__erro };
+    return r;
+  }
+  if (K === 'POST /api/email/ler') {
+    const idMsg = String((corpo || {}).id || '');
+    if (!idMsg) return { __erro: [400, 'Informe o id da mensagem.'] };
+    const r = await chamarCanalEmail('ler', { id: idMsg });
+    if (r.__erro) return { __erro: r.__erro };
+    return r;
+  }
+
   if (K === 'GET /api/conta/ias') {
     conta.ias = conta.ias || [];
     return CATALOGO_IAS.map((cat) => {
@@ -735,7 +765,7 @@ async function api(req, res, rota, metodo, corpo, conta) {
       if (!fila.length) return { __erro: [400, 'Nenhuma IA conectada. Configure em Minhas IAs (Gemini tem plano grátis).' ] };
       const mem = (conta.memoria || []).slice(-12).map((m) => m.texto || m).join(' | ');
       const agente = String(corpo.personalidade || '') === 'agente';
-      const ferramentas = 'FERRAMENTAS (use quando precisar de dados ao vivo, no formato exato): {PESQUISAR:termo} busca no Google/DuckDuckGo; {ABRIR:url} lê uma página. Responda APENAS com a chamada da ferramenta quando for usar. Sem dados de internet, responda direto ao usuário.';
+      const ferramentas = 'FERRAMENTAS (use quando precisar de dados ao vivo, no formato exato): {PESQUISAR:termo} busca no Google/DuckDuckGo; {ABRIR:url} lê uma página; {EMAIL:consulta gmail} lê os e-mails do dono (ex.: {EMAIL:in:inbox newer_than:3d}). Responda APENAS com a chamada da ferramenta quando for usar. Sem dados de internet, responda direto ao usuário.';
       const persona = { serio: 'Seja direto e profissional.', amigavel: 'Seja amigável e leve.', professor: 'Explique passo a passo com exemplos.', tecnico: 'Seja preciso e denso.' }[corpo.personalidade] || 'Seja útil e natural.';
       const sistema = [
         (p.instrucoes || ''),
@@ -752,7 +782,7 @@ async function api(req, res, rota, metodo, corpo, conta) {
           let mensagens = [{ role: 'system', content: sistema }].concat((corpo.mensagens || []).slice(-24));
           for (let rodada = 0; rodada < 4; rodada++) {
             const r = await chamarIA(ia, mensagens);
-            const uso = /\{(PESQUISAR|ABRIR):([^}]+)\}/.exec(r.texto);
+            const uso = /\{(PESQUISAR|ABRIR|EMAIL):([^}]+)\}/.exec(r.texto);
             if (!uso) { resposta = r.texto; iaUsada = r.ia; break; }
             try {
               const resultado = await rodarFerramenta(uso[1], uso[2].trim());

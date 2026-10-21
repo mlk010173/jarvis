@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Devtools — JARVIS</title>
+
+<style>
+  body{margin:0;padding:24px;background:#0b0d10;color:#e8eaf0;font:15px/1.5 system-ui,sans-serif}
+  h1{font-size:20px;margin:0 0 4px} .sub{color:#9aa3b2;font-size:13px;margin-bottom:20px}
+  .grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+  .painel{background:#131922;border:1px solid #232c3a;border-radius:10px;padding:16px}
+  .painel h2{font-size:15px;margin:0 0 10px;color:#fff}
+  button{background:#1f6feb;border:0;color:#fff;padding:8px 12px;border-radius:7px;font-size:13px;cursor:pointer;margin:3px 6px 3px 0}
+  button:hover{background:#3b82f6} button[disabled]{opacity:.5;cursor:wait}
+  .linha{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #1c2433;gap:10px}
+  .linha:last-child{border-bottom:0}
+  .estado{font-size:12px;padding:3px 8px;border-radius:12px;white-space:nowrap}
+  .ok{background:#0f2d18;color:#4ade80} .neg{background:#2d1015;color:#f87171} .neutro{background:#26303f;color:#9aa3b2}
+  pre{background:#0b0d10;border:1px solid #232c3a;border-radius:8px;padding:10px;font-size:12px;overflow:auto;max-height:260px;margin:8px 0}
+  .log-erro{color:#f87171} .log-info{color:#9aa3b2}
+  a{color:#7ab7ff}
+</style>
+</head>
+<body>
+<h1>Devtools do JARVIS</h1>
+<div class="sub">Diagnóstico do sistema, permissões do dispositivo e teste das ferramentas do agente. Tudo real: cada botão pede a permissão de verdade ao navegador.</div>
+
+<div class="grade">
+  <section class="painel">
+    <h2>Status do sistema</h2>
+    <div class="linha"><span>API (backend)</span><span class="estado neutro" id="st-api">testando…</span></div>
+    <div class="linha"><span>Sessão</span><span class="estado neutro" id="st-sessao">…</span></div>
+    <div class="linha"><span>Versão (novidades)</span><span class="estado neutro" id="st-versao">…</span></div>
+    <div class="linha"><span>Backend em uso</span><span class="estado neutro" id="st-backend">…</span></div>
+    <button id="btn-status">Testar de novo</button>
+  </section>
+
+  <section class="painel">
+    <h2>Permissões do dispositivo</h2>
+    <div class="linha"><span>Microfone</span><span><button data-perm="mic">Pedir</button><span class="estado neutro" data-estado="mic">—</span></span></div>
+    <div class="linha"><span>Câmera</span><span><button data-perm="cam">Pedir</button><span class="estado neutro" data-estado="cam">—</span></span></div>
+    <div class="linha"><span>Notificações</span><span><button data-perm="notif">Pedir</button><span class="estado neutro" data-estado="notif">—</span></span></div>
+    <div class="linha"><span>Localização</span><span><button data-perm="geo">Pedir</button><span class="estado neutro" data-estado="geo">—</span></span></div>
+    <div class="linha"><span>Área de transferência (leitura)</span><span><button data-perm="clip">Testar</button><span class="estado neutro" data-estado="clip">—</span></span></div>
+    <p class="sub">Permissões valem só neste site (https://mlk010173.github.io). O microfone é usado pelo Voice Studio.</p>
+  </section>
+
+  <section class="painel">
+    <h2>Ferramentas do agente</h2>
+    <p class="sub" id="fp-lista">carregando…</p>
+    <button id="btn-fp">Atualizar</button>
+  </section>
+
+  <section class="painel">
+    <h2>Console (erros e eventos)</h2>
+    <pre id="console">pronto.</pre>
+    <button id="btn-limpar">Limpar</button>
+  </section>
+</div>
+
+<script src="api-bridge.js"></script>
+<script>
+'use strict';
+(function(){
+  const log = (function(){ const el = document.getElementById('console'); return (msg, tipo) => { const t = new Date().toLocaleTimeString('pt-BR'); el.innerHTML += '<span class="log-' + (tipo || 'info') + '">[' + t + '] ' + msg + '</span>\n'; el.scrollTop = el.scrollHeight; }; })();
+  window.addEventListener('error', (e) => log(e.message + ' (' + (e.filename || '').split('/').pop() + ':' + e.lineno + ')', 'erro'));
+  window.addEventListener('unhandledrejection', (e) => log('Promessa rejeitada: ' + e.reason, 'erro'));
+
+  const api = window.jarvisApi || fetch; // bridge injeta window.jarvisApi
+
+  async function status(){
+    const set = (id, texto, ok) => { const el = document.getElementById(id); el.textContent = texto; el.className = 'estado ' + (ok === null ? 'neutro' : ok ? 'ok' : 'neg'); };
+    set('st-api','testando…',null);
+    try {
+      const r = await fetch('/api/info'); const j = await r.json();
+      set('st-api','online (' + (j.marca || 'JARVIS') + ')', true);
+      document.getElementById('st-backend').textContent = (window.localStorage.getItem('jarvis.api') || 'padrão do sistema');
+    } catch(e){ set('st-api','offline: ' + e.message, false); log('API offline: ' + e.message, 'erro'); return; }
+    try { const r = await fetch('/api/conta/sessao'); const j = await r.json(); set('st-sessao', j.logado ? 'logado (' + j.email + ')' : 'não logado', j.logado); }
+    catch(e){ set('st-sessao','?', null); }
+    try { const r = await fetch('/api/novidades'); const j = await r.json(); set('st-versao','v' + (j.atual || '?'), true); }
+    catch(e){ set('st-versao','?', null); }
+  }
+
+  async function ferramentas(){
+    const el = document.getElementById('fp-lista');
+    try {
+      const r = await fetch('/api/mcp/ferramentas'); const j = await r.json();
+      el.textContent = j.erro ? ('indisponível: ' + j.erro) : ((j.ferramentas || []).map(f => '• ' + f.nome + ' — ' + (f.descricao || '').slice(0, 60)).join('\n') || 'nenhuma');
+      if (!j.erro) log((j.ferramentas || []).length + ' ferramentas do agente disponíveis');
+    } catch(e){ el.textContent = 'erro ao consultar: ' + e.message; }
+  }
+
+  function marca(chave, texto, ok){ const el = document.querySelector('[data-estado="' + chave + '"]'); el.textContent = texto; el.className = 'estado ' + (ok ? 'ok' : 'neg'); }
+
+  const permissoes = {
+    mic: async () => { const s = await navigator.mediaDevices.getUserMedia({ audio: true }); s.getTracks().forEach(t => t.stop()); marca('mic','concedido',true); log('microfone OK'); },
+    cam: async () => { const s = await navigator.mediaDevices.getUserMedia({ video: true }); s.getTracks().forEach(t => t.stop()); marca('cam','concedido',true); log('câmera OK'); },
+    notif: async () => { const p = await Notification.requestPermission(); marca('notif', p === 'granted' ? 'concedido' : p, p === 'granted'); if (p === 'granted') new Notification('JARVIS', { body: 'Notificações funcionando.' }); log('notificações: ' + p); },
+    geo: async () => { await new Promise((ok, erro) => navigator.geolocation.getCurrentPosition(ok, erro, { timeout: 12000 })); marca('geo','concedido',true); log('localização OK'); },
+    clip: async () => { await navigator.clipboard.readText(); marca('clip','concedido',true); log('clipboard OK'); }
+  };
+
+  document.querySelectorAll('[data-perm]').forEach((b) => b.addEventListener('click', () => {
+    const k = b.dataset.perm;
+    marca(k, 'perguntando…', null);
+    permissoes[k]().catch((e) => { marca(k, e.name === 'NotAllowedError' ? 'negada' : e.name, false); log(k + ': ' + e.message, 'erro'); });
+  }));
+
+  document.getElementById('btn-status').addEventListener('click', status);
+  document.getElementById('btn-fp').addEventListener('click', ferramentas);
+  document.getElementById('btn-limpar').addEventListener('click', () => { document.getElementById('console').textContent = 'pronto.'; });
+  status(); ferramentas();
+})();
+</script>
+</body>
+</html>
