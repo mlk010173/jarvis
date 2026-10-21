@@ -241,7 +241,14 @@
     if (S.busy) return;
     pararFala();
     const cmd = await comandos(texto);
-    if (cmd != null) { const a0 = agente(); const l0 = conversa(a0.id); l0.push({ role: 'user', texto, ts: Date.now() }, { role: 'assistant', texto: cmd, ts: Date.now() }); guardarConversa(a0.id, l0); desenharConversa(); input.value = ''; ajustar(); return; }
+    if (cmd != null) {
+      const a0 = agente(); const l0 = conversa(a0.id);
+      l0.push({ role: 'user', texto, ts: Date.now() }, { role: 'assistant', texto: cmd, ts: Date.now() });
+      guardarConversa(a0.id, l0); desenharConversa(); input.value = ''; ajustar();
+      if (S.legendas || !S.voz) legenda(legendaDe(cmd));
+      falar(cmd, () => { if (S.continua && o.voz) setTimeout(ouvir, 400); });
+      return;
+    }
     const a = agente(); const lista = conversa(a.id);
     document.dispatchEvent(new CustomEvent('jarvis:pedido', { detail: { texto, voz: !!o.voz } })); // contador anônimo (host-web.js): só o tipo do pedido
     lista.push({ role: 'user', texto, ts: Date.now() }); guardarConversa(a.id, lista); desenharConversa();
