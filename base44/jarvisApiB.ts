@@ -725,8 +725,20 @@ Deno.serve(async (req) => {
 
 
     if (rota === '/api/novidades') return json({
-      gerado: new Date().toISOString(), atual: '1.3.3',
+      gerado: new Date().toISOString(), atual: '1.3.4',
       versoes: [
+        {
+          versao: '1.3.4', data: '2026-10-21', resumo: 'NVIDIA NIM no catálogo: todos os modelos do build.nvidia.com (free e pagos) e listagem de modelos por provedor.',
+          secoes: [
+            { titulo: 'Novo', itens: [
+              'NVIDIA NIM no catálogo de IAs: cole a chave nvapi-… e use qualquer modelo do build.nvidia.com (free com créditos de desenvolvedor, pagos com billing)',
+              'Rota /api/conta/ias/{id}/modelos: lista os modelos da sua chave em cada provedor (Gemini, OpenAI, Claude, Groq, OpenRouter, NVIDIA, DeepSeek, Mistral)',
+            ] },
+            { titulo: 'Segurança', itens: [
+              'Alerta do GitGuardian verificado: nenhum segredo real nos repositórios públicos (os avisos eram chaves falsas de arquivos de teste)',
+            ] },
+          ],
+        },
         {
           versao: '1.3.3', data: '2026-10-21', resumo: 'Segurança e paridade total: monitor de IA, SSRF guard, rate limit, MCP oficial JSON-RPC, SDK v1 com chave de projeto e capacidades honestas.',
           secoes: [

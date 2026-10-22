@@ -40,7 +40,7 @@ const PLANO = {
   limites: { ias_max: 10, modulos: 50, projetos: 100, memoria: 1000000 },
 };
 
-const VERSAO = '1.3.3';
+const VERSAO = '1.3.4';
 
 // ---------- v1.3.1/1.3.2 portadas: observabilidade, SSRF, rate limit, cripto BYOK ----------
 const PRECO_1M_USD: any[][] = [ [/gpt-4o-mini/, 0.15, 0.6], [/gpt-4o\b/, 2.5, 10], [/^o\d/, 1.25, 10], [/claude-3-5-haiku/, 0.8, 4], [/claude.*haiku/, 1, 5], [/claude.*sonnet/, 3, 15], [/gemini-2.0-flash/, 0.1, 0.4], [/gemini/, 0.3, 1.2], [/deepseek/, 0.14, 0.28], [/mistral-small/, 0.2, 0.6], [/grok/, 0.5, 2] ]; // entrada, saída por 1M tokens (estimativa)
@@ -109,9 +109,10 @@ const CATALOGO_IAS: any[] = [
   { id: 'anthropic', nome: 'Anthropic Claude', tipo: 'anthropic', site: 'https://console.anthropic.com/settings/keys', gratis: false, modelo_padrao: 'claude-3-5-haiku-latest', recomendacao: { posicao: 3, motivo: 'Excelente escrita e raciocínio.' } },
   { id: 'groq', nome: 'Groq', tipo: 'openai', site: 'https://console.groq.com/keys', gratis: true, base: 'https://api.groq.com/openai/v1', modelo_padrao: 'llama-3.3-70b-versatile', recomendacao: { posicao: 4, motivo: 'Grátis e absurdamente rápido (Llama).' } },
   { id: 'openrouter', nome: 'OpenRouter', tipo: 'openai', site: 'https://openrouter.ai/keys', gratis: true, base: 'https://openrouter.ai/api/v1', modelo_padrao: 'meta-llama/llama-3.3-70b-instruct:free', recomendacao: { posicao: 5, motivo: 'Uma chave, dezenas de modelos (inclusive gratuitos).' } },
-  { id: 'deepseek', nome: 'DeepSeek', tipo: 'openai', site: 'https://platform.deepseek.com/api_keys', gratis: false, base: 'https://api.deepseek.com/v1', modelo_padrao: 'deepseek-chat', recomendacao: { posicao: 6, motivo: 'Custo baixo e bom raciocínio.' } },
-  { id: 'mistral', nome: 'Mistral', tipo: 'openai', site: 'https://console.mistral.ai/api-keys', gratis: false, base: 'https://api.mistral.ai/v1', modelo_padrao: 'mistral-small-latest', recomendacao: { posicao: 7, motivo: 'Modelos europeus, preço justo.' } },
-  { id: 'ollama', nome: 'Ollama (local no seu PC)', tipo: 'openai', site: 'https://ollama.com', gratis: true, base: 'http://127.0.0.1:11434/v1', modelo_padrao: 'llama3.2', recomendacao: { posicao: 8, motivo: 'Grátis e privado, mas só funciona com o Ollama rodando na MESMA máquina do backend (app do PC). No site em nuvem o 127.0.0.1 é o servidor, não o seu PC.' } },
+  { id: 'nvidia', nome: 'NVIDIA NIM', tipo: 'openai', site: 'https://build.nvidia.com', gratis: true, base: 'https://integrate.api.nvidia.com/v1', modelo_padrao: 'meta/llama-3.3-70b-instruct', recomendacao: { posicao: 6, motivo: 'API oficial da NVIDIA: dezenas de modelos free (créditos de desenvolvedor) e pagos (billing) — qualquer modelo do build.nvidia.com funciona com a chave nvapi-…' } },
+  { id: 'deepseek', nome: 'DeepSeek', tipo: 'openai', site: 'https://platform.deepseek.com/api_keys', gratis: false, base: 'https://api.deepseek.com/v1', modelo_padrao: 'deepseek-chat', recomendacao: { posicao: 7, motivo: 'Custo baixo e bom raciocínio.' } },
+  { id: 'mistral', nome: 'Mistral', tipo: 'openai', site: 'https://console.mistral.ai/api-keys', gratis: false, base: 'https://api.mistral.ai/v1', modelo_padrao: 'mistral-small-latest', recomendacao: { posicao: 8, motivo: 'Modelos europeus, preço justo.' } },
+  { id: 'ollama', nome: 'Ollama (local no seu PC)', tipo: 'openai', site: 'https://ollama.com', gratis: true, base: 'http://127.0.0.1:11434/v1', modelo_padrao: 'llama3.2', recomendacao: { posicao: 9, motivo: 'Grátis e privado, mas só funciona com o Ollama rodando na MESMA máquina do backend (app do PC). No site em nuvem o 127.0.0.1 é o servidor, não o seu PC.' } },
 ];
 const iaCatalogo = (id: string) => CATALOGO_IAS.find((x) => x.id === id);
 
@@ -387,7 +388,7 @@ Deno.serve(async (req) => {
       return json(m ? JSON.parse(m) : {});
     }
     // ---------- IAs da conta (fila BYOK: a conta traz a própria chave) ----------
-    const mIa = rota.match(/^\/api\/conta\/ias\/([^/]+)(\/testar)?$/);
+    const mIa = rota.match(/^\/api\/conta\/ias\/([^/]+)(\/testar|\/modelos)?$/);
     if (rota === '/api/conta/ias' || rota === '/api/conta/ias-ordem' || mIa) {
       const e = login401(); if (e) return e;
       const fila = await dadoGet(email, 'ias', []);
@@ -408,6 +409,29 @@ Deno.serve(async (req) => {
         const cat = iaCatalogo(mIa[1]);
         if (!cat) return erro('Provedor desconhecido.', 404);
         const ligada = fila.find((i: any) => i.id === cat.id);
+        if (mIa[2] === '/modelos') {
+          if (!ligada) return erro('Conecte a chave primeiro.', 400);
+          const chave = await decifra(ligada.chave);
+          try {
+            if (cat.tipo === 'gemini') {
+              const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + encodeURIComponent(chave));
+              const j: any = await r.json().catch(() => null);
+              if (!r.ok || !j?.models) return erro('Não consegui listar os modelos (chave correta?).', 502);
+              return json({ modelos: j.models.map((m: any) => String(m.name || '').replace(/^models\//, '')).filter((n: string) => n.includes('generateContent')).slice(0, 100) });
+            }
+            if (cat.tipo === 'anthropic') {
+              const r = await fetch('https://api.anthropic.com/v1/models?limit=100', { headers: { 'x-api-key': chave, 'anthropic-version': '2023-06-01' } });
+              const j: any = await r.json().catch(() => null);
+              if (!r.ok || !j?.data) return erro('Não consegui listar os modelos (chave correta?).', 502);
+              return json({ modelos: j.data.map((m: any) => m.id) });
+            }
+            const baseM = cat.base || 'https://api.openai.com/v1';
+            const r = await fetch(baseM + '/models', { headers: { Authorization: 'Bearer ' + chave } });
+            const j: any = await r.json().catch(() => null);
+            if (!r.ok || !j?.data) return erro('Não consegui listar os modelos (chave correta?).', 502);
+            return json({ modelos: j.data.map((m: any) => String(m.id || '')).slice(0, 100) });
+          } catch (err: any) { return erro('Não consegui listar os modelos: ' + (err?.message || 'erro'), 502); }
+        }
         if (mIa[2] === '/testar' && metodo === 'POST') {
           if (!ligada) return erro('Conecte a chave primeiro.', 400);
           try { await chamarIA({ ...ligada, chave: await decifra(ligada.chave) }, [{ role: 'user', content: 'Responda apenas: ok' }], 'testar'); return json({ ok: true, msg: cat.nome + ' respondeu — chave válida.' }); }
@@ -595,7 +619,7 @@ Deno.serve(async (req) => {
     if (rota === '/api/health') return json({ ok: true, versao: VERSAO, backend: 'base44-deno', quando: new Date().toISOString() });
     if (rota === '/api/capabilities') return json({
       versao: VERSAO, backend: 'base44-deno',
-      funcional: ['conta-email-senha', 'sessoes-token-30d', 'byok-7-provedores-mais-ollama', 'chat-fallback-em-fila', 'modo-agente-pesquisa-bing-duckduckgo', 'abrir-url-com-guarda-ssrf', 'voz-elevenlabs-opcional', 'memoria-de-conta', 'projetos-assistentes-com-chave-sdk', 'painel-casa-ha', 'painel-financeiro', 'painel-leads', 'painel-logs', 'painel-monitor', 'painel-negocio', 'painel-fontes', 'briefing-noticias', 'mcp-simplificado-api-mcp', 'mcp-oficial-jsonrpc-em-mcp', 'sdk-publico-v1', 'monitor-de-ia-logs', 'rate-limit-por-ip-e-chave', 'criptografia-byok-opcional'],
+      funcional: ['conta-email-senha', 'sessoes-token-30d', 'byok-8-provedores-mais-ollama', 'listagem-de-modelos-por-provedor', 'chat-fallback-em-fila', 'modo-agente-pesquisa-bing-duckduckgo', 'abrir-url-com-guarda-ssrf', 'voz-elevenlabs-opcional', 'memoria-de-conta', 'projetos-assistentes-com-chave-sdk', 'painel-casa-ha', 'painel-financeiro', 'painel-leads', 'painel-logs', 'painel-monitor', 'painel-negocio', 'painel-fontes', 'briefing-noticias', 'mcp-simplificado-api-mcp', 'mcp-oficial-jsonrpc-em-mcp', 'sdk-publico-v1', 'monitor-de-ia-logs', 'rate-limit-por-ip-e-chave', 'criptografia-byok-opcional'],
       pendentes: {
         oauth_google: 'requer GOOGLE_CLIENT_ID/SECRET criados pelo dono no Google Cloud e no ambiente do backend',
         oauth_discord: 'requer DISCORD_CLIENT_ID/SECRET',

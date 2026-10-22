@@ -169,3 +169,10 @@ Varredura autenticada da API oficial (1157+ candidatos, discriminação 404 vs 4
 - `POST /api/composio/mcp` — 501 até existir `COMPOSIO_API_KEY` no ambiente
 - `POST /api/email/caixa` / `POST /api/email/ler` — 501 até existir conector de e-mail configurado
 - Segurança nova: rate limit em cadastro (10/min por IP), login (12/min por IP) e v1/chat (20/min por chave); ABRIR bloqueia http/localhost/redes privadas (anti-SSRF); chaves BYOK podem ser cifradas em repouso com AES-256-GCM via `JARVIS_MASTER_KEY`.
+
+## v1.3.4 — NVIDIA NIM e listagem de modelos (21/10/2026)
+
+- `nvidia` entra no catálogo BYOK (tipo openai-compatível, base `https://integrate.api.nvidia.com/v1`, chave `nvapi-…`). Todos os modelos do build.nvidia.com funcionam: free (créditos de desenvolvedor) e pagos (billing). Modelo padrão: `meta/llama-3.3-70b-instruct`.
+- Nova rota `GET /api/conta/ias/{id}/modelos` (com token): lista os modelos disponíveis na chave do provedor — Gemini (`generateContent`), Claude (`/v1/models`) e qualquer openai-compatível (`/models`: OpenAI, Groq, OpenRouter, NVIDIA, DeepSeek, Mistral).
+- Voz: a API da NVIDIA (NIM) é só de texto/chat — não tem endpoint público de TTS. A voz do JARVIS segue com o microfone do navegador (Web Speech, grátis) e a voz de estúdio ElevenLabs (`/voz chave SUA_CHAVE`).
+- GitGuardian: verificados todos os repositórios públicos (árvore + histórico de 35 commits). Nenhum segredo real; os alertas eram chaves falsas de arquivos de teste (`tests/security.test.ts`, `tests/unit/traceEvents.test.js`).
