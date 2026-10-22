@@ -204,3 +204,14 @@ Função `jarvisTarefas` (mesmo envelope `{rota, metodo, corpo, token}` e mesmo 
 - `GET|POST|DELETE /api/memoria` — consultar, salvar e apagar a memória da conta
 - Estados: `planejando | executando | aguardando_aprovacao | concluida | parcial | falhou | cancelada`
 - Isolamento por e-mail da sessão; segredos sanitizados na gravação e na leitura.
+
+## v1.3.7 — Ferramentas de engenharia web no motor (22/10/2026)
+
+Nascidas do clone real do SKYNETchat, agora são ferramentas oficiais do catálogo (12 → 15) na função jarvisTarefas:
+
+- `site_espelhar {url}` — espelha o frontend público de um site (páginas, JS, CSS, imagens, fontes) dentro do JARVIS; guarda o espelho na conta (`espelho:host`), respeita guarda anti-SSRF, limites reais (40 arquivos/9 s por execução, 300 arquivos, 1,5 MB por arquivo) e continua nas execuções seguintes quando o site é grande
+- `site_segredos {}` — varre o espelho procurando tokens (Mapbox, OpenAI, Google, GitHub, AWS, Slack, NVIDIA, Groq) como o GitHub Push Protection faria; devolve arquivo e tipo, nunca o segredo
+- `site_publicar {repo, descricao?}` — publica o último espelho como repo novo no GitHub com Pages (cria repo, envia arquivos via API de contents com `.nojekyll`, ativa Pages); SENSÍVEL: exige aprovação humana, recusa arquivos com segredo e exige token do GitHub conectado
+- `PUT /api/fontes/github {"token":"ghp_..."}` (também GET/DELETE) — conecta o token GitHub da conta (BYOK, validado na hora contra a API do GitHub); roteado pelo api-bridge junto ao motor
+
+Limites honestos: espelho é estático (chamadas /api/* do site original não funcionam na cópia), binários acima de 400 KB não são publicados, e o total do espelho por site cabe em ~2,5 MB.

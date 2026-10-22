@@ -15,7 +15,7 @@
     if (!m) return original(url, opts);
     var rota = m[1];
     // v1.3.6: rotas do motor de tarefas autonomous na funcao dedicada jarvisTarefas (mesmo envelope e banco)
-    var TAREFAS = /^\/api\/(tarefas|memoria)(\/|$)/;
+    var TAREFAS = /^\/api\/(tarefas|memoria|fontes\/github)(\/|$)/;
     var alvo = TAREFAS.test(rota) ? 'https://superagent-6e379590.base44.app/functions/jarvisTarefas' : BACKEND;
     var metodo = (opts && opts.method) || 'GET';
     var corpo = null;
