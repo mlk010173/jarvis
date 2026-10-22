@@ -54,3 +54,12 @@ O contrato é o envelope `jarvis/api-bridge.js`: `POST {rota, metodo, corpo, tok
 - **Instância fria busca o pacote na 1ª chamada:** latência extra de centenas de ms só no primeiro request de cada instância.
 - **Memória do monitor de IA (OBS) é por instância:** volume baixo por enquanto; evoluir para JarvisLog se precisar de histórico persistente entre instâncias.
 - **Chaves BYOK em texto puro enquanto JARVIS_MASTER_KEY não existir:** risco registrado em /api/capabilities e no ENV.md; a cifra é retroativa (chaves antigas em texto continuam legíveis; ao re-salvar a chave, ela é cifrada).
+
+## Estado real do deploy (21/10/2026, final da v1.3.3)
+
+O backend do site roda em DUAS funções Base44 (o runtime bloqueia eval e imports remotos, e o código total passou do limite prático de um único deploy):
+
+1. `jarvisApi` (PARTE A, base44/jarvisApiA.ts): contas, sessões, IAs, chat, agente, web, voz, MCP oficial, SDK v1, monitor de IA, health/capabilities. Ao fim, encaminha rotas de painel para a jarvisApi2 (mesmo envelope {rota, metodo, corpo, token}, mesmo banco).
+2. `jarvisApi2` (PARTE B, base44/jarvisApiB.ts): casa/HA, financeiro, leads, logs, monitor, negócio, fontes, componentes de UI, novidades (changelog completo), marketing, download, briefing.
+
+Testes finais ao vivo (22/10/2026 01:59 UTC): health 1.3.3, cadastro, login, sessão, novidades via encaminhamento, MCP ping, guarda anti-SSRF (http+rede interna bloqueados), financeiro autenticado via encaminhamento, SDK v1 recusando sem chave (401 honesto). Cifra BYOK em repouso fica desativada até existir JARVIS_MASTER_KEY no ambiente (sem ela o código não lê segredo nenhum e /api/capabilities avisa "inativo").
