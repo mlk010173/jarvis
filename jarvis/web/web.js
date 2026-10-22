@@ -9,8 +9,8 @@
   const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const icones = (r) => { try { window.JARVIS_ICONES?.montar(r); } catch { /* sem ícones */ } };
   const local = { get: (k, p) => { try { const v = localStorage.getItem('jarvis.web.' + k); return v == null ? p : JSON.parse(v); } catch { return p; } }, set: (k, v) => { try { localStorage.setItem('jarvis.web.' + k, JSON.stringify(v)); } catch { /* só nesta aba */ } } };
-  async function api(url, metodo = 'GET', corpo) {
-    const r = await fetch(url, { method: metodo, headers: corpo ? { 'Content-Type': 'application/json' } : {}, body: corpo ? JSON.stringify(corpo) : undefined, credentials: 'same-origin' });
+  async function api(url, metodo = 'GET', corpo, sinal) {
+    const r = await fetch(url, { method: metodo, headers: corpo ? { 'Content-Type': 'application/json' } : {}, body: corpo ? JSON.stringify(corpo) : undefined, credentials: 'same-origin', signal: sinal || undefined });
     const j = await r.json().catch(() => ({}));
     if (r.status === 401 && !url.includes('/ponte/')) { location.href = '../entrar.html?volta=jarvis/app.html'; throw new Error('login'); }
     if (!r.ok) throw Object.assign(new Error(j.erro || 'Erro ' + r.status), { status: r.status });
@@ -192,6 +192,8 @@
     const salvo = local.get('agente', null);
     S.agenteId = S.agentes.some((a) => a.id === salvo) ? salvo : (S.agentes.find((a) => a.nome === 'JARVIS') || S.agentes[0]).id;
     escolherAgente(S.agenteId);
+    // v1.3.5: recupera execuções que ficaram "em andamento" ao recarregar a página
+    (async () => { try { const l = conversa(S.agenteId); let mudou = false; for (const m of l) { if (m.execucao?.status === 'em_andamento' && m.execucao?.execution_id) { try { const r = await api('/api/execucoes/' + m.execucao.execution_id); if (r?.execucao) { m.execucao = r.execucao; mudou = true; } } catch { } } } if (mudou) { guardarConversa(S.agenteId, l); desenharConversa(); } } catch { } })();
   }
 
   // ---------- conversa ----------
@@ -224,6 +226,9 @@
       m.erro ? null : el('div', { class: 'msg-actions' }, el('button', { type: 'button', title: 'Ouvir de novo', onclick: () => falar(m.texto) }, el('span', { 'data-ic': 'volume' })), el('button', { type: 'button', title: 'Copiar', onclick: () => navigator.clipboard.writeText(m.texto).then(() => toast('Copiado.')) }, el('span', { 'data-ic': 'copy' }))));
     b.style.setProperty('--c', corDe(a));
     if (m.erro) $('.content', b).textContent = m.texto; else $('.content', b).innerHTML = md(m.texto);
+    if (m.execucao && window.JARVIS_EXEC) { // v1.3.5: painel de execução — nunca quebra o chat
+      try { b.append(window.JARVIS_EXEC.painelDOM(m.execucao, { aberto: !!m.exec_aberta, aoAlternar: (aberto) => { m.exec_aberta = aberto; const l = conversa(a.id); const alvo = l.find((x) => x.role === m.role && x.ts === m.ts); if (alvo) { alvo.exec_aberta = aberto; guardarConversa(a.id, l); } } })); } catch { }
+    }
     return b;
   }
   function desenharConversa() {
@@ -293,19 +298,41 @@
     legenda(o.voz ? texto : '', o.voz ? 'heard' : '');
     const pensando = el('div', { class: 'msg bot pensando' }, el('div', { class: 'bubble' }, el('i', { class: 'spin' }), ' Pensando…'));
     $('#messages').append(pensando); $('#messages').scrollTop = 1e9;
+    // v1.3.5: log de execução ao vivo — painel retrátil alimentado pelas etapas reais do backend
+    const execId = (crypto.randomUUID ? crypto.randomUUID() : 'exec-' + Date.now() + '-' + Math.random().toString(16).slice(2));
+    const EX = window.JARVIS_EXEC || null;
+    const ac = new AbortController();
+    let passosVivos = []; let painelVivo = null; let poll = null;
+    const fecharVivo = () => { if (poll) { clearInterval(poll); poll = null; } pensando.remove(); };
+    const parar = () => { try { ac.abort(); } catch { } if (poll) { clearInterval(poll); poll = null; } try { painelVivo?.atualizar({ status: 'cancelado', passos: passosVivos, fim: new Date().toISOString() }); } catch { } };
+    if (EX) {
+      try {
+        painelVivo = EX.painelDOM({ execution_id: execId, status: 'em_andamento', inicio: new Date().toISOString(), passos: [] }, { aberto: true, aoVivo: true, aoParar: parar });
+        pensando.append(painelVivo);
+        poll = setInterval(async () => { // consulta leve, só enquanto a resposta não chegou
+          try { const r = await api('/api/execucoes/' + execId); if (r?.execucao) { passosVivos = EX.mergePassos(passosVivos, r.execucao.passos); painelVivo.atualizar({ ...r.execucao, passos: passosVivos }); } } catch { /* o POST principal continua */ }
+        }, 1500);
+      } catch { painelVivo = null; }
+    }
     S.busy = true; estado();
     const mensagens = lista.filter((m) => !m.erro).slice(-30).map((m) => ({ role: m.role, content: m.texto }));
     try {
-      const r = await api(`/api/projetos/${a.id}/testar`, 'POST', { mensagens, personalidade: S.modo });
+      const r = await api(`/api/projetos/${a.id}/testar`, 'POST', { mensagens, personalidade: S.modo, execution_id: execId, message_id: execId + '-u' }, ac.signal);
+      fecharVivo();
       const nomes = Object.fromEntries(S.ias.map((i) => [i.id, i.nome]));
-      lista.push({ role: 'assistant', texto: r.resposta, ia_nome: r.ia_nome, ts: Date.now(), falhas: (r.tentativas_falhas || []).map((f) => ({ ...f, nome: nomes[f.ia], erro: String(f.erro).slice(0, 80) })) });
+      lista.push({ role: 'assistant', texto: r.resposta, ia_nome: r.ia_nome, ts: Date.now(), execucao: r.execucao || null, falhas: (r.tentativas_falhas || []).map((f) => ({ ...f, nome: nomes[f.ia], erro: String(f.erro).slice(0, 80) })) });
       $('#provBadge').textContent = r.ia_nome || '--';
       S.busy = false; guardarConversa(a.id, lista); desenharConversa();
       if (S.legendas || !S.voz) legenda(legendaDe(r.resposta));
       falar(r.resposta, () => { if (S.continua && o.voz) setTimeout(ouvir, 400); });
     } catch (e) {
+      fecharVivo();
       S.busy = false; if (e.message === 'login') return;
-      lista.push({ role: 'assistant', erro: true, texto: e.status === 400 && /IA/.test(e.message) ? 'Nenhuma IA conectada ainda. Abra a aba "Minhas IAs" e conecte uma (o Gemini é grátis).' : e.message, ts: Date.now() }); if (e.status === 400) mostrarAba('ias');
+      const cancelado = e.name === 'AbortError';
+      let execucaoFinal = { execution_id: execId, status: cancelado ? 'cancelado' : 'falhou', passos: passosVivos };
+      if (!cancelado && passosVivos.length) { try { const r = await api('/api/execucoes/' + execId); if (r?.execucao) execucaoFinal = r.execucao; } catch { /* mantém o que já chegou */ } }
+      lista.push({ role: 'assistant', erro: !cancelado, texto: cancelado ? 'Execução interrompida por você.' : (e.status === 400 && /IA/.test(e.message) ? 'Nenhuma IA conectada ainda. Abra a aba "Minhas IAs" e conecte uma (o Gemini é grátis).' : e.message), ts: Date.now(), execucao: execucaoFinal });
+      if (!cancelado && e.status === 400) mostrarAba('ias');
       guardarConversa(a.id, lista); desenharConversa(); S.erroAte = Date.now() + 2600; setTimeout(estado, 2700);
     }
     estado();

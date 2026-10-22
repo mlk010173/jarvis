@@ -176,3 +176,18 @@ Varredura autenticada da API oficial (1157+ candidatos, discriminação 404 vs 4
 - Nova rota `GET /api/conta/ias/{id}/modelos` (com token): lista os modelos disponíveis na chave do provedor — Gemini (`generateContent`), Claude (`/v1/models`) e qualquer openai-compatível (`/models`: OpenAI, Groq, OpenRouter, NVIDIA, DeepSeek, Mistral).
 - Voz: a API da NVIDIA (NIM) é só de texto/chat — não tem endpoint público de TTS. A voz do JARVIS segue com o microfone do navegador (Web Speech, grátis) e a voz de estúdio ElevenLabs (`/voz chave SUA_CHAVE`).
 - GitGuardian: verificados todos os repositórios públicos (árvore + histórico de 35 commits). Nenhum segredo real; os alertas eram chaves falsas de arquivos de teste (`tests/security.test.ts`, `tests/unit/traceEvents.test.js`).
+
+## v1.3.5 — Log de execução (22/10/2026)
+
+Cada resposta do chat agora carrega o rastro real do que o agente fez (`execucao` na resposta de `/api/projetos/{id}/testar`):
+
+- `execution_id`, `message_id`, `status` (em_andamento | concluido | parcial | falhou | cancelado), início/fim/duração real da execução
+- `passos[]` em ordem: `step_id`, `sequencia`, `tipo` (modelo | ferramenta | interno), `nome`, `estado` (executando | concluida | falhou), `inicio`/`fim`/`duracao_ms`, `provedor`, `modelo`, `ferramenta`, `resumo_entrada`, `resumo_saida`, `tokens_entrada`/`tokens_saida` (null quando o provedor não informa), `erro`, `refs` (só https público)
+- `ferramentas` usadas, `falhas` de fallback, `ia_final`/`modelo_final`, `tokens_entrada`/`tokens_saida` somados só quando informados
+- Sanitização dupla (gravação e leitura): ecos de chaves (sk-, nvapi-, gsk_, Bearer, AIza, inclusive mascarados com `*`) viram `[removido]`
+- Novas rotas: `GET /api/execucoes` (últimas 30 da conta) e `GET /api/execucoes/{id}` (isoladas por e-mail da sessão)
+- Painel no site (`jarvis/web/exec-log.js` + `web.js` + `web.css`): retrátil, atualiza ao vivo enquanto a resposta não chegou (consulta leve a cada 1,5 s, sem polling após o fim), botão Parar (aborta a espera no cliente — o backend não suporta cancelamento em execução, limitação honesta), sobrevive ao recarregar (localStorage + reconciliação com o servidor)
+- Testes: `node --test tests/web/exec-log.test.js` (4 casos: sanitização incl. eco mascarado, mescla sem duplicação, tokens null vs soma, estados)
+- O chat continua funcionando se o painel falhar (render do painel está em try/catch)
+
+Limite conhecido: cancelamento é só no cliente; o backend conclui a execução e grava o estado real dela.

@@ -40,7 +40,7 @@ const PLANO = {
   limites: { ias_max: 10, modulos: 50, projetos: 100, memoria: 1000000 },
 };
 
-const VERSAO = '1.3.4';
+const VERSAO = '1.3.5';
 
 // ---------- v1.3.1/1.3.2 portadas: observabilidade, SSRF, rate limit, cripto BYOK ----------
 const PRECO_1M_USD: any[][] = [ [/gpt-4o-mini/, 0.15, 0.6], [/gpt-4o\b/, 2.5, 10], [/^o\d/, 1.25, 10], [/claude-3-5-haiku/, 0.8, 4], [/claude.*haiku/, 1, 5], [/claude.*sonnet/, 3, 15], [/gemini-2.0-flash/, 0.1, 0.4], [/gemini/, 0.3, 1.2], [/deepseek/, 0.14, 0.28], [/mistral-small/, 0.2, 0.6], [/grok/, 0.5, 2] ]; // entrada, saída por 1M tokens (estimativa)
@@ -101,6 +101,16 @@ async function decifra(v: any) {
     return new TextDecoder().decode(pt);
   } catch { throw new Error('Não foi possível decifrar a chave de IA.'); }
 }
+
+// v1.3.5: rastros de execução sempre sanitizados — nenhum segredo sai do backend
+const limpaSegredo = (s: any) => String(s ?? '')
+  .replace(/sk-[A-Za-z0-9_*-]{3,}/g, '[removido]').replace(/nvapi-[A-Za-z0-9_*-]{3,}/g, '[removido]')
+  .replace(/gsk_[A-Za-z0-9_*]{3,}/g, '[removido]').replace(/Bearer\s+[A-Za-z0-9._*-]{6,}/g, '[removido]')
+  .replace(/AIza[A-Za-z0-9_*-]{8,}/g, '[removido]');
+const sanitizaExec = (ex: any) => {
+  const limpaP = (p: any) => ({ ...p, nome: limpaSegredo(p.nome), resumo_entrada: p.resumo_entrada ? limpaSegredo(p.resumo_entrada) : null, resumo_saida: p.resumo_saida ? limpaSegredo(p.resumo_saida) : null, erro: p.erro ? limpaSegredo(p.erro) : null, refs: (p.refs || []).filter((u: any) => /^https:\/\//.test(String(u))).slice(0, 6) });
+  return { ...ex, ia_final: ex.ia_final ? limpaSegredo(ex.ia_final) : null, modelo_final: ex.modelo_final ? limpaSegredo(ex.modelo_final) : null, falhas: (ex.falhas || []).map((x: any) => ({ id: x.id, erro: limpaSegredo(x.erro) })), passos: (ex.passos || []).map(limpaP) };
+};
 
 // ---------- catálogo de provedores de IA (BYOK: a conta traz a própria chave) ----------
 const CATALOGO_IAS: any[] = [
@@ -496,9 +506,59 @@ Deno.serve(async (req) => {
       if (subProj === 'testar' && metodo === 'POST') {
         const fila = await dadoGet(email, 'ias', []);
         if (!fila.length) return erro('Nenhuma IA conectada. Configure em Minhas IAs (o Gemini tem plano grátis).', 400);
+        // ---------- v1.3.5: log de execução — cada etapa REAL do agente, nada inventado ----------
+        const execId = String(corpo.execution_id || crypto.randomUUID());
+        const tExec = Date.now();
+        const exec: any = {
+          execution_id: execId, message_id: String(corpo.message_id || ''), status: 'em_andamento',
+          inicio: new Date(tExec).toISOString(), fim: null, duracao_ms: null,
+          ia_final: null, modelo_final: null, tokens_entrada: null, tokens_saida: null,
+          ferramentas: [], falhas: [], passos: [],
+        };
+        let seq = 0;
+        let filaExec: Promise<void> = Promise.resolve();
+        const salvarExec = () => { filaExec = filaExec.then(async () => { try { await dadoSet(email, 'exec:' + execId, exec); } catch { /* o chat funciona sem o log */ } }); };
+        const novoPasso = (tipo: string, nome: string, dados: any = {}) => {
+          const p: any = { step_id: execId + '-' + String(++seq), sequencia: seq, tipo, nome: String(nome).slice(0, 120), estado: 'executando', inicio: new Date().toISOString(), fim: null, duracao_ms: null, provedor: dados.provedor || null, modelo: dados.modelo || null, ferramenta: dados.ferramenta || null, resumo_entrada: dados.resumo_entrada ? String(dados.resumo_entrada).slice(0, 200) : null, resumo_saida: null, tokens_entrada: null, tokens_saida: null, erro: null, refs: [] };
+          exec.passos.push(p);
+          salvarExec();
+          return p;
+        };
+        const fimPasso = (p: any, dados: any = {}) => {
+          p.fim = new Date().toISOString();
+          p.duracao_ms = Date.now() - Date.parse(p.inicio);
+          if (dados.resumo_saida !== undefined) p.resumo_saida = String(dados.resumo_saida).slice(0, 240);
+          if (dados.tokens_entrada != null) p.tokens_entrada = dados.tokens_entrada;
+          if (dados.tokens_saida != null) p.tokens_saida = dados.tokens_saida;
+          if (dados.erro) { p.estado = 'falhou'; p.erro = limpaSegredo(dados.erro).slice(0, 200); }
+          else p.estado = 'concluida';
+          if (Array.isArray(dados.refs)) p.refs = dados.refs.slice(0, 6);
+          salvarExec();
+        };
+        const falhas: any[] = [];
+        const finalizaExec = async (statusFinal: string) => {
+          exec.status = statusFinal;
+          exec.fim = new Date().toISOString();
+          exec.duracao_ms = Date.now() - tExec;
+          exec.falhas = falhas;
+          const modeloOk = exec.passos.filter((x: any) => x.tipo === 'modelo' && x.estado === 'concluida');
+          exec.tokens_entrada = modeloOk.some((x: any) => x.tokens_entrada != null) ? modeloOk.reduce((s: number, x: any) => s + (x.tokens_entrada || 0), 0) : null;
+          exec.tokens_saida = modeloOk.some((x: any) => x.tokens_saida != null) ? modeloOk.reduce((s: number, x: any) => s + (x.tokens_saida || 0), 0) : null;
+          salvarExec();
+          await filaExec;
+          try { // índice da conta: últimas 30 execuções (histórico paginável no futuro)
+            const idx = await dadoGet(email, 'execucoes', []);
+            idx.push({ execution_id: execId, message_id: exec.message_id, status: exec.status, inicio: exec.inicio, fim: exec.fim, duracao_ms: exec.duracao_ms, ia_final: exec.ia_final, modelo_final: exec.modelo_final, passos: exec.passos.length, ferramentas: exec.ferramentas, falhas: falhas.length });
+            const antigos = idx.slice(0, Math.max(0, idx.length - 30));
+            for (const antiga of antigos) { try { const r = (await norm('JarvisDado')).find((d: any) => f(d, 'email') === email && f(d, 'chave') === 'exec:' + antiga.execution_id); if (r) await db.entities.JarvisDado.delete(r.id); } catch { } }
+            await dadoSet(email, 'execucoes', idx.slice(-30));
+          } catch { /* índice é best-effort */ }
+        };
         let memItens: any[] = [];
         try { const m = f(auth, 'memoria') ? JSON.parse(f(auth, 'memoria')) : null; memItens = (m?.itens || m || []).slice(-12); } catch { }
         const mem = memItens.map((m: any) => m.texto || String(m)).join(' | ');
+        const pMem = novoPasso('interno', 'Memória da conta');
+        fimPasso(pMem, { resumo_saida: memItens.length ? String(memItens.length) + ' lembrança(s) carregadas' : 'Sem lembranças salvas' });
         const agente = String(corpo.personalidade || '') === 'agente';
         const ferramentas = 'FERRAMENTAS (use quando precisar de dados ao vivo, no formato exato): {PESQUISAR:termo} busca na internet; {ABRIR:url} lê uma página. Responda APENAS com a chamada da ferramenta quando for usar. Sem dados de internet, responda direto.';
         const persona: Record<string, string> = { serio: 'Seja direto e profissional.', amigavel: 'Seja amigável e leve.', professor: 'Explique passo a passo com exemplos.', tecnico: 'Seja preciso e denso.', direto: 'Responda curto, só o essencial.' };
@@ -510,26 +570,47 @@ Deno.serve(async (req) => {
           ferramentas,
           mem ? 'Lembranças do usuário: ' + mem : '',
         ].filter(Boolean).join(' ');
-        const falhas: any[] = [];
         for (const iaBruta of fila) {
           const ia = { ...iaBruta, chave: await decifra(iaBruta.chave) };
           try {
             let mensagens = [{ role: 'system', content: sistema }].concat((corpo.mensagens || []).slice(-24));
-            let resposta: string | null = null, iaUsada: string | null = null;
+            let resposta: string | null = null, iaUsada: string | null = null, modeloUsado: string | null = null;
             for (let rodada = 0; rodada < 4; rodada++) {
-              const r = await chamarIA(ia, mensagens);
+              const pModelo = novoPasso('modelo', 'Chamada ao modelo', { provedor: ia.id, modelo: ia.modelo || null });
+              let r: any;
+              try { r = await chamarIA(ia, mensagens); }
+              catch (errModelo: any) { fimPasso(pModelo, { erro: errModelo.message || 'falhou' }); throw errModelo; }
+              fimPasso(pModelo, { tokens_entrada: r.tokens_in || null, tokens_saida: r.tokens_out || null, resumo_saida: r.texto.slice(0, 120) });
               const uso = /\{(PESQUISAR|ABRIR):([^}]+)\}/.exec(r.texto);
-              if (!uso) { resposta = r.texto; iaUsada = r.ia; break; }
+              if (!uso) { resposta = r.texto; iaUsada = r.ia; modeloUsado = r.modelo; break; }
+              const pFerr = novoPasso('ferramenta', 'Ferramenta ' + uso[1], { ferramenta: uso[1], resumo_entrada: uso[2].trim() });
               try {
                 const resultado = await rodarFerramenta(uso[1], uso[2].trim());
+                const refs = [...String(resultado).matchAll(/https?:\/\/[^\s|]+/g)].map((m) => m[0]).filter((u: string) => hostPermitido(u)).slice(0, 6);
+                fimPasso(pFerr, { resumo_saida: String(resultado).slice(0, 160), refs });
+                exec.ferramentas.push(uso[1]);
                 mensagens.push({ role: 'assistant', content: r.texto });
                 mensagens.push({ role: 'user', content: 'RESULTADO DA FERRAMENTA ' + uso[1] + ' (use para responder em português, sem repetir o resultado cru):\n' + resultado.slice(0, 3000) });
-              } catch (err: any) { resposta = 'A ferramenta falhou: ' + (err.message || 'erro') + '.'; iaUsada = r.ia; break; }
+              } catch (errF: any) {
+                fimPasso(pFerr, { erro: errF.message || 'erro' });
+                resposta = 'A ferramenta falhou: ' + (errF.message || 'erro') + '.';
+                iaUsada = r.ia; modeloUsado = r.modelo;
+                break;
+              }
             }
-            if (resposta) return json({ resposta, ia_nome: iaUsada, tentativas_falhas: falhas });
-          } catch (err: any) { falhas.push({ id: ia.id, erro: err.message || 'falhou' }); }
+            if (resposta) {
+              exec.ia_final = iaUsada; exec.modelo_final = modeloUsado;
+              await finalizaExec(falhas.length > 0 || exec.passos.some((x: any) => x.estado === 'falhou') ? 'parcial' : 'concluido');
+              return json({ resposta, ia_nome: iaUsada, tentativas_falhas: falhas, execucao: sanitizaExec(exec) });
+            }
+          } catch (err: any) {
+            falhas.push({ id: ia.id, erro: limpaSegredo(err.message || 'falhou').slice(0, 120) });
+            const pFb = novoPasso('interno', 'Fallback: próxima IA da fila');
+            fimPasso(pFb, { resumo_saida: ia.id + ' falhou e a fila avança' });
+          }
         }
-        return erro('Todas as IAs falharam: ' + (falhas.map((x) => x.erro).join(' | ') || 'sem resposta.'), 502);
+        await finalizaExec('falhou');
+        return erro('Todas as IAs falharam: ' + limpaSegredo(falhas.map((x) => x.erro).join(' | ') || 'sem resposta.'), 502);
       }
       if (metodo === 'PUT') {
         const dados = { nome: String(corpo.nome ?? f(p, 'nome')).slice(0, 60), assistente: String(corpo.assistente ?? f(p, 'assistente')).slice(0, 60), instrucoes: String(corpo.instrucoes ?? f(p, 'instrucoes')).slice(0, 4000) };
@@ -619,7 +700,7 @@ Deno.serve(async (req) => {
     if (rota === '/api/health') return json({ ok: true, versao: VERSAO, backend: 'base44-deno', quando: new Date().toISOString() });
     if (rota === '/api/capabilities') return json({
       versao: VERSAO, backend: 'base44-deno',
-      funcional: ['conta-email-senha', 'sessoes-token-30d', 'byok-8-provedores-mais-ollama', 'listagem-de-modelos-por-provedor', 'chat-fallback-em-fila', 'modo-agente-pesquisa-bing-duckduckgo', 'abrir-url-com-guarda-ssrf', 'voz-elevenlabs-opcional', 'memoria-de-conta', 'projetos-assistentes-com-chave-sdk', 'painel-casa-ha', 'painel-financeiro', 'painel-leads', 'painel-logs', 'painel-monitor', 'painel-negocio', 'painel-fontes', 'briefing-noticias', 'mcp-simplificado-api-mcp', 'mcp-oficial-jsonrpc-em-mcp', 'sdk-publico-v1', 'monitor-de-ia-logs', 'rate-limit-por-ip-e-chave', 'criptografia-byok-opcional'],
+      funcional: ['conta-email-senha', 'sessoes-token-30d', 'byok-8-provedores-mais-ollama', 'listagem-de-modelos-por-provedor', 'chat-fallback-em-fila', 'modo-agente-pesquisa-bing-duckduckgo', 'abrir-url-com-guarda-ssrf', 'voz-elevenlabs-opcional', 'memoria-de-conta', 'projetos-assistentes-com-chave-sdk', 'painel-casa-ha', 'painel-financeiro', 'painel-leads', 'painel-logs', 'painel-monitor', 'painel-negocio', 'painel-fontes', 'briefing-noticias', 'mcp-simplificado-api-mcp', 'mcp-oficial-jsonrpc-em-mcp', 'sdk-publico-v1', 'monitor-de-ia-logs', 'log-de-execucao-por-mensagem', 'rate-limit-por-ip-e-chave', 'criptografia-byok-opcional'],
       pendentes: {
         oauth_google: 'requer GOOGLE_CLIENT_ID/SECRET criados pelo dono no Google Cloud e no ambiente do backend',
         oauth_discord: 'requer DISCORD_CLIENT_ID/SECRET',
@@ -700,7 +781,20 @@ Deno.serve(async (req) => {
       }
       return erro('Método não suportado.', 405);
     }
-        if (rota === '/api/mcp/ferramentas') {
+        // ---------- v1.3.5: log de execução — histórico por conta, isolado por sessão ----------
+    if (rota === '/api/execucoes') {
+      const e = login401(); if (e) return e;
+      const idx = await dadoGet(email, 'execucoes', []);
+      return json({ execucoes: idx.slice(-30).reverse() });
+    }
+    const mExec = rota.match(/^\/api\/execucoes\/([A-Za-z0-9-]+)$/);
+    if (mExec) {
+      const e = login401(); if (e) return e;
+      const ex = await dadoGet(email, 'exec:' + mExec[1], null);
+      if (!ex) return erro('Execução não encontrada.', 404);
+      return json({ execucao: sanitizaExec(ex) });
+    }
+    if (rota === '/api/mcp/ferramentas') {
       return json({ ferramentas: [
         { nome: 'clima', descricao: 'Previsão do tempo (MET.no)', entrada: { cidade: 'string' }, rota: '/api/web/clima?cidade=' },
         { nome: 'moeda', descricao: 'Cotação entre duas moedas', entrada: { de: 'string', para: 'string' }, rota: '/api/web/moeda?de=USD&para=BRL' },
@@ -820,8 +914,143 @@ Deno.serve(async (req) => {
     if (rota === '/api/info') return json({ marca: 'JARVIS', limites: { gratis: 100, pro: 5000 }, provedores: [] });
     if (rota === '/api/comercial/planos') return json({ planos: [{ id: 'jarvis', nome: 'JARVIS', publico: 'Versão web aberta do projeto — tudo liberado', preco_centavos: 0, precos: null }] });
 
-// ---------- painéis e conteúdo: servidos pela função jarvisApi2 (mesmo envelope, mesmo banco) ----------
-    const PAINEL = ['/api/casa/', '/api/financeiro/', '/api/leads', '/api/logs', '/api/monitor/', '/api/dono/', '/api/fontes', '/api/ui/', '/api/ponte/', '/api/cupons/', '/api/pagamentos/', '/api/novidades', '/api/marketing/', '/api/web/briefing', '/api/download/'];
+if (rota === '/api/novidades') return json({
+      gerado: new Date().toISOString(), atual: '1.3.5',
+      versoes: [
+        {
+          versao: '1.3.5', data: '2026-10-22', resumo: 'Log de execução: cada resposta mostra as etapas reais do agente (modelo, ferramentas, fallback), com painel retrátil ao vivo.',
+          secoes: [
+            { titulo: 'Novo', itens: [
+              'Painel "Execução" embaixo de cada resposta: as etapas reais do agente, em ordem, com horário e duração de cada uma',
+              'Ao vivo: enquanto o JARVIS pensa, o painel mostra cada etapa acontecendo (chamada de modelo, ferramenta, fallback) e botão Parar',
+              'Cada etapa traz: tipo, ferramenta e termo usado, modelo e provedor, tokens de entrada/saída (quando o provedor informa), duração, resultado e links consultados',
+              'Resumo no cabeçalho: total de etapas, duração real da execução, ferramentas usadas, modelo final, tokens e falhas de fallback',
+              'Estados honestos: Em andamento, Concluído, Parcial (resposta com etapa falhada), Falhou e Cancelado',
+              'Histórico persistido: as últimas 30 execuções ficam na conta (GET /api/execucoes) e o painel sobrevive ao recarregar a página',
+              'Sanitização: nenhum segredo (chave, token, senha) aparece no log — erros são filtrados antes de guardar e exibir',
+            ] },
+            { titulo: 'Segurança', itens: [
+              'Isolamento por conta: uma sessão não consegue ler as execuções de outra (a busca é sempre pelo e-mail dono)',
+            ] },
+          ],
+        },
+        {
+          versao: '1.3.4', data: '2026-10-21', resumo: 'NVIDIA NIM no catálogo: todos os modelos do build.nvidia.com (free e pagos) e listagem de modelos por provedor.',
+          secoes: [
+            { titulo: 'Novo', itens: [
+              'NVIDIA NIM no catálogo de IAs: cole a chave nvapi-… e use qualquer modelo do build.nvidia.com (free com créditos de desenvolvedor, pagos com billing)',
+              'Rota /api/conta/ias/{id}/modelos: lista os modelos da sua chave em cada provedor (Gemini, OpenAI, Claude, Groq, OpenRouter, NVIDIA, DeepSeek, Mistral)',
+            ] },
+            { titulo: 'Segurança', itens: [
+              'Alerta do GitGuardian verificado: nenhum segredo real nos repositórios públicos (os avisos eram chaves falsas de arquivos de teste)',
+            ] },
+          ],
+        },
+        {
+          versao: '1.3.3', data: '2026-10-21', resumo: 'Segurança e paridade total: monitor de IA, SSRF guard, rate limit, MCP oficial JSON-RPC, SDK v1 com chave de projeto e capacidades honestas.',
+          secoes: [
+            { titulo: 'Novo', itens: [
+              'Monitor de execuções de IA: latência, tokens, custo estimado e erros por modelo (/api/logs/ia e /api/logs/ia/resumo)',
+              'Servidor MCP oficial (JSON-RPC 2.0) em POST /mcp com Bearer de projeto ou token de conta',
+              'SDK público v1: cada projeto ganha chave jarvis_sk_… para /api/v1/chat e /api/v1/projeto',
+              'Rotas /api/health e /api/capabilities: o site descobre o que o backend realmente suporta',
+              'Guarda anti-SSRF no ABRIR: rede interna, http e localhost bloqueados',
+              'Rate limit por IP em cadastro/login e por chave no chat público (429 honesto)',
+              'Ollama no catálogo com aviso honesto de quando funciona',
+              'Chaves de IA (BYOK) cifradas em repouso com AES-256-GCM quando JARVIS_MASTER_KEY existe no ambiente',
+            ] },
+            { titulo: 'Corrigido', itens: [ 'Busca do modo Agente agora começa no Bing (DuckDuckGo como reserva) após bloqueios de IP' ] },
+          ],
+        },
+        {
+          versao: '1.3.0', data: '2026-10-21', resumo: 'IA real no chat com 7 provedores, modo Agente com internet, voz ElevenLabs, MCP e SDK.',
+          secoes: [
+            { titulo: 'Novo', itens: [
+              'IA de verdade no chat: conecte Google Gemini (tem plano grátis), OpenAI, Claude, Groq, DeepSeek, OpenRouter ou Mistral em Minhas IAs',
+              'Modo Agente: a IA pesquisa na internet e abre páginas quando precisa — comandos /pesquisar e /abrir',
+              'Voz ElevenLabs opcional: /voz on ativa a voz de estúdio com sua chave (11labs.io)',
+              'MCP: catálogo de ferramentas em /api/mcp/ferramentas e execução em /api/mcp/executar',
+              'SDK do JARVIS para integrar o chat em qualquer site (jarvis-sdk.js)',
+              'Fila de IAs: se uma falha, a próxima assume automaticamente',
+              'Memória da conta entra na conversa com a IA',
+            ] },
+          ],
+        },
+        {
+          versao: '1.2.0', data: '2026-10-21', resumo: 'JARVIS completo: painéis com dados reais e plano Premium liberado para todos.',
+          secoes: [
+            { titulo: 'Novo', itens: [
+              'Plano Premium liberado para todas as contas: nada de trava entre Free, Basic e Premium',
+              'Painel Casa: integração real com Home Assistant — luzes, tomadas, climatização e rotinas com o seu servidor',
+              'Painel Financeiro: contas, lançamentos, faturas, investimentos, metas e importação de extrato OFX/CSV',
+              'Painel Leads: CRM com funil (novo, contatado, negociando, cliente, perdido) e anotações',
+              'Painel Logs: eventos e registro técnico reais da sua conta',
+              'Painel Monitor: lembretes de bem-estar configuráveis (dormir, pausas, água)',
+              'Painel Negócio: números reais do JARVIS (contas, sessões e projetos)',
+              'Painel Briefing: manchetes reais do Brasil atualizadas (Google Notícias) com clima do seu dia',
+              'Painel Componentes & UI: biblioteca HTML+CSS completa para copiar e usar, tudo liberado',
+              'Painel Fontes: conexões e memória da conta, com apagar memória de verdade',
+            ] },
+            { titulo: 'Melhorias', itens: [
+              'Comandos de voz agora falam a resposta de volta (voz em tempo real com /clima, /moeda, /cripto…)',
+              'Modo de conversa contínua funciona com os comandos reais: pergunta e resposta por voz sem parar',
+              'Voz: aviso claro quando o navegador não suporta microfone (use Chrome ou Edge)',
+            ] },
+          ],
+        },
+        {
+          versao: '1.1.0', data: '2026-10-19', resumo: 'Comandos reais no chat e fim da simulação.',
+          secoes: [
+            { titulo: 'Novo', itens: [
+              'Comandos reais com dados ao vivo: /clima [cidade], /moeda, /cripto, /wiki, /feriados, /github, /ajuda',
+              'Clima real via MET.no e Open-Meteo',
+              'Cotações com plano B automático: AwesomeAPI → Banco Central Europeu; CoinGecko → Coinbase',
+              'Wikipédia em português integrada ao chat',
+              'Feriados nacionais do Brasil (Nager)',
+              'Estatísticas do repositório no GitHub',
+            ] },
+            { titulo: 'Correções', itens: [
+              'Removida a API falsa (pages-shim): tudo agora vem do backend real',
+              'Sem simulação: o que não existe responde com erro honesto em vez de dado inventado',
+            ] },
+          ],
+        },
+        {
+          versao: '1.0.0', data: '2026-10-19', resumo: 'Do espelho do ORION para o JARVIS: rebrand e backend de verdade.',
+          secoes: [
+            { titulo: 'Novo', itens: [
+              'Novo nome: ORION Web virou JARVIS (repo mlk010173/jarvis, site jarvis no Pages)',
+              'Backend real com função jarvisApi e banco de dados persistido',
+              'Cadastro e login reais com senha protegida por PBKDF2-SHA256 (60 mil iterações, salt único)',
+              'Sessões de 30 dias com token, logout e troca de senha',
+              'Projetos/assistentes salvos por conta, com proteção contra acesso de outros usuários',
+              'Preferências e memória da conta gravadas no banco',
+              'Limite anti-abuso de 120 requisições por minuto',
+            ] },
+            { titulo: 'Removido', itens: [
+              'Ligações ao site oficial antigo: suporte agora nas Issues do repositório JARVIS',
+            ] },
+          ],
+        },
+        {
+          versao: '0.9.0', data: '2026-10-19', resumo: 'Nasceu como espelho do ORION Web, auditado e publicado no GitHub.',
+          secoes: [
+            { titulo: 'Novo', itens: [
+              'Espelho completo do site: 80 arquivos e 14 páginas com caminhos relativos',
+              'Publicação no GitHub Pages com endereço próprio',
+              'Deploy automático com GitHub Actions: validação de sintaxe JS e links a cada envio',
+            ] },
+            { titulo: 'Segurança', itens: [
+              'Auditoria: nenhuma chave de API exposta; cabeçalhos CSP e HSTS verificados',
+              'Testes de carga contra XSS no chat e bloqueio de IDOR confirmado',
+            ] },
+          ],
+        },
+      ],
+    });
+
+    // ---------- painéis e conteúdo: servidos pela função jarvisApi2 (mesmo envelope, mesmo banco) ----------
+    const PAINEL = ['/api/casa/', '/api/financeiro/', '/api/leads', '/api/logs', '/api/monitor/', '/api/dono/', '/api/fontes', '/api/ui/', '/api/ponte/', '/api/cupons/', '/api/pagamentos/', '/api/marketing/', '/api/web/briefing', '/api/download/'];
     if (PAINEL.some((p) => rota === p || rota.startsWith(p)) && !rota.startsWith('/api/logs/ia')) {
       try {
         const r2 = await fetch('https://superagent-6e379590.base44.app/functions/jarvisApi2', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
