@@ -710,6 +710,7 @@ async function api(req, res, rota, metodo, corpo, conta) {
     /^\/api\/pagamentos\//,
     /^\/api\/dono\/negocio$/,
     /^\/api\/email\//,
+    /^\/api\/composio\//,
   ]; /* /api/v1/* faz a própria checagem de Bearer (chave de projeto) */
 
   if (!conta && PROTEGIDAS.some((re) => re.test(rota))) return { __erro: [401, 'Faça login.'] };
@@ -1279,12 +1280,41 @@ async function api(req, res, rota, metodo, corpo, conta) {
     { nome: 'noticias', descricao: 'Manchetes do Brasil agora', entrada: {}, rota: '/api/web/briefing' },
     { nome: 'chat', descricao: 'Conversa com a IA conectada da conta', entrada: { mensagens: 'array {role, content}', projeto_id: 'string' }, rota: '/api/projetos/{id}/testar' },
   ] };
+  /* Composio (250+ apps) via MCP deles — proxy autenticado; a chave fica no servidor */
+  if (K === 'POST /api/composio/mcp') {
+    if (!conta) return { __erro: [401, 'Faça login.'] };
+    const ck = process.env.COMPOSIO_API_KEY;
+    if (!ck) return { __erro: [503, 'COMPOSIO_API_KEY não configurada no servidor.'] };
+    const rpc = corpo || {};
+    if (!rpc.method) return { __erro: [400, 'Envie {method, params} no formato JSON-RPC 2.0 do MCP.'] };
+    if (!['initialize','ping','tools/list','tools/call','notifications/initialized'].includes(rpc.method)) return { __erro: [400, 'Método MCP não permitido pelo proxy: ' + rpc.method] };
+    try {
+      const c = new AbortController(); const t = setTimeout(() => c.abort(), 45000);
+      const r = await fetch('https://connect.composio.dev/mcp', { method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream', 'x-consumer-api-key': ck },
+        body: JSON.stringify(rpc), signal: c.signal });
+      clearTimeout(t);
+      const texto = await r.text();
+      if (!r.ok) return { __erro: [502, 'Composio respondeu ' + r.status + ': ' + texto.slice(0, 120)] };
+      // resposta pode vir em SSE (data: {...}) ou JSON puro
+      const linhas = texto.split('\n').filter((l) => l.startsWith('data: ')).map((l) => l.slice(6));
+      if (linhas.length) {
+        try { return JSON.parse(linhas[linhas.length - 1]); } catch (e3) {}
+      }
+      try { return JSON.parse(texto); } catch (e2) { return { __erro: [502, 'Resposta do Composio em formato inesperado.'] }; }
+    } catch (e) { return { __erro: [502, 'Composio indisponível: ' + (e.name === 'AbortError' ? 'tempo esgotado' : e.message)] }; }
+  }
+
   if (K === 'POST /api/mcp/executar') {
     if (!conta) return { __erro: [401, 'Faça login.'] };
     const f = String(corpo.ferramenta || ''), a = corpo.args || {};
     try {
       if (f === 'pesquisar') return await pesquisarWeb(String(a.q || ''));
       if (f === 'abrir') return await abrirWeb(String(a.url || ''));
+      if (f === 'composio') {
+        if (!process.env.COMPOSIO_API_KEY) return { __erro: [503, 'COMPOSIO_API_KEY não configurada.'] };
+        return await api(req, res, '/api/composio/mcp', 'POST', { jsonrpc: '2.0', id: Date.now(), method: 'tools/call', params: { name: String(a.ferramenta || 'COMPOSIO_SEARCH_TOOLS'), arguments: a.args || { query: String(a.busca || '') } } }, conta);
+      }
       const rotaF = '/api/web/' + f;
       return await api(req, res, rotaF, 'GET', a, conta);
     } catch (e) { return { __erro: [400, e.message || 'Ferramenta falhou.'] }; }
@@ -1321,6 +1351,44 @@ http.createServer(async (req, res) => {
     if (r === null) return; // stream já enviado
     if (r && r.__erro) return erro(res, r.__erro[0], r.__erro[1]);
     res.writeHead(200, CT.json); return res.end(JSON.stringify(r));
+  }
+
+  // MCP OFICIAL (spec modelcontextprotocol.io): POST /mcp com JSON-RPC 2.0.
+  // Auth: Authorization: Bearer <chave de projeto jv_...> OU {token} da conta no corpo.
+  if (rota === '/mcp' && req.method === 'POST') {
+    const corpo = await lerBody(req);
+    const chaveBearer = (req.headers.authorization || '').replace(/^Bearer /, '');
+    const projOk = chaveBearer && db.projetos.some((x) => x.chaves.some((c) => c.valor === chaveBearer));
+    const contaMcp = contaDoToken(corpo.token) || (projOk ? true : null);
+    if (!contaMcp) return erro(res, 401, 'Envie Authorization: Bearer SUA_CHAVE (chave de projeto do JARVIS) ou {token} da conta.');
+    const idR = corpo.id === undefined ? null : corpo.id;
+    const rcp = (obj) => res.end(JSON.stringify(Object.assign({ jsonrpc: '2.0' }, idR !== null ? { id: idR } : {}, obj)));
+    res.writeHead(200, CT.json);
+    const m = corpo.method;
+    if (m === 'initialize') return rcp({ result: { protocolVersion: '2024-11-05', serverInfo: { name: 'jarvis', version: '1.3.2' }, capabilities: { tools: {} } } });
+    if (m === 'ping') return rcp({ result: {} });
+    if (m === 'tools/list') return rcp({ result: { tools: [
+      { name: 'pesquisar_web', description: 'Busca na internet (DuckDuckGo) e devolve títulos, links e resumos.', inputSchema: { type: 'object', properties: { consulta: { type: 'string', description: 'o que buscar' } }, required: ['consulta'] } },
+      { name: 'abrir_url', description: 'Abre uma página https pública e devolve o texto principal.', inputSchema: { type: 'object', properties: { url: { type: 'string', description: 'endereço https completo' } }, required: ['url'] } },
+      { name: 'email_buscar', description: 'Busca e-mails da caixa do dono (sintaxe Gmail: in:inbox, from:..., newer_than:7d).', inputSchema: { type: 'object', properties: { consulta: { type: 'string' }, max: { type: 'number' } }, required: ['consulta'] } },
+      { name: 'clima', description: 'Previsão do tempo de uma cidade.', inputSchema: { type: 'object', properties: { cidade: { type: 'string' } }, required: ['cidade'] } },
+    ] } });
+    if (m === 'tools/call') {
+      const nome = String(((corpo.params || {}).name) || '');
+      const args = (corpo.params || {}).arguments || {};
+      try {
+        let saida;
+        if (nome === 'pesquisar_web') { const r = await pesquisarWeb(String(args.consulta || '')); saida = (r.resultados || []).map((x) => x.titulo + ' — ' + x.url + (x.resumo ? ' | ' + x.resumo : '')).join('\n') || 'Nada encontrado.'; }
+        else if (nome === 'abrir_url') { const p = await abrirWeb(String(args.url || '')); saida = (p.titulo ? p.titulo + '\n' : '') + p.texto; }
+        else if (nome === 'email_buscar') { const r = await chamarCanalEmail('listar', { consulta: String(args.consulta || 'in:inbox newer_than:7d').slice(0, 140), max: Math.min(Number(args.max) || 8, 20) });
+          if (r.__erro) return rcp({ result: { isError: true, content: [{ type: 'text', text: r.__erro[1] }] } });
+          saida = (r.mensagens || []).map((mm, i) => (i + 1) + '. [' + String(mm.de || '').slice(0, 60) + '] ' + mm.assunto).join('\n') || 'Caixa vazia para essa busca.'; }
+        else if (nome === 'clima') { saida = JSON.stringify(await climaExtern(String(args.cidade || 'São Paulo'))); }
+        else return rcp({ error: { code: -32602, message: 'Ferramenta desconhecida: ' + nome } });
+        return rcp({ result: { content: [{ type: 'text', text: String(saida).slice(0, 8000) }] } });
+      } catch (e) { return rcp({ result: { isError: true, content: [{ type: 'text', text: String(e.message || e).slice(0, 500) }] } }); }
+    }
+    return rcp({ error: { code: -32601, message: 'Método não suportado: ' + (m || '?') } });
   }
 
   if (rota.startsWith('/api/')) {

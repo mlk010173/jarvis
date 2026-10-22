@@ -22,6 +22,10 @@ enviado por e-mail (10 min, uso único, reenvio com espera de 60 s). O remetente
 do ecossistema Base44 que usa o Gmail conectado do dono. **Sem essas variáveis o login continua funcionando
 normalmente, sem verificação** — degradação honesta, nunca bloqueia o usuário.
 
+## Hub de ferramentas
+
+`COMPOSIO_API_KEY` — chave do Composio (dashboard.composio.dev → Settings → Sessions & API Key). Liga o proxy `/api/composio/mcp` e a ferramenta `composio` (250+ apps, cobrança por chamada na carteira da conta).
+
 ## OAuth (login com Google, Discord e GitHub)
 
 Cada provedor só aparece na tela de login quando o par id+segredo está no ambiente

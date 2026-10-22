@@ -137,3 +137,10 @@ Varredura autenticada da API oficial (1157+ candidatos, discriminação 404 vs 4
 - Segurança: `abrirWeb`/ferramenta ABRIR agora aceita apenas **https público** — localhost, IPs privados (10.x, 127.x, 172.16-31.x, 192.168.x), link-local 169.254.x (metadados de nuvem) e http:// são bloqueados (anti-SSRF).
 - Rate limit: `POST /api/v1/chat` limitado a 20 chamadas por minuto por chave (429 acima disso).
 - Ollama no catálogo de IAs: base `http://127.0.0.1:11434/v1` — modelos locais no PC, grátis e privados.
+
+## MCP oficial + Composio (21/10/2026, v1.3.2)
+
+- `POST /mcp` — servidor MCP **oficial da spec** (modelcontextprotocol.io, JSON-RPC 2.0): `initialize`, `tools/list`, `tools/call` (ferramentas `pesquisar_web`, `abrir_url`, `email_buscar`, `clima`). Auth: `Authorization: Bearer <chave de projeto jv_...>` ou `{"token"}` da conta. Qualquer cliente MCP (Claude Desktop, Cursor, Claude Code etc.) conecta direto.
+- `POST /api/composio/mcp` — proxy autenticado ao hub **Composio** (250+ apps: Gmail, Calendar, Notion, Slack, GitHub...). Envia JSON-RPC de MCP (métodos permitidos: initialize, ping, tools/list, tools/call, notifications/initialized); a chave `COMPOSIO_API_KEY` fica no servidor. Exige login.
+- Ferramenta `composio` em `/api/mcp/executar`: `{ferramenta, args, busca}` executa meta-ferramentas do Composio (ex.: `COMPOSIO_SEARCH_TOOLS` com `busca:"gmail"`).
+- Conta Composio: nm424294@gmail.com, workspace nm424294 (carteira com $2 de crédito inicial; apps pagos cobram por chamada).
