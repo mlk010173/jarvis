@@ -137,11 +137,11 @@ Deno.serve(async (req) => {
           if (!hostPermitido(urlE)) throw new Error('Informe a URL https pública do site (http e rede interna são bloqueados).');
           const uE: any = new URL(urlE);
           const hostE = uE.hostname;
-          const est: any = (await dadoGet(email, 'espelho:' + hostE, null)) || { host: hostE, base: uE.origin, arquivos: {}, fila: [(uE.pathname === '/' || !uE.pathname ? 'index.html' : uE.pathname.replace(/^\//, ''))], paginas: 0, completo: false, truncado: false };
+          const est: any = (await dadoGet(email, 'espelho:' + hostE, null)) || { host: hostE, base: uE.origin, arquivos: {}, fila: [(uE.pathname === '/' || !uE.pathname ? '' : uE.pathname.replace(/^\//, ''))], paginas: 0, completo: false, truncado: false };
           const t0E = Date.now(); let nE = 0;
           while (est.fila.length && nE < 40 && Date.now() - t0E < 9000) {
             const alvo = String(est.fila.shift());
-            if (est.arquivos[alvo]) continue;
+            if (est.arquivos[alvo] && est.arquivos[alvo].t) continue;
             if (Object.keys(est.arquivos).length >= 300) { est.truncado = true; break; }
             try {
               const rE = await fetch(est.base + '/' + alvo, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128.0 Safari/537.36' } });
@@ -151,15 +151,15 @@ Deno.serve(async (req) => {
               const extE = (alvo.split('.').pop() || '').toLowerCase();
               const ehTexto = ['html', 'js', 'css', 'json', 'svg', 'txt', 'webmanifest', 'mjs', 'xml', 'map'].includes(extE) || tipoE.includes('html') || tipoE.includes('css') || tipoE.includes('javascript') || tipoE.includes('json');
               if (bufE.length > 1500 * 1024) { est.arquivos[alvo] = { erro: 'grande demais' }; continue; }
-              const caminhoE = tipoE.includes('html') && !/\.[A-Za-z0-9]{1,8}$/.test(alvo) ? alvo.replace(/\/+$/, '') + '/index.html' : alvo;
+              const caminhoE = tipoE.includes('html') && !/\.[A-Za-z0-9]{1,8}$/.test(alvo) ? (alvo ? alvo.replace(/\/+$/, '') + '/index.html' : 'index.html') : alvo;
               if (ehTexto) {
                 const txtE = new TextDecoder().decode(bufE);
                 if (txtE.length > 900 * 1024) { est.arquivos[alvo] = { erro: 'grande demais' }; continue; }
-                est.arquivos[alvo] = { t: 'txt', c: txtE, caminho: caminhoE };
+                est.arquivos[caminhoE] = { t: 'txt', c: txtE, caminho: caminhoE };
                 if (tipoE.includes('html')) est.paginas++;
                 for (const ref of refsDe(txtE)) { const al = alvoDe(ref, caminhoE, hostE); if (al && !est.arquivos[al] && !est.fila.includes(al) && est.fila.length < 500) est.fila.push(al); }
               } else {
-                est.arquivos[alvo] = bufE.length <= 400 * 1024 ? { t: 'bin', c: b64u8(bufE), n: bufE.length } : { t: 'bin', c: '', n: bufE.length };
+                est.arquivos[caminhoE] = bufE.length <= 400 * 1024 ? { t: 'bin', c: b64u8(bufE), n: bufE.length } : { t: 'bin', c: '', n: bufE.length };
               }
               nE++;
             } catch { est.arquivos[alvo] = { erro: 'falhou' }; }
