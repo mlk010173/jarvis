@@ -40,7 +40,7 @@ const PLANO = {
   limites: { ias_max: 10, modulos: 50, projetos: 100, memoria: 1000000 },
 };
 
-const VERSAO = '1.3.5';
+const VERSAO = '1.3.6';
 
 // ---------- v1.3.1/1.3.2 portadas: observabilidade, SSRF, rate limit, cripto BYOK ----------
 const PRECO_1M_USD: any[][] = [ [/gpt-4o-mini/, 0.15, 0.6], [/gpt-4o\b/, 2.5, 10], [/^o\d/, 1.25, 10], [/claude-3-5-haiku/, 0.8, 4], [/claude.*haiku/, 1, 5], [/claude.*sonnet/, 3, 15], [/gemini-2.0-flash/, 0.1, 0.4], [/gemini/, 0.3, 1.2], [/deepseek/, 0.14, 0.28], [/mistral-small/, 0.2, 0.6], [/grok/, 0.5, 2] ]; // entrada, saída por 1M tokens (estimativa)
@@ -700,7 +700,7 @@ Deno.serve(async (req) => {
     if (rota === '/api/health') return json({ ok: true, versao: VERSAO, backend: 'base44-deno', quando: new Date().toISOString() });
     if (rota === '/api/capabilities') return json({
       versao: VERSAO, backend: 'base44-deno',
-      funcional: ['conta-email-senha', 'sessoes-token-30d', 'byok-8-provedores-mais-ollama', 'listagem-de-modelos-por-provedor', 'chat-fallback-em-fila', 'modo-agente-pesquisa-bing-duckduckgo', 'abrir-url-com-guarda-ssrf', 'voz-elevenlabs-opcional', 'memoria-de-conta', 'projetos-assistentes-com-chave-sdk', 'painel-casa-ha', 'painel-financeiro', 'painel-leads', 'painel-logs', 'painel-monitor', 'painel-negocio', 'painel-fontes', 'briefing-noticias', 'mcp-simplificado-api-mcp', 'mcp-oficial-jsonrpc-em-mcp', 'sdk-publico-v1', 'monitor-de-ia-logs', 'log-de-execucao-por-mensagem', 'rate-limit-por-ip-e-chave', 'criptografia-byok-opcional'],
+      funcional: ['conta-email-senha', 'sessoes-token-30d', 'byok-8-provedores-mais-ollama', 'listagem-de-modelos-por-provedor', 'chat-fallback-em-fila', 'modo-agente-pesquisa-bing-duckduckgo', 'abrir-url-com-guarda-ssrf', 'voz-elevenlabs-opcional', 'memoria-de-conta', 'projetos-assistentes-com-chave-sdk', 'painel-casa-ha', 'painel-financeiro', 'painel-leads', 'painel-logs', 'painel-monitor', 'painel-negocio', 'painel-fontes', 'briefing-noticias', 'mcp-simplificado-api-mcp', 'mcp-oficial-jsonrpc-em-mcp', 'sdk-publico-v1', 'monitor-de-ia-logs', 'log-de-execucao-por-mensagem', 'motor-de-tarefas-autonomas', 'memoria-controlada-consulta-salva-apaga', 'rate-limit-por-ip-e-chave', 'criptografia-byok-opcional'],
       pendentes: {
         oauth_google: 'requer GOOGLE_CLIENT_ID/SECRET criados pelo dono no Google Cloud e no ambiente do backend',
         oauth_discord: 'requer DISCORD_CLIENT_ID/SECRET',
@@ -915,8 +915,21 @@ Deno.serve(async (req) => {
     if (rota === '/api/comercial/planos') return json({ planos: [{ id: 'jarvis', nome: 'JARVIS', publico: 'Versão web aberta do projeto — tudo liberado', preco_centavos: 0, precos: null }] });
 
 if (rota === '/api/novidades') return json({
-      gerado: new Date().toISOString(), atual: '1.3.5',
+      gerado: new Date().toISOString(), atual: '1.3.6',
       versoes: [
+        {
+          versao: '1.3.6', data: '2026-10-22', resumo: 'Motor de execução autônoma: o JARVIS planeja tarefas, executa com ferramentas reais, verifica por evidências e pede aprovação para ações sensíveis.',
+          secoes: [
+            { titulo: 'Novo', itens: [
+              'Comando /tarefa [objetivo]: o JARVIS planeja e executa tarefas com 12 ferramentas reais (pesquisa, páginas, clima, câmbio, cripto, wiki, feriados, GitHub, novidades e memória)',
+              'Limites reais por etapa: tempo, tentativas e etapas por rodada; recuperação de falha com tentativa extra e fallback',
+              'Verificação por evidências reais: a IA avalia o resultado com as evidências na mão (sem IA, verificação determinística honesta)',
+              'Aprovação humana obrigatória antes de ações sensíveis (ex.: apagar a memória) e cancelamento com resultados parciais preservados',
+              'Memória controlada: /api/memoria para consultar, salvar e apagar, isolada por conta',
+              'Arquitetura: o motor roda na função dedicada jarvisTarefas; o chat integra pelo painel de execução v1.3.5',
+            ] },
+          ],
+        },
         {
           versao: '1.3.5', data: '2026-10-22', resumo: 'Log de execução: cada resposta mostra as etapas reais do agente (modelo, ferramentas, fallback), com painel retrátil ao vivo.',
           secoes: [

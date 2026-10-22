@@ -243,13 +243,49 @@
   function desenharAtalhos() { $('#quick').replaceChildren(...ATALHOS.map((t) => el('button', { type: 'button', class: 'chip', onclick: () => enviar(t) }, t))); }
 
   // ---------- comandos reais (dados abertos ao vivo, sem IA) ----------
+  async function tarefaFlow(objetivo, o) {
+    const a = agente(); const lista = conversa(a.id);
+    lista.push({ role: 'user', texto: '/tarefa ' + objetivo, ts: Date.now() }); guardarConversa(a.id, lista); desenharConversa();
+    const pensando = el('div', { class: 'msg bot pensando' }, el('div', { class: 'bubble' }, el('i', { class: 'spin' }), ' Planejando e executando a tarefa…'));
+    $('#messages').append(pensando); $('#messages').scrollTop = 1e9;
+    const EX = window.JARVIS_EXEC;
+    let painelT = null; let t = null; let parada = false; let btnAprov = null;
+    if (EX) { try { painelT = EX.painelDOM({ status: 'em_andamento', passos: [] }, { aberto: true, aoVivo: true, aoParar: () => { parada = true; } }); pensando.append(painelT); } catch { painelT = null; } }
+    const stMap = { concluida: 'concluido', parcial: 'parcial', falhou: 'falhou', cancelada: 'cancelado' };
+    const paraPainel = (tt) => tt ? { execution_id: tt.id, status: stMap[tt.estado] || 'em_andamento', inicio: tt.criado_em, fim: tt.fim, duracao_ms: tt.duracao_ms, ia_final: null, modelo_final: null, tokens_entrada: null, tokens_saida: null, ferramentas: (tt.plano?.etapas || []).map((e) => e.ferramenta), falhas: tt.falhas || [], passos: tt.passos || [] } : null;
+    const atualizar = () => { try { if (painelT?.atualizar && t) painelT.atualizar(paraPainel(t)); } catch { } };
+    try {
+      let r = await api('/api/tarefas', 'POST', { objetivo, projeto_id: a.id });
+      t = r.tarefa; atualizar();
+      while (!parada && ['planejando', 'executando', 'aguardando_aprovacao'].includes(t.estado)) {
+        if (t.estado === 'aguardando_aprovacao') {
+          if (!btnAprov) { btnAprov = el('button', { class: 'exec-parar', onclick: async () => { try { const ra = await api('/api/tarefas/' + t.id + '/aprovar', 'POST'); t = ra.tarefa; btnAprov?.remove(); btnAprov = null; } catch (err) { toast(err.message || 'Falha ao aprovar'); } } }, 'Aprovar etapa sensível'); try { painelT?.append(btnAprov); } catch { } }
+          await new Promise((r2) => setTimeout(r2, 1500));
+          r = await api('/api/tarefas/' + t.id); t = r.tarefa; atualizar(); continue;
+        }
+        r = await api('/api/tarefas/' + t.id + '/rodar', 'POST'); t = r.tarefa; atualizar();
+      }
+      if (parada) { try { r = await api('/api/tarefas/' + t.id + '/cancelar', 'POST'); t = r.tarefa; } catch { } atualizar(); }
+      pensando.remove();
+      const linhas = (t.plano?.etapas || []).map((e2) => e2.id + ' ' + e2.ferramenta + ': ' + (e2.status === 'concluida' ? '✔ ' + String(e2.resultado || '').slice(0, 120) : (e2.status === 'falhou' ? '✖ ' + (e2.erro || 'falhou') : e2.status)));
+      lista.push({ role: 'assistant', texto: '*Tarefa:* ' + objetivo + '\n' + (t.resumo || 'Encerrada.') + (linhas.length ? '\n' + linhas.join('\n') : ''), ts: Date.now(), execucao: paraPainel(t) });
+      guardarConversa(a.id, lista); desenharConversa();
+      if (S.legendas || !S.voz) legenda(legendaDe(t.resumo || 'Tarefa encerrada'));
+      falar(t.resumo || 'Tarefa encerrada.', () => { if (S.continua && o.voz) setTimeout(ouvir, 400); });
+    } catch (e2) {
+      pensando.remove();
+      lista.push({ role: 'assistant', erro: true, texto: e2.message === 'login' ? 'Entre na sua conta para usar tarefas.' : 'Tarefa falhou: ' + e2.message, ts: Date.now() });
+      guardarConversa(a.id, lista); desenharConversa();
+    }
+  }
+
   async function comandos(t) {
     const tx = t.trim().toLowerCase();
     const m = /^\/?([a-zà-ú]+)\s*(.*)$/.exec(tx); if (!m) return null;
     const c = m[1]; const arg = t.trim().slice(m[1].length).trim();
     const pedir = async (rota) => { try { return await api(rota); } catch (e) { return { erro: e.message }; } };
     const ok = (r) => r && !r.erro;
-    if (c === 'ajuda' || c === 'comandos') return 'Comandos reais do JARVIS (dados ao vivo): /clima [cidade] · /moeda [USD] [BRL] · /cripto [bitcoin, ethereum, solana, cardano, dogecoin] · /wiki [termo] · /feriados [ano] · /github · /pesquisar [termo] · /abrir [endereço] · /voz (voz de estúdio ElevenLabs) · com IA conectada, o modo Agente pesquisa sozinho.';
+    if (c === 'ajuda' || c === 'comandos') return 'Comandos reais do JARVIS (dados ao vivo): /clima [cidade] · /moeda [USD] [BRL] · /cripto [bitcoin, ethereum, solana, cardano, dogecoin] · /wiki [termo] · /feriados [ano] · /github · /pesquisar [termo] · /abrir [endereço] · /voz (voz de estúdio ElevenLabs) · /tarefa [objetivo] (planeja e executa com ferramentas reais) · /tarefas (lista as suas tarefas) · com IA conectada, o modo Agente pesquisa sozinho.';
     if (c === 'voz') {
       const sub = arg.split(' ')[0]; const resto = arg.slice(sub.length).trim();
       const cfgVoz = async (corpoV) => api('/api/voz/config', 'PUT', corpoV);
@@ -260,6 +296,7 @@
       if (sub === 'usar') { if (!resto) return 'Informe o ID: /voz usar ID-DA-VOZ.'; try { await cfgVoz({ voz_id: resto }); return 'Voz atualizada.'; } catch (e) { return 'Voz: ' + e.message; } }
       return 'Voz: /voz status, on, off, chave SUA-CHAVE, vozes, usar ID.';
     }
+    if (c === 'tarefas') { const r = await pedir('/api/tarefas'); if (!ok(r)) return 'Tarefas: ' + (r.erro || 'indisponível.'); const ls = (r.tarefas || []).slice(0, 8); return ls.length ? 'Suas tarefas:\n' + ls.map((x) => '• ' + x.objetivo.slice(0, 60) + ' — ' + x.estado).join('\n') : 'Nenhuma tarefa ainda. Use /tarefa [objetivo].'; }
     if (c === 'pesquisar' || c === 'busca' || c === 'buscar') {
       if (!arg) return 'Pesquisa: informe o termo (ex.: /pesquisar lançamentos de foguete).';
       const r = await pedir('/api/web/pesquisar?q=' + encodeURIComponent(arg));
@@ -283,6 +320,7 @@
     texto = String(texto || '').trim(); if (!texto) return;
     if (S.busy) return;
     pararFala();
+    if (/^\/(tarefa|task|fazer)\s+\S/i.test(texto)) return await tarefaFlow(texto.replace(/^\/\S+\s+/, ''), o);
     const cmd = await comandos(texto);
     if (cmd != null) {
       const a0 = agente(); const l0 = conversa(a0.id);

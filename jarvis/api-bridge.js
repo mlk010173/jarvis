@@ -14,6 +14,9 @@
     var m = /^(?:[a-z]+:\/\/[^\/]+)?(\/api\/[^#]*)/.exec(u);
     if (!m) return original(url, opts);
     var rota = m[1];
+    // v1.3.6: rotas do motor de tarefas autonomous na funcao dedicada jarvisTarefas (mesmo envelope e banco)
+    var TAREFAS = /^\/api\/(tarefas|memoria)(\/|$)/;
+    var alvo = TAREFAS.test(rota) ? 'https://superagent-6e379590.base44.app/functions/jarvisTarefas' : BACKEND;
     var metodo = (opts && opts.method) || 'GET';
     var corpo = null;
     if (opts && opts.body) { try { corpo = JSON.parse(opts.body); } catch (e) { corpo = {}; } }
@@ -21,7 +24,7 @@
     // sem espera infinita: se o servidor não responder em 20s, devolve erro claro (não trava o celular)
     var ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
     var tempo = setTimeout(function () { if (ctl) ctl.abort(); }, 20000);
-    return original(BACKEND, {
+    return original(alvo, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ rota: rota, metodo: metodo, corpo: corpo, token: token }),

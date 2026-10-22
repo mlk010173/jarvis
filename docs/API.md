@@ -191,3 +191,16 @@ Cada resposta do chat agora carrega o rastro real do que o agente fez (`execucao
 - O chat continua funcionando se o painel falhar (render do painel está em try/catch)
 
 Limite conhecido: cancelamento é só no cliente; o backend conclui a execução e grava o estado real dela.
+
+## v1.3.6 — Motor de execução autônoma (22/10/2026)
+
+Função `jarvisTarefas` (mesmo envelope `{rota, metodo, corpo, token}` e mesmo banco):
+
+- `POST /api/tarefas` `{objetivo, projeto_id, plano?}` — com IA conectada, gera o plano (JSON com etapas e dependências); `plano` manual aceito (`etapas[{id, ferramenta, args, depende_de, limite_ms?}]`); valida ferramentas contra o catálogo de 12
+- `POST /api/tarefas/{id}/rodar` — executa até 3 etapas prontas (~14 s); retorna o estado com `passos` no MESMO formato do log de execução v1.3.5
+- `POST /api/tarefas/{id}/aprovar` — libera etapa sensível (tarefa em `aguardando_aprovacao`)
+- `POST /api/tarefas/{id}/cancelar` — marca pendentes como canceladas e preserva as concluídas
+- `GET /api/tarefas` (últimas 30) · `GET /api/tarefas/{id}` · `DELETE /api/tarefas/{id}`
+- `GET|POST|DELETE /api/memoria` — consultar, salvar e apagar a memória da conta
+- Estados: `planejando | executando | aguardando_aprovacao | concluida | parcial | falhou | cancelada`
+- Isolamento por e-mail da sessão; segredos sanitizados na gravação e na leitura.
