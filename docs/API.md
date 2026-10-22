@@ -144,3 +144,28 @@ Varredura autenticada da API oficial (1157+ candidatos, discriminação 404 vs 4
 - `POST /api/composio/mcp` — proxy autenticado ao hub **Composio** (250+ apps: Gmail, Calendar, Notion, Slack, GitHub...). Envia JSON-RPC de MCP (métodos permitidos: initialize, ping, tools/list, tools/call, notifications/initialized); a chave `COMPOSIO_API_KEY` fica no servidor. Exige login.
 - Ferramenta `composio` em `/api/mcp/executar`: `{ferramenta, args, busca}` executa meta-ferramentas do Composio (ex.: `COMPOSIO_SEARCH_TOOLS` com `busca:"gmail"`).
 - Conta Composio: nm424294@gmail.com, workspace nm424294 (carteira com $2 de crédito inicial; apps pagos cobram por chamada).
+
+## Saúde, capacidades e monitor (v1.3.3, 21/10/2026)
+
+- `GET /api/health` — versão e estado do backend
+- `GET /api/capabilities` — lista do que está funcional e o que está pendente com o motivo real (nunca finge)
+- `GET /api/logs/ia` — últimas 120 execuções de IA (latência, tokens, custo estimado, erro)
+- `GET /api/logs/ia/resumo` — agregado do mês por modelo
+
+## SDK público v1 + chaves de projeto (v1.3.3)
+
+- `GET|POST|DELETE /api/projetos/{id}/chaves` — dono lista (mascarada), cria e revoga chaves `jarvis_sk_...`
+- `POST /api/v1/chat` — header `Authorization: Bearer jarvis_sk_...`; usa a fila de IAs do dono do projeto; rate limit 20/min por chave
+- `GET /api/v1/projeto` — metadados do projeto dono da chave
+
+## MCP oficial (JSON-RPC 2.0, v1.3.3)
+
+- `POST /mcp` — métodos `initialize`, `ping`, `tools/list`, `tools/call`
+  - Auth: header `Authorization: Bearer jarvis_sk_...` ou `params.token` da conta
+  - Ferramentas: `pesquisar_web` (Bing→DuckDuckGo), `abrir_url` (com guarda anti-SSRF), `clima`, `moeda`
+
+## Estados honestos (v1.3.3)
+
+- `POST /api/composio/mcp` — 501 até existir `COMPOSIO_API_KEY` no ambiente
+- `POST /api/email/caixa` / `POST /api/email/ler` — 501 até existir conector de e-mail configurado
+- Segurança nova: rate limit em cadastro (10/min por IP), login (12/min por IP) e v1/chat (20/min por chave); ABRIR bloqueia http/localhost/redes privadas (anti-SSRF); chaves BYOK podem ser cifradas em repouso com AES-256-GCM via `JARVIS_MASTER_KEY`.

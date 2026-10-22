@@ -66,3 +66,11 @@ GitHub  : https://jarvis-backend-7949.onrender.com/api/conta/github/callback
 
 `JARVIS_URL` — o resto depende de credenciais que só o dono cria no console de cada provedor
 (o botão correspondente acende sozinho quando o par entrar no ambiente).
+
+## Cifra de chaves de IA em repouso (v1.3.3)
+
+`JARVIS_MASTER_KEY` — se existir no ambiente da função Base44, as chaves BYOK dos usuários são gravadas cifradas com AES-256-GCM (derivação SHA-256). Sem ela, ficam em texto puro e o `GET /api/capabilities` avisa `byok_cifrado: inativo`. Escolha um valor longo e aleatório (ex.: 32+ chars) e NUNCA troque sem re-salvar as chaves dos usuários (a troca quebra a decifragem das chaves antigas).
+
+## Como o backend Base44 carrega o código (v1.3.3)
+
+A função `jarvisApi` é um bootstrap que importa `https://cdn.jsdelivr.net/gh/mlk010173/jarvis@main/base44/jarvisApi.js` (build do `base44/jarvisApi.ts`). Após um push no repo, o CDN pode levar até ~12h para atualizar o branch main — para deploy imediato, fixe a URL na tag do commit (`@<hash>`).
